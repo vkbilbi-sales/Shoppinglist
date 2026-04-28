@@ -1,9 +1,15 @@
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>רכישות כדאיות</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="רכישות כדאיות">
+<meta name="theme-color" content="#2AACA0">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -33,7 +39,7 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
 
 .card{background:#fff;border:1.5px solid var(--border);border-radius:18px;padding:1.2rem 1.3rem;margin-bottom:1rem;box-shadow:0 2px 12px var(--shadow);animation:fu .35s ease both;}
 @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.slabel{font-size:.7rem;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);font-weight:700;margin-bottom:.85rem;display:flex;align-items:center;gap:.4rem;}
+.slabel{font-size:1rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800;margin-bottom:.85rem;display:flex;align-items:center;gap:.4rem;}
 .slabel::after{content:'';flex:1;height:1px;background:var(--border);}
 
 .f{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.7rem;}
@@ -50,13 +56,14 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
 .sup-grid{display:flex;flex-wrap:wrap;gap:.5rem;}
 .sup-chip{display:inline-flex;align-items:center;gap:.3rem;background:#fff;border:2px solid var(--border);border-radius:50px;padding:.4rem .85rem;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;color:var(--ink);}
 .sup-chip:hover{border-color:var(--teal);background:var(--teal-light);color:var(--teal-dark);}
-.sup-chip.added{background:var(--teal-light);border-color:var(--teal);color:var(--teal-dark);opacity:.5;}
+.sup-chip.added{background:var(--teal-light);border-color:var(--teal);color:var(--teal-dark);opacity:.85;}.sup-chip.added:hover{background:#fde8e8;border-color:var(--coral);color:var(--coral);}
 .sup-chip .chip-plus{color:var(--teal);font-size:1.1rem;font-weight:900;}
 
 /* ── Selected suppliers (bottom section) ── */
-.sup-selected{background:linear-gradient(135deg,#E0F7F4,#EEF7E4);border:2px solid var(--teal);border-radius:14px;padding:.9rem;min-height:60px;}
-.sup-selected-title{font-size:.75rem;font-weight:700;color:var(--teal-dark);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
-.sup-selected-empty{font-size:.88rem;color:var(--muted);text-align:center;padding:.5rem 0;}
+.sup-selected{background:linear-gradient(135deg,#FFF0F2,#FFE4E8);border:3px solid #E8394F;border-radius:14px;padding:.9rem;min-height:60px;}
+.sup-selected-title{font-size:1.2rem;font-weight:900;color:#C0182E;letter-spacing:.03em;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+.sup-selected-empty{font-size:1rem;color:#E8394F;opacity:.6;text-align:center;padding:.5rem 0;}
+.cbw input:checked+label{background:#E8394F;border-color:#E8394F;}
 
 /* ── Collection rows ── */
 .col-row{display:flex;align-items:center;gap:.6rem;padding:.75rem .3rem;border-bottom:1px solid rgba(42,172,160,0.15);}
@@ -68,9 +75,9 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
 .cbw input:checked+label{background:var(--teal);border-color:var(--teal);}
 .cbw input:checked+label::after{content:'✓';color:#fff;font-weight:900;}
 .col-name{font-weight:700;font-size:1rem;flex:1;color:var(--ink);}
-.ninp{width:95px;flex-shrink:0;border:none;border-bottom:2px solid rgba(42,172,160,0.25);background:transparent;font-family:'Heebo',sans-serif;font-size:.83rem;color:var(--muted);outline:none;padding:.1rem .25rem;direction:rtl;}
-.ninp:focus{border-color:var(--orange);color:var(--ink);}
-.ninp::placeholder{color:#B8D8D5;}
+.ninp{width:105px;flex-shrink:0;border:1.5px solid var(--border);border-radius:7px;background:#FFFBF0;font-family:'Heebo',sans-serif;font-size:.85rem;color:var(--ink);outline:none;padding:.3rem .5rem;direction:rtl;}
+.ninp:focus{border-color:var(--orange);background:#fff;}
+.ninp::placeholder{color:#B8A070;font-weight:600;}
 .rem-btn{flex-shrink:0;background:none;border:none;cursor:pointer;color:#B8D8D5;font-size:1.1rem;padding:.15rem;transition:color .2s;}
 .rem-btn:hover{color:var(--coral);}
 
@@ -136,6 +143,31 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
 .login-wrap input:focus{border-color:var(--teal);}
 .lerr{color:var(--coral);font-size:.88rem;}
 
+/* ── Onboarding ── */
+.onboard{position:fixed;inset:0;background:rgba(26,58,56,0.92);z-index:900;display:flex;align-items:center;justify-content:center;padding:1.5rem;animation:fadeIn .4s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.onboard-box{background:#fff;border-radius:24px;padding:1.8rem 1.5rem;max-width:400px;width:100%;text-align:center;max-height:90vh;overflow-y:auto;}
+.onboard-logo{width:70px;height:70px;border-radius:50%;object-fit:cover;margin-bottom:.8rem;border:3px solid var(--teal);}
+.onboard-title{font-size:1.4rem;font-weight:900;color:var(--teal-dark);margin-bottom:.3rem;}
+.onboard-sub{font-size:.88rem;color:var(--muted);margin-bottom:1.3rem;}
+.step-cards{display:flex;flex-direction:column;gap:.7rem;margin-bottom:1.3rem;text-align:right;}
+.step-card{background:var(--cream);border-radius:14px;padding:.85rem 1rem;display:flex;align-items:flex-start;gap:.75rem;border:1.5px solid var(--border);}
+.step-icon{font-size:1.8rem;flex-shrink:0;line-height:1;}
+.step-text h4{font-size:.95rem;font-weight:900;color:var(--ink);margin-bottom:.2rem;}
+.step-text p{font-size:.82rem;color:var(--muted);line-height:1.5;}
+.btn-start{background:linear-gradient(135deg,var(--teal),var(--green));color:#fff;border:none;border-radius:14px;padding:.9rem 2rem;font-family:'Heebo',sans-serif;font-size:1.1rem;font-weight:900;cursor:pointer;width:100%;box-shadow:0 4px 16px rgba(42,172,160,.3);}
+.onboard-skip{display:block;margin-top:.7rem;font-size:.82rem;color:var(--muted);cursor:pointer;background:none;border:none;font-family:'Heebo',sans-serif;width:100%;}
+
+/* ── Help button ── */
+.help-btn{position:fixed;bottom:1.5rem;left:1.2rem;width:46px;height:46px;background:var(--teal);color:#fff;border:none;border-radius:50%;font-size:1.3rem;font-weight:900;cursor:pointer;box-shadow:0 3px 12px rgba(42,172,160,.4);z-index:800;transition:transform .2s;}
+.help-btn:hover{transform:scale(1.1);}
+.help-panel{position:fixed;bottom:5rem;left:1.2rem;background:#fff;border:2px solid var(--border);border-radius:16px;padding:1.1rem;width:260px;box-shadow:0 6px 24px var(--shadow);z-index:800;display:none;animation:fu .3s ease;}
+.help-panel.show{display:block;}
+.help-panel h4{font-size:.95rem;font-weight:900;color:var(--teal-dark);margin-bottom:.7rem;}
+.help-panel ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;}
+.help-panel li{font-size:.83rem;color:var(--ink);display:flex;gap:.5rem;align-items:flex-start;}
+.help-close{position:absolute;top:.6rem;left:.6rem;background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--muted);}
+
 .page{display:none;}
 .page.on{display:block;}
 
@@ -156,12 +188,97 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
 
 <div class="sbar"><div class="sdot" id="sdot"></div><span id="stext">מתחבר...</span></div>
 
+<!-- ══ ONBOARDING SCREEN ══ -->
+<div class="onboard" id="onboard" style="display:none;">
+  <div class="onboard-box">
+    <img class="onboard-logo" id="onboard-logo" alt="רכישות כדאיות">
+    <div class="onboard-title">ברוכים הבאים! 🌿</div>
+    <div class="onboard-sub">רכישות כדאיות — כי באנו לעשות טוב ❤️</div>
+    <div class="step-cards">
+      <div class="step-card">
+        <div class="step-icon">👤</div>
+        <div class="step-text"><h4>שלב 1 — הכניסי את שמך</h4><p>השם יופיע על הרשימה שתשלחי לבן/בת הזוג ולשליח</p></div>
+      </div>
+      <div class="step-card">
+        <div class="step-icon">🚗</div>
+        <div class="step-text"><h4>שלב 2 — איסוף עצמי או שליח?</h4><p>בחרי איסוף עצמי או שליח בתשלום. אם שליח — מלאי את פרטי המשלוח</p></div>
+      </div>
+      <div class="step-card">
+        <div class="step-icon">📍</div>
+        <div class="step-text"><h4>שלב 3 — בחרי נקודת חלוקה</h4><p>בחרי את הנקודה הקרובה אלייך — השעה והכתובת יתמלאו אוטומטית</p></div>
+      </div>
+      <div class="step-card">
+        <div class="step-icon">🌱</div>
+        <div class="step-text"><h4>שלב 4 — בחרי ספקים</h4><p>לחצי על שם הספק להוסיף לרשימה. ניתן להוסיף הערה ליד כל ספק</p></div>
+      </div>
+      <div class="step-card">
+        <div class="step-icon">✅</div>
+        <div class="step-text"><h4>שלב 5 — באיסוף סמני וי</h4><p>בעת האיסוף סמני ✓ ליד כל ספק שאספת כדי לא לשכוח!</p></div>
+      </div>
+      <div class="step-card">
+        <div class="step-icon">📱</div>
+        <div class="step-text"><h4>שלב 6 — שתפי</h4><p>שלחי את הרשימה לבן/בת הזוג או לשליח בוואטסאפ בלחיצה אחת</p></div>
+      </div>
+    </div>
+    <button class="btn-start" onclick="closeOnboard()">🛒 בואו נתחיל!</button>
+    <button class="onboard-skip" onclick="closeOnboard()">דלגי על ההדרכה</button>
+  </div>
+</div>
+
+<!-- ══ HELP BUTTON ══ -->
+<button class="help-btn" onclick="toggleHelp()">?</button>
+<div class="help-panel" id="help-panel">
+  <button class="help-close" onclick="toggleHelp()">✕</button>
+  <h4>💡 איך משתמשים?</h4>
+  <ul>
+    <li>👤 <span>הכניסי שם מלא בראש הדף</span></li>
+    <li>🚗 <span>בחרי איסוף עצמי או שליח</span></li>
+    <li>📍 <span>בחרי נקודת חלוקה</span></li>
+    <li>🌱 <span>לחצי על ספק להוסיף לרשימה</span></li>
+    <li>✏️ <span>הוסיפי הערה ליד כל ספק</span></li>
+    <li>✅ <span>באיסוף — סמני וי שאספת</span></li>
+    <li>📱 <span>שלחי לבן/בת זוג או שליח</span></li>
+    <li>🔄 <span>איפוס — מתחילים מחדש</span></li>
+  </ul>
+  <div style="margin-top:.8rem;padding-top:.7rem;border-top:1px solid var(--border);">
+    <button class="btn bt bsm bfull" onclick="sendWAGuide()" style="font-size:.85rem;">📲 שלח מדריך בוואטסאפ</button>
+  </div>
+</div>
+
 <!-- ══ CUSTOMER PAGE ══ -->
 <div class="page on" id="page-c">
 
   <div class="name-banner">
     <label>👤 השם שלי:</label>
-    <input type="text" id="c-name" placeholder="הכניסי את שמך..." oninput="saveName()">
+    <input type="text" id="c-name" placeholder="שם מלא (חובה) *" oninput="saveName()" required>
+    <button class="btn bsm" style="background:none;border:1.5px solid #F5C87A;color:#7A5200;font-size:.8rem;white-space:nowrap;" onclick="resetAll()">🔄 איפוס</button>
+  </div>
+
+  <!-- Delivery type selection -->
+  <div class="card" style="border:2px solid var(--border);">
+    <div class="slabel">🚗 אופן קבלת ההזמנה</div>
+    <div style="display:flex;gap:.7rem;">
+      <button id="btn-self" class="btn bfull" style="padding:.75rem;font-size:1rem;background:#E0F7F4;color:var(--teal-dark);border:2.5px solid var(--border);border-radius:12px;" onclick="setDeliveryType('self')">
+        🚶 איסוף עצמי
+      </button>
+      <button id="btn-courier" class="btn bfull" style="padding:.75rem;font-size:1rem;background:#FFF0F2;color:#C0182E;border:2.5px solid var(--border);border-radius:12px;" onclick="setDeliveryType('courier')">
+        🚚 שליח בתשלום
+      </button>
+    </div>
+
+    <!-- Courier fields (hidden by default) -->
+    <div id="courier-fields" style="display:none;margin-top:1rem;border-top:1.5px solid var(--border);padding-top:1rem;">
+      <div style="font-size:.88rem;font-weight:800;color:#C0182E;margin-bottom:.8rem;">🚚 פרטי משלוח לשליח</div>
+      <div class="f"><label>טלפון <span class="req">*</span></label><input type="tel" id="d-phone" placeholder="05X-XXXXXXX" oninput="saveCourierFields()"></div>
+      <div class="f"><label>נקודת איסוף <span class="req">*</span></label><select id="d-point" onchange="saveCourierFields()"><option value="">-- בחרי --</option></select></div>
+      <div class="f"><label>רחוב ומספר <span class="req">*</span></label><input type="text" id="d-street" placeholder="רחוב הרצל 12" oninput="saveCourierFields()"></div>
+      <div class="g2">
+        <div class="f"><label>דירה <span class="req">*</span></label><input type="text" id="d-apt" placeholder="3" oninput="saveCourierFields()"></div>
+        <div class="f"><label>קומה</label><input type="text" id="d-floor" placeholder="2" oninput="saveCourierFields()"></div>
+      </div>
+      <div class="f"><label>קוד כניסה</label><input type="text" id="d-code" placeholder="1234#" oninput="saveCourierFields()"></div>
+      <div class="f"><label>הערות לשליח</label><textarea id="d-notes" placeholder="הניחו ליד הדלת..." oninput="saveCourierFields()"></textarea></div>
+    </div>
   </div>
 
   <!-- Pickup point -->
@@ -187,21 +304,37 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
   </div>
 
   <!-- Suppliers -->
-  <div class="card">
-    <div class="slabel">🌱 בחירת ספקים</div>
+  <div class="card" style="border:2.5px solid var(--teal);">
+    <div class="slabel" style="font-size:1.1rem;color:var(--teal-dark);font-weight:900;">🌱 היצרנים שמגיעים השבוע</div>
 
     <!-- Available suppliers -->
     <div class="sup-available">
-      <div class="sup-available-title">לחצי להוסיף לרשימה 👇</div>
+      <div class="sup-available-title" style="font-size:.9rem;font-weight:800;color:var(--ink);display:flex;justify-content:space-between;align-items:center;">
+        <span>לחצי על ספק להוסיף לרשימה שלי 👇</span>
+        <span id="avail-count" style="font-size:.8rem;color:var(--muted);font-weight:600;"></span>
+      </div>
       <div class="sup-grid" id="sup-available-list"></div>
     </div>
 
     <!-- Selected suppliers -->
     <div class="sup-selected">
       <div class="sup-selected-title">
-        🛒 הרשימה שלי
-        <span id="sel-count" style="background:var(--teal);color:#fff;border-radius:50px;padding:.1rem .5rem;font-size:.72rem;">0</span>
+        🛒 רשימת הקניות שלי לשבוע
+        <span id="sel-count" style="background:#E8394F;color:#fff;border-radius:50px;padding:.15rem .6rem;font-size:.8rem;font-weight:900;">0</span>
+        <span id="sel-of-total" style="font-size:.8rem;color:#C0182E;font-weight:600;margin-right:.2rem;"></span>
       </div>
+
+      <!-- Instructions -->
+      <div style="background:#FFFBF0;border:1.5px solid #F5C87A;border-radius:12px;padding:.85rem 1rem;margin-bottom:.8rem;">
+        <div style="font-size:.88rem;font-weight:800;color:#7A5200;margin-bottom:.4rem;">💡 הוראות שימוש:</div>
+        <div style="font-size:.85rem;color:#7A5200;line-height:1.6;">
+          • לחצי על שם הספק למעלה כדי להוסיף לרשימה<br>
+          • ניתן להוסיף הערה ליד כל ספק (כמות, בקשה מיוחדת וכו׳)<br>
+          • <strong>בעת האיסוף</strong> — סמני ✓ ליד כל ספק שאספת כדי לא לשכוח אף אחד!<br>
+          • לחצי ✕ להסרת ספק מהרשימה
+        </div>
+      </div>
+
       <div id="sup-selected-list">
         <div class="sup-selected-empty">עדיין לא בחרת ספקים — לחצי למעלה להוסיף</div>
       </div>
@@ -213,7 +346,8 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
         <span>✅ נאספו: <strong id="c-done">0</strong></span>
       </div>
     </div>
-  </div>
+
+    </div>
 
   <!-- Share -->
   <div class="card">
@@ -223,25 +357,11 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
       <button class="btn bo bsm" style="flex:1;" onclick="shareSpouse()">💑 שלח לבן/בת זוג</button>
     </div>
     <div style="margin-top:.7rem;">
-      <button class="btn bc bfull" onclick="toggleDform()">🚚 שלחי לשליח — מלאי פרטים</button>
-    </div>
-    <div class="dform" id="dform">
-      <h3>🚚 פרטי משלוח לשליח</h3>
-      <div class="f"><label>שם מלא <span class="req">*</span></label><input type="text" id="d-name" placeholder="שם ושם משפחה"></div>
-      <div class="f"><label>טלפון <span class="req">*</span></label><input type="tel" id="d-phone" placeholder="05X-XXXXXXX"></div>
-      <div class="f"><label>נקודת איסוף <span class="req">*</span></label><select id="d-point"><option value="">-- בחרי --</option></select></div>
-      <div class="f"><label>רחוב ומספר <span class="req">*</span></label><input type="text" id="d-street" placeholder="רחוב הרצל 12"></div>
-      <div class="g2">
-        <div class="f"><label>דירה <span class="req">*</span></label><input type="text" id="d-apt" placeholder="3"></div>
-        <div class="f"><label>קומה</label><input type="text" id="d-floor" placeholder="2"></div>
-      </div>
-      <div class="f"><label>קוד כניסה</label><input type="text" id="d-code" placeholder="1234#"></div>
-      <div class="f"><label>הערות לשליח</label><textarea id="d-notes" placeholder="הניחו ליד הדלת..."></textarea></div>
-      <button class="btn bc bfull" onclick="sendDelivery()">📱 שלחי לשליח בוואטסאפ</button>
+      <button class="btn bc bfull" onclick="sendDelivery()">📱 שלחי רשימה בוואטסאפ</button>
     </div>
   </div>
 
-</div>
+
 
 <!-- ══ ADMIN PAGE ══ -->
 <div class="page" id="page-a">
@@ -267,7 +387,7 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
     </div>
 
     <div class="card">
-      <div class="slabel">🌱 ספקים — בחרי מי פעיל השבוע</div>
+      <div class="slabel">🌱 ספקים — בחרי מי פעיל השבוע <span id="admin-prod-count" style="font-size:.8rem;color:var(--teal);font-weight:600;"></span></div>
       <div id="a-prods"></div>
       <div class="arow">
         <input class="ainp" id="new-prod" placeholder="ספק חדש..." onkeydown="if(event.key==='Enter')addProd()">
@@ -298,6 +418,19 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
     </div>
 
     <button class="btn bc bsm" onclick="doLogout()">🔓 התנתקות</button>
+
+    <!-- Report -->
+    <div class="card" style="margin-top:1rem;">
+      <div class="slabel">📊 דוח לקוחות</div>
+      <div style="display:flex;gap:.5rem;margin-bottom:.9rem;flex-wrap:wrap;">
+        <button class="btn bt bsm" onclick="loadReport()">🔄 רענן דוח</button>
+        <button class="btn bg bsm" onclick="exportExcel()">📥 ייצוא לאקסל</button>
+      </div>
+      <div id="report-list">
+        <div style="color:var(--muted);font-size:.88rem;">לחצי "רענן דוח" לטעינה</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -305,7 +438,7 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
 <div class="toast" id="toast"></div>
 
 <script>
-['doLogin','doLogout','onPointChange','saveC','saveName',
+['doLogin','doLogout','onPointChange','saveC','saveName','resetAll','closeOnboard','toggleHelp','sendWAGuide','setDeliveryType','saveCourierFields','loadReport','exportExcel',
  'copyMyLink','shareSpouse','toggleDform','sendDelivery',
  'copyCLink','waCLink','addProd','showAddPoint','savePoint','cancelPoint'].forEach(fn=>{
   window[fn]=function(){const f=window['_'+fn];if(f)f.apply(this,arguments);};
@@ -322,6 +455,11 @@ const gRef = ref(db,'global4');
 const cRef = id => ref(db,'cust4/'+id);
 
 function getCid(){
+  // check if accessing someone's personal link
+  const urlParams = new URLSearchParams(location.search);
+  const sharedId = urlParams.get('u');
+  if(sharedId) return sharedId;
+  // otherwise use own ID
   let id=localStorage.getItem('rcid4');
   if(!id){id='c'+Math.random().toString(36).slice(2,9);localStorage.setItem('rcid4',id);}
   return id;
@@ -351,11 +489,13 @@ let syncT=null, editPtIdx=-1, gLoaded=false, cLoaded=false;
 function ss(m,t){document.getElementById('sdot').className='sdot '+m;document.getElementById('stext').textContent=t;}
 
 // ── Admin via #admin hash ──
-const isAdmin = location.hash==='#admin';
-if(isAdmin){
-  document.getElementById('page-c').classList.remove('on');
-  document.getElementById('page-a').classList.add('on');
-}
+const isAdmin = location.hash==='#admin' || location.href.includes('#admin');
+document.addEventListener('DOMContentLoaded', function(){
+  if(isAdmin){
+    document.getElementById('page-c').classList.remove('on');
+    document.getElementById('page-a').classList.add('on');
+  }
+});
 
 // ── Load global ──
 onValue(gRef, snap=>{
@@ -393,6 +533,22 @@ function renderAll(){
   document.getElementById('c-date').value=C.date||'';
   document.getElementById('c-time').value=C.time||'';
   document.getElementById('c-loc').value=C.loc||'';
+  // restore courier fields
+  if(C.courier){
+    const f=C.courier;
+    if(f.phone) document.getElementById('d-phone').value=f.phone;
+    if(f.street) document.getElementById('d-street').value=f.street;
+    if(f.apt) document.getElementById('d-apt').value=f.apt;
+    if(f.floor) document.getElementById('d-floor').value=f.floor;
+    if(f.code) document.getElementById('d-code').value=f.code;
+    if(f.notes) document.getElementById('d-notes').value=f.notes;
+    if(f.point){
+      setTimeout(()=>{
+        const sel=document.getElementById('d-point');
+        if(sel)sel.value=f.point;
+      },500);
+    }
+  }
   renderAvailable();
   renderSelected();
 }
@@ -404,6 +560,13 @@ function renderAvailable(){
   const el=document.getElementById('sup-available-list');if(!el)return;
   el.innerHTML='';
   const active=activeProds();
+  const availCount=document.getElementById('avail-count');
+  const selOfTotal=document.getElementById('sel-of-total');
+  const selCount=document.getElementById('sel-count');
+  const selected=(C.selected||[]).length;
+  if(availCount) availCount.textContent=active.length+' ספקים פעילים';
+  if(selOfTotal) selOfTotal.textContent=active.length>0?'מתוך '+active.length:'';
+  if(selCount) selCount.textContent=selected;
   if(!active.length){
     el.innerHTML='<span style="color:var(--muted);font-size:.88rem;">אין ספקים פעילים השבוע עדיין</span>';
     return;
@@ -412,9 +575,12 @@ function renderAvailable(){
     const isAdded=(C.selected||[]).includes(name);
     const chip=document.createElement('div');
     chip.className='sup-chip'+(isAdded?' added':'');
-    chip.innerHTML=`<span class="chip-plus">+</span>${esc(name)}`;
+    chip.innerHTML=isAdded?`<span class="chip-plus">✕</span>${esc(name)}`:`<span class="chip-plus">+</span>${esc(name)}`;
+    chip.title=isAdded?'לחצי להסרה':'לחצי להוספה';
     if(!isAdded){
       chip.onclick=()=>addSupplier(name);
+    } else {
+      chip.onclick=()=>removeSupplier(name);
     }
     el.appendChild(chip);
   });
@@ -473,6 +639,10 @@ function renderSelected(){
   });
 
   const done=cols.filter(p=>p.done).length;
+  const cntEl=document.getElementById('sel-count');
+  if(cntEl)cntEl.textContent=cols.length;
+  const selOfTotal=document.getElementById('sel-of-total');
+  if(selOfTotal)selOfTotal.textContent=activeProds().length>0?'מתוך '+activeProds().length:'';
   document.getElementById('c-tot').textContent=cols.length;
   document.getElementById('c-done').textContent=done;
   document.getElementById('prog-wrap').style.display='block';
@@ -516,7 +686,7 @@ window._saveC=function(){
 };
 window._saveName=function(){C.name=document.getElementById('c-name').value;schedSave();};
 function schedSave(){clearTimeout(syncT);ss('sync','שומר...');syncT=setTimeout(saveC_r,700);}
-function saveC_r(){set(cRef(CID),C).then(()=>ss('ok','מסונכרן ✓')).catch(()=>ss('err','שגיאת שמירה'));}
+function saveC_r(){set(cRef(CID),C).then(()=>{ss('ok','מסונכרן ✓');trackCustomer();}).catch(()=>ss('err','שגיאת שמירה'));}
 
 // ── Build message ──
 function buildMsg(){
@@ -534,11 +704,101 @@ function buildMsg(){
 }
 
 // ── Share ──
-window._copyMyLink=function(){navigator.clipboard.writeText(location.href).then(()=>toast('✅ הקישור הועתק!'));};
+window._resetAll=function(){
+  if(!confirm('למחוק את כל הנתונים ולהתחיל מחדש?')) return;
+  C={name:'',point:'',date:'',time:'',loc:'',selected:[],collected:[]};
+  saveC_r();
+  // reset UI
+  document.getElementById('c-name').value='';
+  document.getElementById('c-point').value='';
+  document.getElementById('c-date').value='';
+  document.getElementById('c-time').value='';
+  document.getElementById('c-loc').value='';
+  document.getElementById('c-point-info').style.display='none';
+  document.getElementById('c-custom-fields').style.display='none';
+  renderAvailable();
+  renderSelected();
+  toast('✅ הרשימה אופסה!');
+};
+
+// ── Track customer activity ──
+function trackCustomer(){
+  if(!C.name||isAdmin)return;
+  const trackRef=ref(db,'tracking/'+CID);
+  set(trackRef,{
+    name: C.name||'',
+    point: C.point||'',
+    deliveryType: deliveryType||'self',
+    suppliers: (C.collected||[]).map(p=>p.name),
+    lastSeen: new Date().toLocaleDateString('he-IL'),
+    lastSeenTime: new Date().toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}),
+    id: CID
+  });
+}
+
+// ── Report ──
+window._loadReport=function(){
+  const el=document.getElementById('report-list');
+  el.innerHTML='<div style="color:var(--muted);font-size:.88rem;">⏳ טוען...</div>';
+  get(ref(db,'tracking')).then(snap=>{
+    const data=snap.val();
+    if(!data||!Object.keys(data).length){
+      el.innerHTML='<div style="color:var(--muted);font-size:.88rem;">אין נתונים עדיין</div>';
+      return;
+    }
+    const rows=Object.values(data).sort((a,b)=>(b.lastSeen||'').localeCompare(a.lastSeen||''));
+    el.innerHTML='';
+    rows.forEach(r=>{
+      const div=document.createElement('div');
+      div.style.cssText='padding:.7rem 0;border-bottom:1px solid #EEF9F7;font-size:.85rem;';
+      const dtype=r.deliveryType==='courier'?'🚚 שליח':'🚶 איסוף עצמי';
+      const sups=(r.suppliers||[]).join(', ')||'—';
+      div.innerHTML=`
+        <div style="font-weight:700;font-size:.95rem;color:var(--ink);">${esc(r.name||'ללא שם')}</div>
+        <div style="color:var(--muted);margin-top:.2rem;">
+          📅 ${r.lastSeen||''} ${r.lastSeenTime||''} &nbsp;|&nbsp; 
+          📍 ${esc(r.point||'—')} &nbsp;|&nbsp; ${dtype}
+        </div>
+        <div style="color:var(--teal-dark);margin-top:.2rem;font-size:.8rem;">🌱 ${esc(sups)}</div>`;
+      el.appendChild(div);
+    });
+  }).catch(()=>{
+    el.innerHTML='<div style="color:var(--coral);">שגיאה בטעינת הדוח</div>';
+  });
+};
+
+window._exportExcel=function(){
+  get(ref(db,'tracking')).then(snap=>{
+    const data=snap.val();
+    if(!data){toast('אין נתונים לייצוא');return;}
+    const rows=Object.values(data);
+    let csv='שם,תאריך,שעה,נקודת חלוקה,אופן קבלה,ספקים\n';
+    rows.forEach(r=>{
+      const dtype=r.deliveryType==='courier'?'שליח':'איסוף עצמי';
+      const sups=(r.suppliers||[]).join(' | ');
+      csv+=`"${r.name||''}","${r.lastSeen||''}","${r.lastSeenTime||''}","${r.point||''}","${dtype}","${sups}"\n`;
+    });
+    const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='דוח-לקוחות.csv'; a.click();
+    URL.revokeObjectURL(url);
+    toast('✅ הדוח הורד!');
+  });
+};
+
+// ── Links ──
+function personalLink(){ return location.origin+location.pathname+'?u='+CID; }
+function cleanLink(){ return location.origin+location.pathname; }
+
+window._copyMyLink=function(){
+  navigator.clipboard.writeText(cleanLink()).then(()=>toast('✅ קישור ריק הועתק — לשיתוף עם לקוחות חדשים'));
+};
 window._shareSpouse=function(){
+  if(!C.name||!C.name.trim()){toast('❗ אנא הכניסי שם מלא קודם');document.getElementById('c-name').focus();return;}
   if(!(C.collected||[]).length){toast('❗ לא בחרת ספקים עדיין');return;}
-  const msg=buildMsg()+`\n🔗 ${location.href}`;
-  if(navigator.share)navigator.share({title:'רכישות כדאיות',text:msg});
+  const msg=`🛒 *רשימת הקניות של ${C.name}*\n\n`+buildMsg()+`\n\n🔗 לצפייה וסימון איסוף:\n${personalLink()}`;
+  if(navigator.share)navigator.share({title:'רשימת הקניות של '+C.name,text:msg});
   else window.open('https://wa.me/?text='+encodeURIComponent(msg));
 };
 window._toggleDform=function(){
@@ -553,26 +813,74 @@ function fillDPoint(){
   (G.points||[]).forEach(p=>{const o=document.createElement('option');o.value=p.name;o.textContent=p.name;sel.appendChild(o);});
   if(C.point)sel.value=C.point;
 }
+window._saveCourierFields=function(){
+  C.courier={
+    phone: document.getElementById('d-phone').value,
+    point: document.getElementById('d-point').value,
+    street: document.getElementById('d-street').value,
+    apt: document.getElementById('d-apt').value,
+    floor: document.getElementById('d-floor').value,
+    code: document.getElementById('d-code').value,
+    notes: document.getElementById('d-notes').value
+  };
+  schedSave();
+};
+
+// ── Delivery type ──
+let deliveryType = 'self';
+window._setDeliveryType = function(type){
+  deliveryType = type;
+  const btnSelf = document.getElementById('btn-self');
+  const btnCourier = document.getElementById('btn-courier');
+  const courierFields = document.getElementById('courier-fields');
+  if(type==='self'){
+    btnSelf.style.background='var(--teal)'; btnSelf.style.color='#fff'; btnSelf.style.borderColor='var(--teal)';
+    btnCourier.style.background='#FFF0F2'; btnCourier.style.color='#C0182E'; btnCourier.style.borderColor='var(--border)';
+    courierFields.style.display='none';
+  } else {
+    btnCourier.style.background='#E8394F'; btnCourier.style.color='#fff'; btnCourier.style.borderColor='#E8394F';
+    btnSelf.style.background='#E0F7F4'; btnSelf.style.color='var(--teal-dark)'; btnSelf.style.borderColor='var(--border)';
+    courierFields.style.display='block';
+    fillDPoint();
+  }
+  C.deliveryType=null; schedSave();
+};
+
 window._sendDelivery=function(){
-  const name=document.getElementById('d-name').value.trim();
-  const phone=document.getElementById('d-phone').value.trim();
-  const pt=document.getElementById('d-point').value;
-  const street=document.getElementById('d-street').value.trim();
-  const apt=document.getElementById('d-apt').value.trim();
-  const floor=document.getElementById('d-floor').value.trim();
-  const code=document.getElementById('d-code').value.trim();
-  const notes=document.getElementById('d-notes').value.trim();
-  if(!name||!phone||!pt||!street||!apt){toast('❗ מלאי את כל שדות החובה');return;}
+  const name=C.name||'';
+  if(!name.trim()){toast('❗ אנא הכניסי שם מלא קודם');document.getElementById('c-name').focus();return;}
   if(!(C.collected||[]).length){toast('❗ לא בחרת ספקים עדיין');return;}
-  const ptObj=(G.points||[]).find(p=>p.name===pt)||{};
-  const msg=`🚚 *הזמנה לשליח — רכישות כדאיות*\n`+
-    `👤 ${name} | 📞 ${phone}\n`+
-    `📍 ${pt}${ptObj.hours?' · '+ptObj.hours:''}\n`+
-    `🏠 ${street}, דירה ${apt}${floor?', קומה '+floor:''}${code?', קוד: '+code:''}\n`+
-    (notes?`📝 ${notes}\n`:'')+
-    `\n`+buildMsg()+
-    `\n🔗 ${location.href}`;
-  window.open('https://wa.me/?text='+encodeURIComponent(msg));
+
+  if(deliveryType==='self'){
+    // Self pickup — just send the list
+    const msg=`🛒 *רשימת הקניות של ${name}*\n🚶 איסוף עצמי\n\n`+buildMsg()+`\n\n🔗 לצפייה וסימון:\n${personalLink()}`;
+    if(navigator.share)navigator.share({title:'רשימת הקניות של '+name,text:msg});
+    else window.open('https://wa.me/?text='+encodeURIComponent(msg));
+  } else {
+    // Courier — validate fields
+    const phone=document.getElementById('d-phone').value.trim();
+    const pt=document.getElementById('d-point').value;
+    const street=document.getElementById('d-street').value.trim();
+    const apt=document.getElementById('d-apt').value.trim();
+    const floor=document.getElementById('d-floor').value.trim();
+    const code=document.getElementById('d-code').value.trim();
+    const notes=document.getElementById('d-notes').value.trim();
+    if(!phone||!pt||!street||!apt){toast('❗ מלאי את כל שדות החובה לשליח');return;}
+    // save courier data for next time
+    C.courier={phone,point:pt,street,apt,floor,code,notes};
+    saveC_r();
+    const ptObj=(G.points||[]).find(p=>p.name===pt)||{};
+    const msg=`🛒 *רשימת הקניות של ${name}*\n`+
+      `━━━━━━━━━━━━━━\n`+
+      `🚚 *משלוח עם שליח*\n`+
+      `👤 ${name} | 📞 ${phone}\n`+
+      `📍 ${pt}${ptObj.hours?' · '+ptObj.hours:''}\n`+
+      `🏠 ${street}, דירה ${apt}${floor?', קומה '+floor:''}${code?', קוד: '+code:''}\n`+
+      (notes?`📝 ${notes}\n`:'')+
+      `━━━━━━━━━━━━━━\n`+
+      buildMsg()+`\n\n🔗 לצפייה וסימון:\n${personalLink()}`;
+    window.open('https://wa.me/?text='+encodeURIComponent(msg));
+  }
 };
 
 // ── Admin ──
@@ -612,6 +920,10 @@ function saveGlobal(){
 function renderAdminProds(){
   const el=document.getElementById('a-prods');if(!el)return;
   el.innerHTML='';
+  const total=(G.producers||[]).length;
+  const active=(G.producers||[]).filter(p=>p.active).length;
+  const countEl=document.getElementById('admin-prod-count');
+  if(countEl)countEl.textContent=`(${active} פעילים מתוך ${total})`;
   (G.producers||[]).forEach((p,i)=>{
     const row=document.createElement('div');row.className='aitem';
     const sid='sw'+i;
@@ -691,6 +1003,48 @@ function fillPointDDs(){
     if(cur)sel.value=cur;
   });
 }
+
+// ── Onboarding ──
+function showOnboardIfFirst(){
+  if(!localStorage.getItem('rcSeen')){
+    const ob=document.getElementById('onboard');
+    if(ob){
+      const logoEl=document.getElementById('onboard-logo');
+      const mainLogo=document.querySelector('.logo');
+      if(logoEl&&mainLogo)logoEl.src=mainLogo.src;
+      ob.style.display='flex';
+    }
+  }
+}
+window._closeOnboard=function(){
+  localStorage.setItem('rcSeen','1');
+  const ob=document.getElementById('onboard');
+  if(ob)ob.style.display='none';
+};
+
+// ── Help panel ──
+window._toggleHelp=function(){
+  document.getElementById('help-panel').classList.toggle('show');
+};
+
+// ── Send WA guide ──
+window._sendWAGuide=function(){
+  const link=cleanLink();
+  const msg=`🛒 *מדריך שימוש — רכישות כדאיות*\n\n`+
+    `שלום! הנה הקישור לרשימת הקניות:\n${link}\n\n`+
+    `*איך משתמשים?*\n`+
+    `👤 *שלב 1* — הכניסי את שמך המלא\n`+
+    `📍 *שלב 2* — בחרי נקודת חלוקה\n`+
+    `🌱 *שלב 3* — לחצי על ספק להוסיף לרשימה\n`+
+    `✏️ *שלב 4* — הוסיפי הערה ליד כל ספק (אופציונלי)\n`+
+    `✅ *שלב 5* — באיסוף סמני ✓ ליד כל ספק שאספת\n`+
+    `📱 *שלב 6* — שלחי את הרשימה לבן/בת הזוג או לשליח\n\n`+
+    `_רכישות כדאיות — כי באנו לעשות טוב ❤️_`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg));
+};
+
+// ── Init ──
+showOnboardIfFirst();
 
 function toast(msg){
   const t=document.getElementById('toast');
