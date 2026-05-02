@@ -56,7 +56,7 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
 .sup-grid{display:flex;flex-wrap:wrap;gap:.5rem;}
 .sup-chip{display:inline-flex;align-items:center;gap:.3rem;background:#fff;border:2px solid var(--border);border-radius:50px;padding:.4rem .85rem;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;color:var(--ink);}
 .sup-chip:hover{border-color:var(--teal);background:var(--teal-light);color:var(--teal-dark);}
-.sup-chip.added{background:var(--teal-light);border-color:var(--teal);color:var(--teal-dark);opacity:.85;}.sup-chip.added:hover{background:#fde8e8;border-color:var(--coral);color:var(--coral);}
+.sup-chip.added{background:var(--teal-light);border-color:var(--teal);color:var(--teal-dark);opacity:.5;}
 .sup-chip .chip-plus{color:var(--teal);font-size:1.1rem;font-weight:900;}
 
 /* ── Selected suppliers (bottom section) ── */
@@ -575,12 +575,9 @@ function renderAvailable(){
     const isAdded=(C.selected||[]).includes(name);
     const chip=document.createElement('div');
     chip.className='sup-chip'+(isAdded?' added':'');
-    chip.innerHTML=isAdded?`<span class="chip-plus">✕</span>${esc(name)}`:`<span class="chip-plus">+</span>${esc(name)}`;
-    chip.title=isAdded?'לחצי להסרה':'לחצי להוספה';
+    chip.innerHTML=`<span class="chip-plus">+</span>${esc(name)}`;
     if(!isAdded){
       chip.onclick=()=>addSupplier(name);
-    } else {
-      chip.onclick=()=>removeSupplier(name);
     }
     el.appendChild(chip);
   });
@@ -732,7 +729,13 @@ function trackCustomer(){
     suppliers: (C.collected||[]).map(p=>p.name),
     lastSeen: new Date().toLocaleDateString('he-IL'),
     lastSeenTime: new Date().toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}),
-    id: CID
+    id: CID,
+    phone: (C.courier&&C.courier.phone)||'',
+    street: (C.courier&&C.courier.street)||'',
+    apt: (C.courier&&C.courier.apt)||'',
+    floor: (C.courier&&C.courier.floor)||'',
+    code: (C.courier&&C.courier.code)||'',
+    notes: (C.courier&&C.courier.notes)||''
   });
 }
 
