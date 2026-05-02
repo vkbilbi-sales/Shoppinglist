@@ -153,15 +153,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
 </div>
 <div class="toast" id="toast"></div>
 
-<script>
-['doLogin','doLogout','addProd','showAddPoint','savePoint','cancelPoint','loadReport','exportExcel','copyLink','waLink'].forEach(fn=>{
-  window[fn]=function(){
-    const f=window['_'+fn];
-    if(f){ f.apply(this,arguments); }
-    else { setTimeout(()=>{ const f2=window['_'+fn]; if(f2)f2.apply(this,arguments); },500); }
-  };
-});
-</script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
@@ -291,10 +283,10 @@ window._loadReport=function(){
 window._exportExcel=function(){
   get(ref(db,'tracking')).then(snap=>{
     const data=snap.val(); if(!data){showToast('אין נתונים');return;}
-    let csv='שם,תאריך,שעה,נקודת חלוקה,אופן קבלה,ספקים\n';
-    Object.values(data).forEach(r=>{
+    let csv='שם,תאריך,שעה,נקודת חלוקה,אופן קבלה,טלפון,רחוב,דירה,קומה,קוד כניסה,הערות לשליח,ספקים\n';
+    Object.values(data).sort((a,b)=>(a.name||'').localeCompare(b.name||'')).forEach(r=>{
       const dtype=r.deliveryType==='courier'?'שליח':'איסוף עצמי';
-      csv+=`"${r.name||''}","${r.lastSeen||''}","${r.lastSeenTime||''}","${r.point||''}","${dtype}","${(r.suppliers||[]).join(' | ')}"\n`;
+      csv+=`"${r.name||''}","${r.lastSeen||''}","${r.lastSeenTime||''}","${r.point||''}","${dtype}","${r.phone||''}","${r.street||''}","${r.apt||''}","${r.floor||''}","${r.code||''}","${r.notes||''}","${(r.suppliers||[]).join(' | ')}"\n`;
     });
     const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
     const url=URL.createObjectURL(blob);
@@ -304,7 +296,7 @@ window._exportExcel=function(){
 };
 
 // Share
-const customerLink = location.origin+'/';
+const customerLink = location.origin+location.pathname.replace('דשבורד.html','').replace('dashboard.html','');
 window._copyLink=function(){ navigator.clipboard.writeText(customerLink).then(()=>showToast('✅ הועתק!')); };
 window._waLink=function(){
   const msg=`שלום! 🛒\nרשימת הקניות של *רכישות כדאיות*:\n${customerLink}\nכל לקוח מקבל רשימה אישית!`;
@@ -316,7 +308,7 @@ window._doLogin=function(){
   if(document.getElementById('apass').value==='1234'){
     document.getElementById('alogin').style.display='none';
     document.getElementById('adash').style.display='block';
-    document.getElementById('clink').textContent=location.origin+'/';
+    document.getElementById('clink').textContent=customerLink;
   } else {
     document.getElementById('lerr').style.display='block';
   }
@@ -327,6 +319,11 @@ window._doLogout=function(){
   document.getElementById('apass').value='';
   document.getElementById('lerr').style.display='none';
 };
+
+// Register window functions after module loads
+['doLogin','doLogout','addProd','showAddPoint','savePoint','cancelPoint','loadReport','exportExcel','copyLink','waLink'].forEach(fn=>{
+  window[fn]=function(){const f=window['_'+fn];if(f)f.apply(this,arguments);};
+});
 
 function showToast(msg){
   const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
