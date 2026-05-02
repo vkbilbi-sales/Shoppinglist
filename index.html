@@ -56,7 +56,7 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
 .sup-grid{display:flex;flex-wrap:wrap;gap:.5rem;}
 .sup-chip{display:inline-flex;align-items:center;gap:.3rem;background:#fff;border:2px solid var(--border);border-radius:50px;padding:.4rem .85rem;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;color:var(--ink);}
 .sup-chip:hover{border-color:var(--teal);background:var(--teal-light);color:var(--teal-dark);}
-.sup-chip.added{background:var(--teal-light);border-color:var(--teal);color:var(--teal-dark);opacity:.5;}
+.sup-chip.added{background:linear-gradient(135deg,#FFF3DC,#FFE8A0);border-color:#F5A623;border-width:2.5px;color:#7A4F00;opacity:1;font-weight:800;}
 .sup-chip .chip-plus{color:var(--teal);font-size:1.1rem;font-weight:900;}
 
 /* ── Selected suppliers (bottom section) ── */
@@ -271,6 +271,7 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
       <div style="font-size:.88rem;font-weight:800;color:#C0182E;margin-bottom:.8rem;">🚚 פרטי משלוח לשליח</div>
       <div class="f"><label>טלפון <span class="req">*</span></label><input type="tel" id="d-phone" placeholder="05X-XXXXXXX" oninput="saveCourierFields()"></div>
       <div class="f"><label>נקודת איסוף <span class="req">*</span></label><select id="d-point" onchange="saveCourierFields()"><option value="">-- בחרי --</option></select></div>
+      <div class="f"><label>עיר <span class="req">*</span></label><input type="text" id="d-city" placeholder="תל אביב" oninput="saveCourierFields()"></div>
       <div class="f"><label>רחוב ומספר <span class="req">*</span></label><input type="text" id="d-street" placeholder="רחוב הרצל 12" oninput="saveCourierFields()"></div>
       <div class="g2">
         <div class="f"><label>דירה <span class="req">*</span></label><input type="text" id="d-apt" placeholder="3" oninput="saveCourierFields()"></div>
@@ -357,7 +358,7 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
       <button class="btn bo bsm" style="flex:1;" onclick="shareSpouse()">💑 שלח לבן/בת זוג</button>
     </div>
     <div style="margin-top:.7rem;">
-      <button class="btn bc bfull" onclick="sendDelivery()">📱 שלחי רשימה בוואטסאפ</button>
+      <button class="btn bc bfull" onclick="sendDelivery()">📱 שלחי רשימה לשליח בוואטסאפ</button>
     </div>
   </div>
 
@@ -729,13 +730,7 @@ function trackCustomer(){
     suppliers: (C.collected||[]).map(p=>p.name),
     lastSeen: new Date().toLocaleDateString('he-IL'),
     lastSeenTime: new Date().toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'}),
-    id: CID,
-    phone: (C.courier&&C.courier.phone)||'',
-    street: (C.courier&&C.courier.street)||'',
-    apt: (C.courier&&C.courier.apt)||'',
-    floor: (C.courier&&C.courier.floor)||'',
-    code: (C.courier&&C.courier.code)||'',
-    notes: (C.courier&&C.courier.notes)||''
+    id: CID
   });
 }
 
