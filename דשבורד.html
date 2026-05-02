@@ -167,10 +167,11 @@ let editPtIdx = -1;
 
 function ss(m,t){ document.getElementById('sdot').className='sdot '+m; document.getElementById('stext').textContent=t; }
 
+let firstLoad = true;
 onValue(gRef, snap=>{
   const d=snap.val();
   if(d){ G=d; if(!G.producers)G.producers=[]; if(!G.points)G.points=[]; }
-  renderProds(); renderPoints();
+  if(firstLoad){ renderProds(); renderPoints(); firstLoad=false; }
   ss('ok','מסונכרן ✓');
 }, ()=>ss('err','שגיאת חיבור'));
 
