@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -273,8 +274,10 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
     <!-- Courier fields (hidden by default) -->
     <div id="courier-fields" style="display:none;margin-top:1rem;border-top:1.5px solid var(--border);padding-top:1rem;">
       <div style="font-size:.88rem;font-weight:800;color:#7A4F00;margin-bottom:.8rem;">🚚 פרטי משלוח לשליח</div>
-      <div class="f"><label>טלפון <span class="req">*</span></label><input type="tel" id="d-phone" placeholder="05X-XXXXXXX" oninput="saveCourierFields()"></div>
-      <div class="f"><label>נקודת איסוף <span class="req">*</span></label><select id="d-point" onchange="saveCourierFields()"><option value="">-- בחרי --</option></select></div>
+      <div id="courier-phone-box" style="display:none;background:#FFF3DC;border:2px solid var(--orange);border-radius:12px;padding:.8rem;margin-bottom:.9rem;text-align:center;">
+        <div style="font-size:.85rem;color:#7A4F00;margin-bottom:.4rem;">📞 טלפון השליח השבוע</div>
+        <div id="courier-phone-num" style="font-weight:900;font-size:1.1rem;direction:ltr;"></div>
+      </div>
       <div class="f"><label>עיר <span class="req">*</span></label><input type="text" id="d-city" placeholder="תל אביב" oninput="saveCourierFields()"></div>
       <div class="f"><label>רחוב ומספר <span class="req">*</span></label><input type="text" id="d-street" placeholder="רחוב הרצל 12" oninput="saveCourierFields()"></div>
       <div class="g2">
@@ -510,6 +513,7 @@ onValue(gRef, snap=>{
   renderAdminProds(); renderAdminPoints();
   fillPointDDs();
   renderAvailable();
+  renderCourierPhone();
   if(!cLoaded) loadC();
   ss('ok','מסונכרן ✓');
 },()=>ss('err','שגיאת חיבור'));
@@ -542,18 +546,11 @@ function renderAll(){
   // restore courier fields
   if(C.courier){
     const f=C.courier;
-    if(f.phone) document.getElementById('d-phone').value=f.phone;
     if(f.street) document.getElementById('d-street').value=f.street;
     if(f.apt) document.getElementById('d-apt').value=f.apt;
     if(f.floor) document.getElementById('d-floor').value=f.floor;
     if(f.code) document.getElementById('d-code').value=f.code;
     if(f.notes) document.getElementById('d-notes').value=f.notes;
-    if(f.point){
-      setTimeout(()=>{
-        const sel=document.getElementById('d-point');
-        if(sel)sel.value=f.point;
-      },500);
-    }
   }
   renderAvailable();
   renderSelected();
@@ -829,20 +826,13 @@ window._shareSpouse=function(){
 };
 window._toggleDform=function(){
   document.getElementById('dform').classList.toggle('show');
-  fillDPoint();
   if(C.name&&!document.getElementById('d-name').value)
     document.getElementById('d-name').value=C.name;
 };
-function fillDPoint(){
-  const sel=document.getElementById('d-point');if(!sel)return;
-  sel.innerHTML='<option value="">-- בחרי --</option>';
-  (G.points||[]).forEach(p=>{const o=document.createElement('option');o.value=p.name;o.textContent=p.name;sel.appendChild(o);});
-  if(C.point)sel.value=C.point;
-}
 window._saveCourierFields=function(){
   C.courier={
-    phone: document.getElementById('d-phone').value,
-    point: document.getElementById('d-point').value,
+    phone: C.phone||'',
+    point: C.point||'',
     street: document.getElementById('d-street').value,
     apt: document.getElementById('d-apt').value,
     floor: document.getElementById('d-floor').value,
@@ -867,10 +857,30 @@ window._setDeliveryType = function(type){
     btnCourier.style.background='#F5A623'; btnCourier.style.color='#fff'; btnCourier.style.borderColor='#F5A623';
     btnSelf.style.background='#E0F7F4'; btnSelf.style.color='var(--teal-dark)'; btnSelf.style.borderColor='var(--border)';
     courierFields.style.display='block';
-    fillDPoint();
+    if(!C.point){toast('❗ בחרי נקודת חלוקה למטה');}
+    renderCourierPhone();
   }
   C.deliveryType=null; schedSave();
 };
+
+function toIntlPhone(p){
+  let d=(p||'').replace(/\D/g,'');
+  if(!d)return'';
+  if(d.startsWith('0'))d='972'+d.slice(1);
+  return d;
+}
+
+function renderCourierPhone(){
+  const box=document.getElementById('courier-phone-box');
+  const num=document.getElementById('courier-phone-num');
+  if(!box||!num)return;
+  if(G.courierPhone){
+    box.style.display='block';
+    num.textContent=G.courierPhone;
+  } else {
+    box.style.display='none';
+  }
+}
 
 window._sendDelivery=function(){
   const name=C.name||'';
@@ -884,14 +894,16 @@ window._sendDelivery=function(){
     else window.open('https://wa.me/?text='+encodeURIComponent(msg));
   } else {
     // Courier — validate fields
-    const phone=document.getElementById('d-phone').value.trim();
-    const pt=document.getElementById('d-point').value;
+    const phone=(C.phone||'').trim();
+    const pt=C.point||'';
     const street=document.getElementById('d-street').value.trim();
     const apt=document.getElementById('d-apt').value.trim();
     const floor=document.getElementById('d-floor').value.trim();
     const code=document.getElementById('d-code').value.trim();
     const notes=document.getElementById('d-notes').value.trim();
-    if(!phone||!pt||!street||!apt){toast('❗ מלאי את כל שדות החובה לשליח');return;}
+    if(!phone){toast('❗ אנא הכניסי מספר טלפון למעלה');document.getElementById('c-phone').focus();return;}
+    if(!pt){toast('❗ בחרי נקודת חלוקה למטה');document.getElementById('c-point').focus();return;}
+    if(!street||!apt){toast('❗ מלאי את כל שדות החובה לשליח');return;}
     // save courier data for next time
     C.courier={phone,point:pt,street,apt,floor,code,notes};
     saveC_r();
@@ -905,7 +917,8 @@ window._sendDelivery=function(){
       (notes?`📝 ${notes}\n`:'')+
       `━━━━━━━━━━━━━━\n`+
       buildMsg()+`\n\n🔗 לצפייה וסימון:\n${personalLink()}`;
-    window.open('https://wa.me/?text='+encodeURIComponent(msg));
+    const target=toIntlPhone(G.courierPhone);
+    window.open('https://wa.me/'+target+'?text='+encodeURIComponent(msg));
   }
 };
 
@@ -1016,18 +1029,16 @@ window._savePoint=function(){
 window._cancelPoint=function(){document.getElementById('pedit').classList.remove('show');};
 
 function fillPointDDs(){
-  ['c-point','d-point'].forEach(id=>{
-    const sel=document.getElementById(id);if(!sel)return;
-    const cur=sel.value;
-    sel.innerHTML='<option value="">-- בחרי --</option>';
-    (G.points||[]).forEach(p=>{
-      const o=document.createElement('option');
-      o.value=p.name;
-      o.textContent=p.name+(p.hours?' · '+p.hours:'')+(p.note?' ('+p.note+')':'');
-      sel.appendChild(o);
-    });
-    if(cur)sel.value=cur;
+  const sel=document.getElementById('c-point');if(!sel)return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- בחרי --</option>';
+  (G.points||[]).forEach(p=>{
+    const o=document.createElement('option');
+    o.value=p.name;
+    o.textContent=p.name+(p.hours?' · '+p.hours:'')+(p.note?' ('+p.note+')':'');
+    sel.appendChild(o);
   });
+  if(cur)sel.value=cur;
 }
 
 // ── Onboarding ──
