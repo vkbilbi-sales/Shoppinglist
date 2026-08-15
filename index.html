@@ -275,10 +275,9 @@ body{font-family:'Heebo',sans-serif;font-size:var(--fs);background:linear-gradie
     <div id="courier-fields" style="display:none;margin-top:1rem;border-top:1.5px solid var(--border);padding-top:1rem;">
       <div style="font-size:.88rem;font-weight:800;color:#7A4F00;margin-bottom:.8rem;">🚚 פרטי משלוח לשליח</div>
       <div id="courier-phone-box" style="display:none;background:#FFF3DC;border:2px solid var(--orange);border-radius:12px;padding:.8rem;margin-bottom:.9rem;text-align:center;">
-        <div style="font-size:.85rem;color:#7A4F00;margin-bottom:.4rem;">📞 טלפון השליח השבוע</div>
+        <div id="courier-phone-label" style="font-size:.85rem;color:#7A4F00;margin-bottom:.4rem;">📞 טלפון השליח השבוע</div>
         <div id="courier-phone-num" style="font-weight:900;font-size:1.1rem;direction:ltr;"></div>
       </div>
-      <div class="f"><label>עיר <span class="req">*</span></label><input type="text" id="d-city" placeholder="תל אביב" oninput="saveCourierFields()"></div>
       <div class="f"><label>רחוב ומספר <span class="req">*</span></label><input type="text" id="d-street" placeholder="רחוב הרצל 12" oninput="saveCourierFields()"></div>
       <div class="g2">
         <div class="f"><label>דירה <span class="req">*</span></label><input type="text" id="d-apt" placeholder="3" oninput="saveCourierFields()"></div>
@@ -508,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function(){
 // ── Load global ──
 onValue(gRef, snap=>{
   const d=snap.val();
-  if(d){G=d;if(!G.producers)G.producers=[];if(!G.points)G.points=[];}
+  if(d){G=d;if(!G.producers)G.producers=[];if(!G.points)G.points=[];if(!G.couriers)G.couriers=[];}
   gLoaded=true;
   renderAdminProds(); renderAdminPoints();
   fillPointDDs();
@@ -677,6 +676,7 @@ window._onPointChange=function(){
   document.getElementById('c-time').value='';
   document.getElementById('c-loc').value='';
   updatePointInfo(v); schedSave();
+  if(deliveryType==='courier') renderCourierPhone();
 };
 function updatePointInfo(name){
   const box=document.getElementById('c-point-info');
@@ -870,15 +870,33 @@ function toIntlPhone(p){
   return d;
 }
 
+function currentPointCourier(){
+  if(!C.point)return null;
+  const c=(G.couriers||[]).find(c=>(c.points||[]).includes(C.point));
+  if(!c||!c.phone)return null;
+  return {name:c.name||'',phone:c.phone};
+}
+
 function renderCourierPhone(){
   const box=document.getElementById('courier-phone-box');
+  const label=document.getElementById('courier-phone-label');
   const num=document.getElementById('courier-phone-num');
   if(!box||!num)return;
-  if(G.courierPhone){
+  if(!C.point){
     box.style.display='block';
-    num.textContent=G.courierPhone;
+    label.textContent='📍 קודם בחרי נקודת חלוקה למטה';
+    num.textContent='';
+    return;
+  }
+  const c=currentPointCourier();
+  if(c){
+    box.style.display='block';
+    label.textContent='📞 השליח של '+C.point+' השבוע';
+    num.textContent=c.name?c.name+' · '+c.phone:c.phone;
   } else {
-    box.style.display='none';
+    box.style.display='block';
+    label.textContent='😕 אין שליח זמין השבוע ל'+C.point;
+    num.textContent='נסי לבחור איסוף עצמי או צרי קשר איתנו';
   }
 }
 
@@ -903,6 +921,8 @@ window._sendDelivery=function(){
     const notes=document.getElementById('d-notes').value.trim();
     if(!phone){toast('❗ אנא הכניסי מספר טלפון למעלה');document.getElementById('c-phone').focus();return;}
     if(!pt){toast('❗ בחרי נקודת חלוקה למטה');document.getElementById('c-point').focus();return;}
+    const courier=currentPointCourier();
+    if(!courier){toast('❗ אין שליח זמין השבוע לנקודה זו');return;}
     if(!street||!apt){toast('❗ מלאי את כל שדות החובה לשליח');return;}
     // save courier data for next time
     C.courier={phone,point:pt,street,apt,floor,code,notes};
@@ -917,7 +937,7 @@ window._sendDelivery=function(){
       (notes?`📝 ${notes}\n`:'')+
       `━━━━━━━━━━━━━━\n`+
       buildMsg()+`\n\n🔗 לצפייה וסימון:\n${personalLink()}`;
-    const target=toIntlPhone(G.courierPhone);
+    const target=toIntlPhone(courier.phone);
     window.open('https://wa.me/'+target+'?text='+encodeURIComponent(msg));
   }
 };
