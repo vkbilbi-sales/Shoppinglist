@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -111,6 +112,15 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
     <button class="btn bg bfull" onclick="waLink()">💬 שלחי בוואטסאפ</button>
   </div>
 
+  <!-- Courier phone -->
+  <div class="card">
+    <div class="slabel">🚚 טלפון השליח השבוע</div>
+    <div class="f">
+      <label>מספר טלפון של השליח (יוצג ללקוחות שבוחרות משלוח)</label>
+      <input type="tel" id="courier-phone" placeholder="05X-XXXXXXX" style="direction:ltr;text-align:right;" oninput="saveCourierPhone()">
+    </div>
+  </div>
+
   <!-- Producers -->
   <div class="card">
     <div class="slabel">🌱 ספקים — בחרי מי פעיל השבוע</div>
@@ -173,7 +183,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
 <script>
 // Wrapper functions - מוגדרות מיד כדי ש-HTML יוכל לקרוא להן
 var _fns = {};
-['doLogin','doLogout','addProd','saveProd','cancelProd','showAddPoint','savePoint','cancelPoint','loadReport','exportExcel','copyLink','waLink'].forEach(function(fn){
+['doLogin','doLogout','addProd','saveProd','cancelProd','showAddPoint','savePoint','cancelPoint','loadReport','exportExcel','copyLink','waLink','saveCourierPhone'].forEach(function(fn){
   window[fn] = function(){ var f = _fns[fn]; if(f) f.apply(this, arguments); else setTimeout(function(){ var f2=_fns[fn]; if(f2)f2.apply(window,arguments); }, 300); };
 });
 </script>
@@ -185,16 +195,21 @@ const app = initializeApp({ databaseURL:"https://saleslist-vered-default-rtdb.fi
 const db = getDatabase(app);
 const gRef = ref(db,'global4');
 
-let G = { producers:[], points:[] };
+let G = { producers:[], points:[], courierPhone:'' };
 let editPtIdx = -1;
 
 function ss(m,t){ document.getElementById('sdot').className='sdot '+m; document.getElementById('stext').textContent=t; }
 
+function renderCourierPhone(){
+  const el=document.getElementById('courier-phone');
+  if(el && document.activeElement!==el) el.value=G.courierPhone||'';
+}
+
 let firstLoad = true;
 onValue(gRef, snap=>{
   const d=snap.val();
-  if(d){ G=d; if(!G.producers)G.producers=[]; if(!G.points)G.points=[]; }
-  if(firstLoad){ renderProds(); renderPoints(); firstLoad=false; }
+  if(d){ G=d; if(!G.producers)G.producers=[]; if(!G.points)G.points=[]; if(!G.courierPhone)G.courierPhone=''; }
+  if(firstLoad){ renderProds(); renderPoints(); renderCourierPhone(); firstLoad=false; }
   ss('ok','מסונכרן ✓');
 }, ()=>ss('err','שגיאת חיבור'));
 
@@ -203,6 +218,11 @@ function saveG(){
   set(gRef,G).then(()=>{ ss('ok','מסונכרן ✓'); renderProds(); renderPoints(); })
   .catch(()=>ss('err','שגיאה'));
 }
+
+window._saveCourierPhone=function(){
+  G.courierPhone=document.getElementById('courier-phone').value.trim();
+  saveG();
+};
 
 function renderProds(){
   const el=document.getElementById('a-prods'); if(!el)return;
@@ -378,7 +398,7 @@ window._doLogout=function(){
 };
 
 // Register functions in _fns
-['doLogin','doLogout','addProd','saveProd','cancelProd','showAddPoint','savePoint','cancelPoint','loadReport','exportExcel','copyLink','waLink'].forEach(fn=>{
+['doLogin','doLogout','addProd','saveProd','cancelProd','showAddPoint','savePoint','cancelPoint','loadReport','exportExcel','copyLink','waLink','saveCourierPhone'].forEach(fn=>{
   const f = window['_'+fn];
   if(f) _fns[fn]=f;
 });
