@@ -112,12 +112,25 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
     <button class="btn bg bfull" onclick="waLink()">💬 שלחי בוואטסאפ</button>
   </div>
 
-  <!-- Courier phone -->
+  <!-- Couriers list -->
   <div class="card">
-    <div class="slabel">🚚 טלפון השליח השבוע</div>
-    <div class="f">
-      <label>מספר טלפון של השליח (יוצג ללקוחות שבוחרות משלוח)</label>
-      <input type="tel" id="courier-phone" placeholder="05X-XXXXXXX" style="direction:ltr;text-align:right;" oninput="saveCourierPhone()">
+    <div class="slabel">🚴 שליחים ונקודות חלוקה</div>
+    <div id="a-couriers"></div>
+    <div style="margin-top:.9rem;">
+      <button class="btn bt bsm" onclick="showAddCourier()">＋ הוסיפי שליח</button>
+    </div>
+    <div class="pedit" id="pedit-courier">
+      <h4 id="pedit-courier-title">שליח חדש</h4>
+      <div class="f"><label>שם שליח *</label><input type="text" id="pe-courier-name"></div>
+      <div class="f"><label>טלפון</label><input type="tel" id="pe-courier-phone" placeholder="05X-XXXXXXX" style="direction:ltr;text-align:right;"></div>
+      <div class="f">
+        <label>נקודות חלוקה שהשליח מכסה השבוע (אפשר לבחור כמה, או להשאיר ריק לשמירה בלי שיוך)</label>
+        <div id="pe-courier-points" style="display:flex;flex-direction:column;gap:.4rem;margin-top:.4rem;"></div>
+      </div>
+      <div class="brow">
+        <button class="btn bt bsm" onclick="saveCourier()">💾 שמור</button>
+        <button class="btn bsm" style="background:#eee;color:var(--ink);" onclick="cancelCourier()">ביטול</button>
+      </div>
     </div>
   </div>
 
@@ -183,7 +196,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
 <script>
 // Wrapper functions - מוגדרות מיד כדי ש-HTML יוכל לקרוא להן
 var _fns = {};
-['doLogin','doLogout','addProd','saveProd','cancelProd','showAddPoint','savePoint','cancelPoint','loadReport','exportExcel','copyLink','waLink','saveCourierPhone'].forEach(function(fn){
+['doLogin','doLogout','addProd','saveProd','cancelProd','showAddPoint','savePoint','cancelPoint','loadReport','exportExcel','copyLink','waLink','showAddCourier','saveCourier','cancelCourier'].forEach(function(fn){
   window[fn] = function(){ var f = _fns[fn]; if(f) f.apply(this, arguments); else setTimeout(function(){ var f2=_fns[fn]; if(f2)f2.apply(window,arguments); }, 300); };
 });
 </script>
@@ -195,34 +208,97 @@ const app = initializeApp({ databaseURL:"https://saleslist-vered-default-rtdb.fi
 const db = getDatabase(app);
 const gRef = ref(db,'global4');
 
-let G = { producers:[], points:[], courierPhone:'' };
+let G = { producers:[], points:[], couriers:[] };
 let editPtIdx = -1;
 
 function ss(m,t){ document.getElementById('sdot').className='sdot '+m; document.getElementById('stext').textContent=t; }
 
-function renderCourierPhone(){
-  const el=document.getElementById('courier-phone');
-  if(el && document.activeElement!==el) el.value=G.courierPhone||'';
+let editCourierIdx = -1;
+
+function renderCouriers(){
+  const el=document.getElementById('a-couriers'); if(!el)return;
+  el.innerHTML='';
+  (G.couriers||[]).forEach((c,i)=>{
+    const row=document.createElement('div');
+    row.className='aitem';
+    const pts=(c.points||[]);
+    const ptsHtml = pts.length
+      ? pts.map(p=>'<span class="atag on" style="margin-left:.3rem;">'+esc(p)+'</span>').join('')
+      : '<small style="color:var(--muted);">לא משויך לנקודה</small>';
+    row.innerHTML=`
+      <span class="aitem-name" style="flex:1;">
+        ${esc(c.name)}
+        <small style="color:var(--muted);font-size:.76rem;direction:ltr;display:inline-block;margin-right:.4rem;">${esc(c.phone||'')}</small>
+        <br>${ptsHtml}
+      </span>
+      <button class="btn bo bsm" style="padding:.28rem .55rem;font-size:.75rem;" title="ערוך">✏️</button>
+      <button class="btn bc bsm" style="padding:.28rem .55rem;font-size:.75rem;" title="מחק">✕</button>`;
+    row.querySelector('.bo').onclick=()=>editCourier(i);
+    row.querySelector('.bc').onclick=()=>{ if(confirm('למחוק את '+c.name+'?')){ G.couriers.splice(i,1); saveG(); }};
+    el.appendChild(row);
+  });
 }
+
+function fillCourierPointsCheckboxes(selectedPoints){
+  const wrap=document.getElementById('pe-courier-points'); if(!wrap)return;
+  wrap.innerHTML='';
+  const sel=selectedPoints||[];
+  (G.points||[]).forEach(p=>{
+    const id='pecp-'+p.name.replace(/\s+/g,'_');
+    const row=document.createElement('label');
+    row.style.cssText='display:flex;align-items:center;gap:.5rem;font-weight:600;';
+    row.innerHTML=`<input type="checkbox" value="${esc(p.name)}" id="${id}" style="width:auto;" ${sel.includes(p.name)?'checked':''}> ${esc(p.name)}`;
+    wrap.appendChild(row);
+  });
+}
+
+window._showAddCourier=function(){
+  editCourierIdx=-1;
+  document.getElementById('pedit-courier-title').textContent='שליח חדש';
+  document.getElementById('pe-courier-name').value='';
+  document.getElementById('pe-courier-phone').value='';
+  fillCourierPointsCheckboxes([]);
+  document.getElementById('pedit-courier').classList.add('show');
+  document.getElementById('pedit-courier').scrollIntoView({behavior:'smooth'});
+};
+
+function editCourier(i){
+  editCourierIdx=i; const c=G.couriers[i];
+  document.getElementById('pedit-courier-title').textContent='עריכה: '+c.name;
+  document.getElementById('pe-courier-name').value=c.name||'';
+  document.getElementById('pe-courier-phone').value=c.phone||'';
+  fillCourierPointsCheckboxes(c.points||[]);
+  document.getElementById('pedit-courier').classList.add('show');
+  document.getElementById('pedit-courier').scrollIntoView({behavior:'smooth'});
+}
+
+window._saveCourier=function(){
+  const name=document.getElementById('pe-courier-name').value.trim();
+  if(!name){ showToast('❗ חסר שם'); return; }
+  const phone=document.getElementById('pe-courier-phone').value.trim();
+  const points=[...document.querySelectorAll('#pe-courier-points input:checked')].map(x=>x.value);
+  const c={name,phone,points};
+  if(!G.couriers)G.couriers=[];
+  if(editCourierIdx===-1) G.couriers.push(c); else G.couriers[editCourierIdx]=c;
+  document.getElementById('pedit-courier').classList.remove('show');
+  saveG();
+};
+
+window._cancelCourier=function(){ document.getElementById('pedit-courier').classList.remove('show'); };
 
 let firstLoad = true;
 onValue(gRef, snap=>{
   const d=snap.val();
-  if(d){ G=d; if(!G.producers)G.producers=[]; if(!G.points)G.points=[]; if(!G.courierPhone)G.courierPhone=''; }
-  if(firstLoad){ renderProds(); renderPoints(); renderCourierPhone(); firstLoad=false; }
+  if(d){ G=d; if(!G.producers)G.producers=[]; if(!G.points)G.points=[]; if(!G.couriers)G.couriers=[]; }
+  if(firstLoad){ renderProds(); renderPoints(); renderCouriers(); firstLoad=false; }
   ss('ok','מסונכרן ✓');
 }, ()=>ss('err','שגיאת חיבור'));
 
 function saveG(){
   ss('sync','שומר...');
-  set(gRef,G).then(()=>{ ss('ok','מסונכרן ✓'); renderProds(); renderPoints(); })
+  set(gRef,G).then(()=>{ ss('ok','מסונכרן ✓'); renderProds(); renderPoints(); renderCouriers(); })
   .catch(()=>ss('err','שגיאה'));
 }
-
-window._saveCourierPhone=function(){
-  G.courierPhone=document.getElementById('courier-phone').value.trim();
-  saveG();
-};
 
 function renderProds(){
   const el=document.getElementById('a-prods'); if(!el)return;
@@ -262,6 +338,10 @@ function renderProds(){
   });
 }
 
+function courierForPoint(pointName){
+  return (G.couriers||[]).find(c=>(c.points||[]).includes(pointName));
+}
+
 function renderPoints(){
   const el=document.getElementById('a-points'); if(!el)return;
   el.innerHTML='';
@@ -269,8 +349,12 @@ function renderPoints(){
     const row=document.createElement('div');
     row.className='aitem';
     let det=p.hours||''; if(p.note)det+=(det?' · ':'')+p.note;
+    const c=courierForPoint(p.name);
+    const courierBadge = c
+      ? '<br><small style="color:#7A4F00;font-size:.76rem;">🚚 '+esc(c.name)+(c.phone?' · '+esc(c.phone):'')+'</small>'
+      : '<br><small style="color:var(--muted);font-size:.76rem;">🚚 אין שליח משויך השבוע</small>';
     row.innerHTML=`
-      <span class="aitem-name">${esc(p.name)}${det?'<br><small style="color:var(--muted);font-size:.76rem;">'+esc(det)+'</small>':''}</span>
+      <span class="aitem-name">${esc(p.name)}${det?'<br><small style="color:var(--muted);font-size:.76rem;">'+esc(det)+'</small>':''}${courierBadge}</span>
       <button class="btn bt bsm" style="padding:.28rem .6rem;font-size:.76rem;">✏️</button>
       <button class="btn bc bsm" style="padding:.28rem .55rem;font-size:.75rem;">✕</button>`;
     row.querySelectorAll('button')[0].onclick=()=>editPoint(i);
@@ -325,11 +409,17 @@ function editPoint(i){
 window._savePoint=function(){
   const name=document.getElementById('pe-name').value.trim();
   if(!name){showToast('❗ חסר שם');return;}
+  const oldName = editPtIdx!==-1 ? G.points[editPtIdx].name : null;
   const pt={name,hours:document.getElementById('pe-hours').value.trim(),
     date:document.getElementById('pe-date').value,
     addr:document.getElementById('pe-addr').value.trim(),
     note:document.getElementById('pe-note').value.trim()};
   if(editPtIdx===-1)G.points.push(pt); else G.points[editPtIdx]=pt;
+  if(oldName && oldName!==name && G.couriers){
+    G.couriers.forEach(c=>{
+      if(c.points){ c.points=c.points.map(p=>p===oldName?name:p); }
+    });
+  }
   document.getElementById('pedit').classList.remove('show');
   saveG();
 };
@@ -398,7 +488,7 @@ window._doLogout=function(){
 };
 
 // Register functions in _fns
-['doLogin','doLogout','addProd','saveProd','cancelProd','showAddPoint','savePoint','cancelPoint','loadReport','exportExcel','copyLink','waLink','saveCourierPhone'].forEach(fn=>{
+['doLogin','doLogout','addProd','saveProd','cancelProd','showAddPoint','savePoint','cancelPoint','loadReport','exportExcel','copyLink','waLink','showAddCourier','saveCourier','cancelCourier'].forEach(fn=>{
   const f = window['_'+fn];
   if(f) _fns[fn]=f;
 });
