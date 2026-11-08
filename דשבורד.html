@@ -457,6 +457,7 @@ window._loadReport=function(){
       const sups=(r.suppliers||[]).join(', ')||'—';
       div.innerHTML=`<strong>${esc(r.name||'ללא שם')}</strong><br>
         <span style="color:var(--muted);">📅 ${r.lastSeen||''} ${r.lastSeenTime||''} | 📍 ${esc(r.point||'—')} | ${dtype}</span><br>
+        ${r.phone?`<span style="font-size:.8rem;">📞 ${esc(r.phone)}</span><br>`:''}${r.street?`<span style="font-size:.8rem;">🏠 ${esc([r.street,r.apt&&'דירה '+r.apt,r.floor&&'קומה '+r.floor,r.code&&'קוד '+r.code].filter(Boolean).join(', '))}${r.notes?' · '+esc(r.notes):''}</span><br>`:''}
         <span style="color:var(--teal-dark);font-size:.8rem;">🌱 ${esc(sups)}</span>`;
       el.appendChild(div);
     });
