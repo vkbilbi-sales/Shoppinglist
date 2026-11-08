@@ -388,6 +388,11 @@ footer b{font-family:var(--hand);font-weight:700;color:var(--sun);font-size:30px
 .paysum ul{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:14px}
 .paysum li{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
 
+.fri-sec{border-top:3px dashed var(--sun);margin-top:6px}
+.fri-sec .section-head h2{color:var(--sun)}
+.fri-sec .section-head p{margin:0;color:var(--muted);max-width:60ch}
+.fri-tag{display:inline-block;font-size:12px;font-weight:700;color:var(--sun);border:1px solid var(--sun);border-radius:999px;padding:0 8px;margin-inline-start:6px;vertical-align:middle}
+
 .card .cover{display:block;width:auto;max-width:none;justify-self:stretch;margin:-10px -16px 0;height:150px;object-fit:cover;background:var(--leaf-soft)}
 .card.closed .cover{filter:grayscale(.6);opacity:.75}
 .logo-mark{object-fit:cover;background:var(--surface);border:2px solid var(--cc);padding:0}
@@ -561,6 +566,11 @@ footer b{font-family:var(--hand);font-weight:700;color:var(--sun);font-size:30px
   </div>
 
   <section class="grid" id="grid" aria-live="polite"></section>
+  <section class="fri-sec" id="fri-sec" hidden aria-labelledby="fri-h">
+    <div class="section-head"><h2 id="fri-h">יום שישי: משלוח עד הבית 🚚</h2>
+      <p>הספקים האלה לא מגיעים לחלוקה של יום רביעי. ההזמנה נשלחת ישירות אליכם הביתה ביום שישי.</p></div>
+    <div class="grid" id="grid-fri"></div>
+  </section>
 
   <section class="mylist" id="mylist" aria-labelledby="ml-h">
     <div class="ml-head">
@@ -755,6 +765,7 @@ function computeTimes(){
 function closeAt(s){
   if(!s.o||s.cd===null||s.cd===undefined||s.cd==="")return null;
   const [hh,mm]=(s.ct||"00:00").split(":").map(Number), off=(+s.cd)-3;
+  if(s.f){const p=ilParts(Date.now());let add=((+s.cd)-p.wd+7)%7,t=ilDate(p.y,p.mo,p.d+add,hh,mm||0);if(t<=Date.now())t=ilDate(p.y,p.mo,p.d+add+7,hh,mm||0);return t}
   if(off>0){const t0=ilDate(DIST.y,DIST.mo,DIST.d-7+off,hh,mm||0);if(t0>Date.now())return t0}
   return ilDate(DIST.y,DIST.mo,DIST.d+off,hh,mm||0);
 }
@@ -783,12 +794,12 @@ function renderGrid(){
   if(state.view==="favs")L=L.filter(s=>favs.has(s.h));
   L.sort((a,b)=>(isOpen(b)-isOpen(a))||(state.sort==="close"&&isOpen(a)?closeAt(a)-closeAt(b):0)||a.n.localeCompare(b.n,"he"));
   $("grid").innerHTML=L.length?L.map(s=>{const C=CATS[s.c],inL=!!list[s.h];return `
-  <article class="card${isOpen(s)?"":" closed"}" style="--cc:var(${C.color})">
+  <article class="card${isOpen(s)?"":" closed"}"${s.f?" data-fri":""} style="--cc:var(${C.color})">
     <div class="mini-awning" aria-hidden="true"></div>
     ${/^https:\/\//.test(s.cov||"")?`<img class="cover" src="${esc(s.cov)}" alt="" loading="lazy">`:""}
     <div class="top">${/^https:\/\//.test(s.img||"")?`<img class="mark logo-mark" src="${esc(s.img)}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
       <div><div class="cat">${C.label}</div><h3>${esc(s.n)}</h3>
-      <div class="badges">${isOpen(s)?'<span class="badge open">פתוח להזמנות</span>':s.o?'<span class="badge">ההזמנות נסגרו לשבוע הזה</span>':'<span class="badge">לא מגיע השבוע</span>'}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">משלוח עד הבית בימי שישי</span>':""}</div></div></div>
+      <div class="badges">${isOpen(s)?'<span class="badge open">פתוח להזמנות</span>':s.o?'<span class="badge">ההזמנות נסגרו לשבוע הזה</span>':'<span class="badge">לא מגיע השבוע</span>'}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}</div></div></div>
     <p class="desc">${esc(s.d)}</p>
     <dl class="rows">
       ${closeAt(s)?`<div><dt>פתוח עד</dt><dd>${closeLabel(s)}<br><span class="cd" data-cd="${s.h}"></span></dd></div>`:""}
@@ -801,7 +812,11 @@ function renderGrid(){
       <button type="button" class="addbtn" data-add="${s.h}" aria-pressed="${inL}" aria-label="${inL?"הסרה מהרשימה":"הוספה לרשימה"}: ${s.n}">${inL?"✓ ברשימה":"+ לרשימה"}</button>
     </div>
   </article>`}).join(""):`<div class="empty">${state.view==="favs"?"עוד לא סימנתם מועדפים. לחצו על הלב בכרטיס של ספק כדי לשמור אותו כאן.":"לא נמצאו ספקים שמתאימים לחיפוש."}</div>`;
-  $("count").textContent=`${S.filter(isOpen).length} ספקים פתוחים להזמנות השבוע`;
+  { const g=$("grid"), fr=$("grid-fri"); fr.innerHTML="";
+    g.querySelectorAll("article[data-fri]").forEach(a=>fr.appendChild(a));
+    if(!g.querySelector("article")&&!g.querySelector(".empty"))g.innerHTML='<div class="empty">אין ספקים שמתאימים לחיפוש בחלוקה של יום רביעי.</div>';
+    $("fri-sec").hidden=!fr.children.length; }
+  $("count").textContent=`${S.filter(s=>!s.f&&isOpen(s)).length} ספקים פתוחים להזמנות לחלוקה של יום רביעי`;
   tick();
   $("n-favs").textContent=favs.size;
   $("btn-favs").setAttribute("aria-pressed",state.view==="favs");
@@ -817,7 +832,7 @@ function listText(){
     if(me.cnote)t+=`הערות: ${me.cnote}\n`;
   } else t+=`📍 איסוף מ${me.point||"..."}\n`;
   t+="\n";
-  hs.filter(h=>byH[h]).forEach((h,i)=>{const it=list[h];t+=`${it.got?"✅":"⬜"} ${i+1}. ${byH[h].n}${it.note?" – "+it.note:""}\n`});
+  hs.filter(h=>byH[h]).forEach((h,i)=>{const it=list[h];t+=`${it.got?"✅":"⬜"} ${i+1}. ${byH[h].n}${byH[h].f?" (משלוח עד הבית ביום שישי)":""}${it.note?" – "+it.note:""}\n`});
   t+=`\n🔗 הרשימה המשותפת: ${shareLink()}\n`;
   return t.trim();
 }
@@ -840,7 +855,7 @@ function renderList(){
   const hs=Object.keys(list).filter(h=>byH[h]), got=hs.filter(h=>list[h].got).length;
   $("items").innerHTML=hs.length?hs.map(h=>{const it=list[h];return `<li class="item${it.got?" got":""}">
     <input type="checkbox" id="got-${h}" data-got="${h}" ${it.got?"checked":""} aria-label="נאסף: ${byH[h].n}">
-    <label class="iname" for="got-${h}">${byH[h].n}</label>
+    <label class="iname" for="got-${h}">${byH[h].n}${byH[h].f?' <span class="fri-tag">🚚 שישי, עד הבית</span>':""}</label>
     <button type="button" class="rm" data-rm="${h}" aria-label="הסרה מהרשימה: ${byH[h].n}">×</button>
     <input type="text" id="note-${h}" data-note="${h}" value="${esc(it.note||"")}" placeholder="מה הזמנתי? (כמות, מוצרים)">
     ${payLine(byH[h])}
@@ -991,7 +1006,7 @@ function edSups(openIdx){
       <label class="field wide">תיאור<textarea data-i="${i}" data-f="d" rows="3">${esc(s.d)}</textarea></label>
       <label class="field wide">קישור להזמנה (חנות במייפיפס או טופס)<input data-i="${i}" data-f="url" value="${esc(s.url)}" dir="ltr"></label>
       <label class="chk"><input type="checkbox" data-i="${i}" data-f="o"${s.o?" checked":""}> מגיע השבוע</label>
-      <label class="chk"><input type="checkbox" data-i="${i}" data-f="f"${s.f?" checked":""}> משלוח עד הבית בימי שישי</label>
+      <label class="chk"><input type="checkbox" data-i="${i}" data-f="f"${s.f?" checked":""}> יום שישי, משלוח עד הבית (לא בחלוקה של רביעי)</label>
       <label class="field">פתוח עד יום<select data-i="${i}" data-f="cd">${opt(DAYS,s.cd)}</select></label>
       <label class="field">בשעה<input type="time" data-i="${i}" data-f="ct" value="${esc(s.ct)}"></label>
       <label class="field">אופן תשלום<input data-i="${i}" data-f="p" value="${esc(s.p)}" list="ed-pay" placeholder="פייבוקס"></label>
