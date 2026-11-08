@@ -1,0 +1,16 @@
+{
+  "name": "רכישות כדאיות",
+  "short_name": "רכישות כדאיות",
+  "description": "הספקים של השבוע, רשימת קניות משותפת ושליחים – רכישות כדאיות, כי באנו לעשות טוב",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./new.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F2F8F6",
+  "theme_color": "#16868C",
+  "icons": [
+    {"src": "img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+  ]
+}
