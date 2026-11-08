@@ -200,6 +200,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
       <button class="btn bt bsm" onclick="loadReport()">🔄 רענן</button>
       <button class="btn bg bsm" onclick="exportExcel()">📥 ייצוא לאקסל</button>
     </div>
+    <div id="inst-count" style="background:#F3ECFB;border:2px solid #7A5BB5;border-radius:12px;padding:.6rem .8rem;margin-bottom:.8rem;font-weight:700;color:#5B3F94;">📲 התקינו את האפליקציה במסך הבית: <span id="inst-n">—</span></div>
     <div id="report-list"><div style="color:var(--muted);font-size:.88rem;">לחצי "רענן" לטעינה</div></div>
   </div>
 
@@ -445,6 +446,7 @@ window._cancelPoint=function(){ document.getElementById('pedit').classList.remov
 window._loadReport=function(){
   const el=document.getElementById('report-list');
   el.innerHTML='<div style="color:var(--muted);">⏳ טוען...</div>';
+  get(ref(db,'installs')).then(sn=>{const v=sn.val()||{};document.getElementById('inst-n').textContent=Object.keys(v).length;}).catch(()=>{document.getElementById('inst-n').textContent='?';});
   get(ref(db,'tracking')).then(snap=>{
     const data=snap.val();
     if(!data||!Object.keys(data).length){ el.innerHTML='<div style="color:var(--muted);">אין נתונים עדיין</div>'; return; }
