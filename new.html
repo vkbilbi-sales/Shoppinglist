@@ -393,6 +393,22 @@ footer b{font-family:var(--hand);font-weight:700;color:var(--sun);font-size:30px
 .fri-sec .section-head p{margin:0;color:var(--muted);max-width:60ch}
 .fri-tag{display:inline-block;font-size:12px;font-weight:700;color:var(--sun);border:1px solid var(--sun);border-radius:999px;padding:0 8px;margin-inline-start:6px;vertical-align:middle}
 
+.contact{padding-block:10px 6px}
+.contact-card{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--heart);border-radius:20px;padding:20px}
+@media (max-width:760px){.contact-card{grid-template-columns:1fr}}
+.contact h2{font-family:var(--hand);font-weight:700;font-size:clamp(40px,6vw,54px);color:var(--leaf-deep);line-height:1}
+.contact-txt p{margin:10px 0 0;font-size:15.5px;max-width:62ch}
+.contact-side{display:grid;gap:10px;align-content:start}
+.contact-rules{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.contact-rules li{background:var(--leaf-soft);border-radius:14px;padding:10px 14px;display:grid;gap:2px}
+.contact-rules b{color:var(--leaf-deep);font-family:var(--display);font-weight:400;font-size:17px}
+.contact-rules span{font-size:14.5px;color:var(--ink)}
+.contact-side .btn{justify-content:center}
+.contact-join{margin-top:12px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:var(--heart-soft);border-radius:16px;padding:14px 16px}
+.contact-join div{display:grid;gap:2px;min-width:0;flex:1 1 280px}
+.contact-join b{color:var(--heart);font-family:var(--display);font-weight:400;font-size:18px}
+.contact-join span{font-size:14px;color:var(--muted)}
+
 .rows:not(:has(div)){display:none}
 .badge.kosher{color:#1F6FB2;border-color:#1F6FB2}
 .badge.kosher-home{color:#6A5BB0;border-color:#6A5BB0}
@@ -557,9 +573,34 @@ footer b{font-family:var(--hand);font-weight:700;color:var(--sun);font-size:30px
   <section class="info" aria-label="חשוב לדעת">
     <div class="note"><h3>הזמנה ותשלום</h3><p>ההזמנה והתשלום מתבצעים אצל כל ספק בנפרד, בחנות שלו או בטופס ההזמנה. שליחת הזמנה מחייבת בתשלום.</p></div>
     <div class="note"><h3>איסוף בזמן</h3><p>מגיעים לנקודת החלוקה בשעה שפורסמה ובודקים את ההזמנה במקום.</p></div>
-    <div class="note"><h3>שאלות? ורד כאן</h3><p>וואטסאפ: <span class="phone">054-4462223</span><br><a href="https://wa.me/972544462223" target="_blank" rel="noopener">שליחת הודעה בוואטסאפ</a></p></div>
+    <div class="note"><h3>שאלות? ורד כאן</h3><p>וואטסאפ: <span class="phone">054-4462223</span><br><a href="https://wa.me/972544462223" target="_blank" rel="noopener">שליחת הודעה בוואטסאפ</a><br><a href="#contact">חוסר או בעיה בהזמנה? לטופס ההתקשרות</a></p></div>
   </section>
 
+  <section class="contact" id="contact" aria-labelledby="contact-h">
+    <div class="contact-card">
+      <div class="contact-txt">
+        <div class="kicker">שירות, טעויות ופירגונים</div>
+        <h2 id="contact-h">התקשרות עם ורד</h2>
+        <p>שלום לכולם,<br>זהו טופס שנועד לשפר עבורכם ועבורי את רמת השירות ואת אופן הטיפול בטעויות ובבעיות.</p>
+        <p>כשאתם ממלאים את הטופס, זכרו שכולנו אנשים וכולנו טועים, והשאלה היא איך אנחנו מתמודדים. בבקשה השתמשו בניסוח נעים, ואל דאגה: כמו תמיד, אטפל בהכל בצורה שקופה והוגנת לכל הצדדים.</p>
+        <p>בטופס הזה מוזמנים גם לפרגן ❤️ בזה אנחנו לא חוסכים 😉<br>פירגונים אפשר לשלוח מתי שבא לכם, וכמה שיותר. זה ממש עוזר לי ולספקים לדעת מה אתם אוהבים, ממקד אותנו כדי לספק לכם את הטוב ביותר, ובנוסף מרומם לנו את המורל 🥰</p>
+        <p>תודה לכם על שיתוף הפעולה,<br><b>ורד קיסר, רכישות כדאיות</b><br><span class="f-sl">"כי באנו לעשות טוב" ❤️</span></p>
+      </div>
+      <div class="contact-side">
+        <ul class="contact-rules">
+          <li><b>חוסרים או בעיות</b><span>ממלאים את הטופס עד 2 ימים מיום החלוקה</span></li>
+          <li><b>זמן טיפול</b><span>עד 4 ימי עסקים</span></li>
+          <li><b>פירגונים ❤️</b><span>מתי שבא לכם, וכמה שיותר</span></li>
+        </ul>
+        <a class="btn go" href="https://forms.gle/U5iPyiF619cW5f1B9" target="_blank" rel="noopener">לטופס ההתקשרות ←</a>
+        <a class="btn alt" href="https://wa.me/972544462223" target="_blank" rel="noopener">שאלה קצרה? וואטסאפ לורד</a>
+      </div>
+    </div>
+    <div class="contact-join">
+      <div><b>רוצים להמליץ על ספק? אתם ספקים ומעוניינים להצטרף לכוחותינו?</b><span>מוזמנים למלא את הטופס. ורד קיסר</span></div>
+      <a class="btn go" href="https://docs.google.com/forms/d/e/1FAIpQLSdAohhyr4wzgzwYpIqcroUKvRpIgCcqDL72caqgLW2HDFWmJg/viewform" target="_blank" rel="noopener">לטופס המלצה והצטרפות ←</a>
+    </div>
+  </section>
   <div class="section-head" id="suppliers">
     <h2>הספקים שלנו</h2>
     <p id="count"></p>
@@ -642,6 +683,7 @@ footer b{font-family:var(--hand);font-weight:700;color:var(--sun);font-size:30px
     <div class="flinks">
       <a href="#suppliers">הספקים של השבוע</a>
       <a href="#mylist">רשימת הקניות שלי</a>
+      <a href="#contact">התקשרות עם ורד</a>
       <a href="https://www.facebook.com/groups/250286642976195/" target="_blank" rel="noopener">קבוצת הפייסבוק</a>
       <a href="https://wa.me/972544462223" target="_blank" rel="noopener">וואטסאפ לורד</a>
     </div>
