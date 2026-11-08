@@ -113,6 +113,21 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
     <button class="btn bg bfull" onclick="waLink()">💬 שלחי בוואטסאפ</button>
   </div>
 
+  <!-- Order of suppliers and messages on the customer page (new.html) -->
+  <div class="card" id="ord-card">
+    <div class="slabel">↕️ סדר הספקים וההודעות בדף הלקוחות</div>
+    <p style="margin:.2rem 0 .7rem;color:var(--muted);font-size:.85rem;">מזיזים עם החצים ולוחצים "שמירת הסדר". הלקוחות רואים את השינוי מיד.</p>
+    <div class="ord-tabs">
+      <button class="btn bt bsm" type="button" data-ordk="suppliers">🛒 ספקים</button>
+      <button class="btn bg bsm" type="button" data-ordk="news">📣 הודעות</button>
+      <button class="btn bg bsm" type="button" data-ordk="recipes">🍳 מתכונים</button>
+      <button class="btn bg bsm" type="button" data-ordk="reviews">💬 ממליצים</button>
+    </div>
+    <ol id="ord-list" class="ord-list"><li style="color:var(--muted)">טוען…</li></ol>
+    <button class="btn bt bfull" type="button" id="ord-save" disabled>💾 שמירת הסדר</button>
+    <div id="ord-msg" style="margin-top:.5rem;font-size:.85rem;color:var(--muted)"></div>
+  </div>
+
   <!-- Couriers list -->
   <div class="card">
     <div class="slabel">🚴 שליחים ונקודות חלוקה</div>
@@ -499,6 +514,63 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),2800);
 }
 function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+<style>
+.ord-tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem}
+.ord-tabs .btn[aria-pressed="true"]{outline:2px solid #F5A623;outline-offset:1px}
+.ord-list{list-style:none;margin:0 0 .8rem;padding:0;display:grid;gap:.35rem;max-height:420px;overflow:auto}
+.ord-list li{display:flex;align-items:center;gap:.5rem;border:1px solid var(--border);border-radius:10px;padding:.4rem .6rem;background:#fff;font-size:.92rem}
+.ord-list li .n{flex:1;min-width:0}
+.ord-list li .st{font-size:.75rem;color:var(--muted)}
+.ord-list li button{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:#EEF9F7;font-weight:700;cursor:pointer}
+.ord-list li.moved{background:#FFF6E8}
+</style>
+<script type="module">
+// Order of suppliers and posts on the customer page: reads/writes the same "site5" data as new.html#admin
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+const app=initializeApp({databaseURL:"https://saleslist-vered-default-rtdb.firebaseio.com"},"order-panel");
+const db=getDatabase(app);
+const $=id=>document.getElementById(id);
+const esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let DATA=null,K="suppliers",dirty=false,moved=new Set();
+async function load(){
+  try{
+    const [snap,html]=await Promise.all([get(ref(db,"site5")),fetch("new.html",{cache:"no-store"}).then(r=>r.text()).catch(()=>"")]);
+    let page=null;const m=html.match(/<script type="application\/json" id="rk-data">([\s\S]*?)<\/script>/);
+    if(m){try{page=JSON.parse(m[1])}catch(e){}}
+    const live=snap.val();
+    DATA=(live&&Array.isArray(live.suppliers)&&(live.ver||0)>=((page&&page.ver)||0))?live:page;
+    if(!DATA){$("ord-list").innerHTML='<li>לא הצלחתי לטעון את הדף.</li>';return}
+    DATA.posts=DATA.posts||[];render();
+  }catch(e){$("ord-list").innerHTML='<li>שגיאה בטעינה. נסי לרענן.</li>'}
+}
+function items(){
+  if(K==="suppliers")return DATA.suppliers.map((s,i)=>({i,n:s.n,st:s.o?"מגיע השבוע":"לא מגיע השבוע"}));
+  return DATA.posts.map((p,i)=>({i,sec:p.sec,n:p.t||(p.b||"").slice(0,40),st:p.who||""})).filter(x=>x.sec===K);
+}
+function render(){
+  document.querySelectorAll("[data-ordk]").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.ordk===K);b.className="btn bsm "+(b.dataset.ordk===K?"bt":"bg")});
+  const L=items();
+  $("ord-list").innerHTML=L.length?L.map((x,j)=>`<li class="${moved.has(K+":"+x.n)?"moved":""}"><b>${j+1}.</b><span class="n">${esc(x.n)}<br><span class="st">${esc(x.st)}</span></span><button type="button" data-up="${j}" aria-label="למעלה">↑</button><button type="button" data-dn="${j}" aria-label="למטה">↓</button></li>`).join(""):'<li style="color:var(--muted)">אין פריטים באזור הזה.</li>';
+  $("ord-save").disabled=!dirty;
+}
+function move(j,d){
+  const L=items();const a=L[j],b=L[j+d];if(!a||!b)return;
+  const arr=K==="suppliers"?DATA.suppliers:DATA.posts;[arr[a.i],arr[b.i]]=[arr[b.i],arr[a.i]];
+  moved.add(K+":"+a.n);dirty=true;$("ord-msg").textContent='יש שינויים שלא נשמרו.';render();
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-ordk]");if(t){K=t.dataset.ordk;render();return}
+  const u=e.target.closest("[data-up]");if(u){move(+u.dataset.up,-1);return}
+  const d=e.target.closest("[data-dn]");if(d){move(+d.dataset.dn,1);return}
+});
+$("ord-save").addEventListener("click",async()=>{
+  $("ord-save").disabled=true;$("ord-msg").textContent="שומרת…";
+  try{DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));dirty=false;moved.clear();$("ord-msg").textContent="נשמר ✓ הלקוחות כבר רואים את הסדר החדש.";render()}
+  catch(e){$("ord-msg").textContent="השמירה לא הצליחה. בדקי את החיבור ונסי שוב.";$("ord-save").disabled=false}
+});
+load();
 </script>
 </body>
 </html>
