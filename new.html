@@ -736,6 +736,9 @@ footer .floatbar b{font-family:var(--body);font-size:inherit;color:inherit}
 .toast:empty{display:none}
 footer .toast b{font-family:inherit;font-size:inherit;color:inherit}
 #cour-fields>#cour-pick{order:0!important}
+#paysum{display:none!important}
+.self-send{display:grid;gap:10px}
+.self-send[hidden]{display:none}
 .toast a{color:inherit;font-weight:700}
 .addbtn{white-space:normal!important;height:auto!important;min-height:40px;line-height:1.25;padding:6px 12px}
 .me-sum{display:grid;gap:4px;background:var(--leaf-soft);border-radius:14px;padding:12px 14px}
@@ -1093,7 +1096,7 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
             <p class="hint">שדות עם <b>*</b> הם חובה. ממלאים פעם אחת, והפרטים נשמרים גם לשבועות הבאים.</p>
             <label class="field" for="f-carea">נקודת האיסוף שלכם *<select id="f-carea" required aria-required="true"></select></label>
             <div class="cour-who" id="cour-who" hidden></div>
-            <label class="field" for="f-name">שם *<input id="f-name" type="text" autocomplete="name" required aria-required="true"></label>
+            <label class="field" for="f-name">שם מלא *<input id="f-name" type="text" autocomplete="name" required aria-required="true"></label>
             <label class="field" for="f-phone">טלפון *<input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05X-XXXXXXX" required aria-required="true"></label>
             <label class="field" for="f-street">רחוב ומספר בית *<input id="f-street" type="text" autocomplete="street-address" required aria-required="true"></label>
             <div class="two">
@@ -1110,20 +1113,19 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
       </div>
 
       <div class="ml-box ml-self" id="pick-fields">
-        <h3>📍 איסוף עצמי</h3>
-        <label class="field" for="f-point">מאיזו נקודת חלוקה אוספים?<select id="f-point"></select></label>
-        <p class="hint">באיסוף עצמי לא צריך למלא פרטים. שעה ומיקום מדויקים מופיעים בהודעה המרכזת של השבוע.</p>
-        <div class="ml-actions">
-          <a class="btn go" id="wa-share" href="#" target="_blank" rel="noopener">שליחת הרשימה בוואטסאפ למי שאוסף</a>
+        <h3>📍 איסוף עצמי, או מישהו שאוסף בשבילי</h3>
+        <p class="hint">שדות עם <b>*</b> הם חובה.</p>
+        <label class="field" for="f-name2">שם מלא *<input id="f-name2" type="text" autocomplete="name" required aria-required="true"></label>
+        <label class="field" for="f-point">נקודת החלוקה *<select id="f-point" required aria-required="true"></select></label>
+        <p class="hint">שעה ומיקום מדויקים מופיעים בהודעה המרכזת של השבוע.</p>
+        <p class="cour-miss" id="self-miss" hidden></p>
+        <div class="self-send" id="self-send">
+          <a class="btn wa-go" id="wa-share" href="#" target="_blank" rel="noopener">שליחת הרשימה בוואטסאפ ←</a>
+          <p class="hint">שולחים לעצמכם, או למי שאוסף בשבילכם. אפשר גם לשלוח קישור לרשימה חיה: מי שפותח אותו רואה את אותה רשימה בדיוק, ויכול לסמן בה מה נאסף.</p>
+          <div class="ml-actions ml-small"><a class="btn alt" id="share-wa" href="#" target="_blank" rel="noopener">שליחת קישור לרשימה החיה</a><button class="btn alt" id="share-copy" type="button">העתקת הקישור</button></div>
           <a class="btn alt" id="wa-cour" href="#" target="_blank" rel="noopener" hidden>שליחה לשליח בוואטסאפ</a>
         </div>
       </div>
-
-      <div class="sharebox" id="sharebox">
-          <b>👫 רשימה משותפת</b>
-          <p>שולחים את הקישור לבן או בת הזוג, או למי שאוסף. מי שפותח אותו רואה את אותה רשימה בדיוק, ויכול להוסיף ולסמן מה נאסף.</p>
-          <div class="row"><a class="btn go" id="share-wa" href="#" target="_blank" rel="noopener">שיתוף הרשימה בוואטסאפ</a><button class="btn alt" id="share-copy" type="button">העתקת הקישור</button></div>
-        </div>
     </div>
   </section>
 </main>
@@ -1474,7 +1476,11 @@ function renderCouriers(){fillCourierArea();
 }
 document.addEventListener("click",e=>{if(!e.target.closest("[data-couraddr]"))return;me.mode="courier";saveMe();fillMe();updateLinks();
   showTab("list",false);requestAnimationFrame(()=>{$("cour-fields").scrollIntoView({behavior:"smooth",block:"center"});$("f-street").focus()})});
-function updateLinks(){renderCouriers();
+function renderSelf(){const m=[];if(!(me.name||"").trim())m.push("שם מלא");if(!me.point)m.push("נקודת החלוקה");
+  const n=Object.keys(list).filter(h=>byH[h]).length;if(!n)m.length=0;
+  $("self-miss").hidden=!m.length&&!!n;$("self-miss").innerHTML=!n?"קודם מוסיפים ספקים לרשימה.":m.length?`כדי לשלוח את הרשימה, צריך למלא עוד: <b>${m.join(", ")}</b>`:"";
+  $("self-send").hidden=!n||!!m.length}
+function updateLinks(){renderCouriers();renderSelf();
   const txt=encodeURIComponent(listText());
   $("wa-share").href="https://wa.me/?text="+txt;
   const cp=digits(me.cphone);
@@ -1485,16 +1491,24 @@ function updateLinks(){renderCouriers();
 }
 function fillMe(){
   const put=(id,v)=>{const el=$(id);if(el&&document.activeElement!==el)el.value=v||""};
-  put("f-name",me.name);put("f-phone",me.phone);$("cour-open").setAttribute("aria-expanded",me.mode==="courier");$("cour-open").hidden=me.mode==="courier";
+  put("f-name",me.name);put("f-name2",me.name);put("f-phone",me.phone);$("cour-open").setAttribute("aria-expanded",me.mode==="courier");$("cour-open").hidden=me.mode==="courier";
   $("f-point").value=me.point||"";["street","apt","floor","code","cnote","cphone"].forEach(k=>put("f-"+k,me[k]));
   $("pick-fields").hidden=me.mode==="courier";$("cour-fields").hidden=me.mode!=="courier";
   renderMeSum();
 }
 let EDITING=false;
+function wkKey(){return DIST?`${DIST.y}-${DIST.mo}-${DIST.d}`:""}
+function weeklyReset(){if(!DIST||!fbReady)return;const now=Date.now(),cur=wkKey();let ch=false,rm=false;
+  for(const h of Object.keys(list)){const it=list[h];if(!it||typeof it!=="object")continue;
+    if(!it.wk){it.wk=cur;ch=true;continue}
+    const[y,mo,d]=it.wk.split("-").map(Number);if(now<ilDate(y,mo,d+1,6,0))continue;
+    const fri=byH[h]&&byH[h].f;if(fri&&now<ilDate(y,mo,d+3,23,0))continue;
+    delete list[h];ch=rm=true}
+  if(ch){saveList();if(rm){renderAll();$("ml-msg").textContent="הרשימה של השבוע שעבר התאפסה אוטומטית. הפרטים שלכם נשמרו."}}}
 let toastT=null;
 function toast(n){const t=$("toast");t.innerHTML=`✓ <b>${esc(n)}</b> נוסף לרשימת הקניות · <a href="#mylist">לרשימה ←</a>`;clearTimeout(toastT);toastT=setTimeout(()=>{t.innerHTML=""},4500)}
 function meDone(){return me.mode==="courier"&&!!((me.name||"").trim()&&(me.phone||"").trim()&&(me.street||"").trim()&&me.carea!==""&&me.carea!=null)}
-function meMissing(){const m=[];if(!(me.name||"").trim())m.push("שם");if(!(me.phone||"").trim())m.push("טלפון");if(me.mode==="courier"){if(!(me.street||"").trim())m.push("רחוב ומספר");if(me.carea===""||me.carea==null)m.push("נקודת האיסוף");}else if(!me.point)m.push("נקודת חלוקה");return m}
+function meMissing(){const m=[];if(!(me.name||"").trim())m.push("שם מלא");if(!(me.phone||"").trim())m.push("טלפון");if(me.mode==="courier"){if(!(me.street||"").trim())m.push("רחוב ומספר");if(me.carea===""||me.carea==null)m.push("נקודת האיסוף");}else if(!me.point)m.push("נקודת חלוקה");return m}
 function renderMeSum(){
   const L=meDone()&&me.locked!==false&&!EDITING;$("me-sum").hidden=!L;$("me-edit").hidden=L;if(!L)return;
   const c=COURIERS[+me.carea],addr=[me.street,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", ");
@@ -1636,7 +1650,8 @@ $("cour-close").addEventListener("click",()=>{me.mode="pickup";saveMe();fillMe()
 document.addEventListener("click",e=>{if(!e.target.closest("#cour-send"))return;EDITING=false;me.locked=true;saveMe();setTimeout(renderMeSum,400)});
 document.addEventListener("input",e=>{if(e.target.tagName!=="SELECT"&&e.target.closest&&e.target.closest("#me-edit"))fillCourierArea()});
 document.addEventListener("click",e=>{if(e.target.id!=="me-change")return;EDITING=true;me.locked=false;saveMe();renderMeSum();$("f-name").focus()});
-renderMedia();renderPoints();computeTimes();chips();fillMe();renderAll();
+$("f-name2").addEventListener("input",e=>{me.name=e.target.value;saveMe();updateLinks()});
+renderMedia();renderPoints();computeTimes();weeklyReset();chips();fillMe();renderAll();
 // ---- live data from Firebase ----
 function applySite(d){
   if(!d||!Array.isArray(d.suppliers))return;
@@ -1664,7 +1679,7 @@ onValue(ref(db,LISTS+"/"+CID),snap=>{
   }
   syncState("ok","מסונכרן ✓");
   if(v)applyList(v);
-},()=>syncState("err","אין חיבור לשרת. הרשימה נשמרת בינתיים בטלפון הזה"));setInterval(()=>{const before=DIST&&DIST.d;computeTimes();if(DIST.d!==before)renderGrid();else tick()},1000);$("f-pts").textContent=DATA.points.length;
+},()=>syncState("err","אין חיבור לשרת. הרשימה נשמרת בינתיים בטלפון הזה"));setInterval(()=>{const before=DIST&&DIST.d;computeTimes();weeklyReset();if(DIST.d!==before)renderGrid();else tick()},1000);$("f-pts").textContent=DATA.points.length;
 
 // ---------- edit mode (owner only, republishes the page) ----------
 let draft=null;
