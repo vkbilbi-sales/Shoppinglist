@@ -703,6 +703,9 @@ main:focus,#suppliers:focus{outline:none}
 .floatbar{background:var(--band)}
 footer .floatbar b{font-family:var(--body);font-size:inherit;color:inherit}
 .a11y{flex:1 1 100%}
+.rows .pm{font-weight:700}
+.rows .pm-note{font-size:.9em;font-weight:600;color:var(--muted)}
+.rows .paylink{margin-top:6px;white-space:nowrap}
 @media (max-width:360px){#grid,#grid-fri{grid-template-columns:minmax(0,1fr)!important}.btn{white-space:normal;text-align:center}.search{flex-basis:100%}}
 .tools{grid-template-columns:minmax(0,1fr)}.tools>*{min-width:0}
 .card h3,.card .top>div{overflow-wrap:anywhere;min-width:0}
@@ -1316,7 +1319,7 @@ function renderGrid(){
     ${s.more?`<details class="more"><summary>מידע נוסף</summary><p>${esc(s.more).replace(/\n/g,"<br>")}</p></details>`:""}
     <dl class="rows">
       ${closeAt(s)?`<div><dt>פתוח עד</dt><dd>${closeLabel(s)}<br><span class="cd" data-cd="${s.h}"></span></dd></div>`:""}
-      ${s.p?`<div><dt>תשלום</dt><dd>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener">לינק לתשלום ב${esc(s.p)} ←</a>`:esc(s.p)}</dd></div>`:""}
+      ${payMethod(s)?`<div><dt>אופן תשלום</dt><dd><span class="pm">${esc(payMethod(s))}</span>${s.pl?`<br><a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו לתשלום ב${esc(payMethod(s))}: ${esc(s.n)}">לחצו לתשלום ←</a>`:!s.p?`<br><span class="pm-note">משלמים בחנות, בזמן ההזמנה</span>`:""}</dd></div>`:""}
       ${s.ks?`<div><dt>כשרות</dt><dd class="ks">${esc(s.ks)}</dd></div>`:""}
     </dl>
     <div class="actions">
@@ -1351,11 +1354,12 @@ function listText(fc){
 }
 function shareLink(){return location.origin+location.pathname+"?u="+encodeURIComponent(CID)}
 function digits(p){let d=String(p||"").replace(/\D/g,"");if(d.startsWith("0"))d="972"+d.slice(1);return d}
+function payMethod(s){return s.p||(isForm(s)?"":"כרטיס אשראי")}
 function payLine(s){
-  const parts=[];
-  if(s.pl)parts.push(`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener">לינק לתשלום${s.p?" ב"+esc(s.p):""} ←</a>`);
-  else if(s.p)parts.push(`<span>תשלום: <b>${esc(s.p)}</b></span>`);
-  else if(!isForm(s))parts.push(`<span>התשלום בחנות, בזמן ההזמנה</span>`);
+  const parts=[],m=payMethod(s);
+  if(m)parts.push(`<span>אופן תשלום: <b>${esc(m)}</b></span>`);
+  if(s.pl)parts.push(`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו לתשלום ב${esc(m)}: ${esc(s.n)}">לחצו לתשלום ←</a>`);
+  else if(!s.p&&!isForm(s))parts.push(`<span>משלמים בחנות, בזמן ההזמנה</span>`);
   parts.push(`<a class="storelink" href="${esc(s.url)}" target="_blank" rel="noopener">${isForm(s)?"לטופס הזמנה":"לחנות הזמנה"} ←</a>`);
   return `<div class="ipay">${parts.join("")}</div>`;
 }
@@ -1366,7 +1370,7 @@ document.addEventListener("change",e=>{if(e.target.id!=="pick-sup"||!e.target.va
 function renderPaySum(){
   const hs=Object.keys(list).filter(h=>byH[h]&&(byH[h].pl||byH[h].p));
   $("paysum").hidden=!hs.length;
-  $("paysum-l").innerHTML=hs.map(h=>{const s=byH[h];return `<li><span>${esc(s.n)} · ${esc(s.p||"קישור לתשלום")}</span>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener">לינק לתשלום ב${esc(s.p||"קישור")} ←</a>`:""}</li>`}).join("");
+  $("paysum-l").innerHTML=hs.map(h=>{const s=byH[h];return `<li><span>${esc(s.n)} · אופן תשלום: <b>${esc(payMethod(s)||"קישור")}</b></span>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו לתשלום ב${esc(payMethod(s)||"קישור")}: ${esc(s.n)}">לחצו לתשלום ←</a>`:""}</li>`}).join("");
 }
 function renderList(){
   const hs=Object.keys(list).filter(h=>byH[h]), got=hs.filter(h=>list[h].got).length;
