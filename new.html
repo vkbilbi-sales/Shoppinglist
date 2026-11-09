@@ -703,6 +703,19 @@ main:focus,#suppliers:focus{outline:none}
 .floatbar{background:var(--band)}
 footer .floatbar b{font-family:var(--body);font-size:inherit;color:inherit}
 .a11y{flex:1 1 100%}
+.mini-lane{height:122px!important;max-width:560px!important;border-bottom-width:10px!important}
+.mini-mover{width:150px!important}
+@media (prefers-reduced-motion:no-preference){.mini-mover{animation:roll5 8s ease-in-out infinite alternate!important}}
+@keyframes roll5{from{right:0}to{right:calc(100% - 150px)}}
+@media (max-width:620px){.mini-lane{height:100px!important}.mini-mover{width:124px!important}@keyframes roll5{from{right:0}to{right:calc(100% - 124px)}}}
+.cour-explain{background:#FFF1DC;border:2px solid var(--sun);border-radius:14px;padding:12px 14px;display:grid;gap:6px;color:#173436}
+.cour-explain b{font-size:17px}
+.cour-explain p{margin:0}
+.cour-steps{margin:0;padding-inline-start:22px;display:grid;gap:4px}
+.cour-explain .price{font-weight:700;color:#8F2226}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .cour-explain{background:var(--warm-bg);color:var(--ink)}:root:not([data-theme="light"]) .cour-explain .price{color:var(--heart)}}
+:root[data-theme="dark"] .cour-explain{background:var(--warm-bg);color:var(--ink)}:root[data-theme="dark"] .cour-explain .price{color:var(--heart)}
+#cour-fields{display:grid;gap:12px}
 .addbtn{white-space:normal!important;height:auto!important;min-height:40px;line-height:1.25;padding:6px 12px}
 .me-sum{display:grid;gap:4px;background:var(--leaf-soft);border-radius:14px;padding:12px 14px}
 .me-sum p{margin:0}
@@ -1037,37 +1050,47 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
     </div>
     <div class="ml-grid">
       <div class="ml-box">
-        <h3>הפרטים שלי</h3>
-        <div class="me-sum" id="me-sum" hidden></div>
-        <div id="me-edit">
-        <label class="field" for="f-name">שם (יופיע על הרשימה)<input id="f-name" type="text" autocomplete="name" placeholder="השם שלך"></label>
-        <label class="field" for="f-phone">הטלפון שלי<input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05X-XXXXXXX"></label>
-        <div class="seg" role="radiogroup" aria-label="איך מקבלים">
+        <h3>איך מקבלים את ההזמנה?</h3>
+        <div class="seg" role="radiogroup" aria-label="איך מקבלים את ההזמנה">
           <label><input type="radio" name="mode" id="m-pick" value="pickup" checked> איסוף עצמי</label>
           <label><input type="radio" name="mode" id="m-cour" value="courier"> שליח בתשלום</label>
         </div>
         <div id="pick-fields">
-          <label class="field" for="f-point">נקודת חלוקה
+          <label class="field" for="f-point">מאיזו נקודת חלוקה אוספים?
             <select id="f-point"></select>
           </label>
-          <p class="hint">שעה ומיקום מדויקים מופיעים בהודעה המרכזת של השבוע.</p>
+          <p class="hint">באיסוף עצמי לא צריך למלא פרטים. שעה ומיקום מדויקים מופיעים בהודעה המרכזת של השבוע.</p>
         </div>
         <div id="cour-fields" hidden>
-          <p class="hint">משלוח עד פתח הבית, מכל הספקים. ממלאים כתובת, בוחרים אזור, והרשימה נשלחת לשליח בלחיצה.</p>
-          <label class="field" for="f-street">רחוב ומספר<input id="f-street" type="text" autocomplete="street-address"></label>
-          <div class="two">
-            <label class="field" for="f-apt">דירה<input id="f-apt" type="text"></label>
-            <label class="field" for="f-floor">קומה<input id="f-floor" type="text"></label>
+          <div class="cour-explain">
+            <b>🛵 מה עושה השליח?</b>
+            <p>השליח אוסף עבורכם את ההזמנות מכל היצרנים, ומביא אותן עד פתח הבית. <span class="price">המשלוח עולה 40 ₪, ומשלמים אותם לשליח.</span></p>
+            <b>איך שולחים לשליח?</b>
+            <ol class="cour-steps">
+              <li>ממלאים כאן את הפרטים למשלוח ולוחצים "שמירת הפרטים". עושים את זה פעם אחת, והפרטים נשמרים גם לשבועות הבאים.</li>
+              <li>מוסיפים לרשימה את כל הספקים שהזמנתם מהם.</li>
+              <li>לוחצים על "שליחת הרשימה לשליח בוואטסאפ". ההודעה לשליח כבר כוללת את הרשימה ואת כל הפרטים.</li>
+              <li>משלמים לשליח 40 ₪ על המשלוח.</li>
+            </ol>
           </div>
-          <label class="field" for="f-code">קוד כניסה<input id="f-code" type="text"></label>
-          <label class="field" for="f-cnote">הערות לשליח<input id="f-cnote" type="text"></label>
-          <label class="field" for="f-carea">קודם בוחרים אזור<select id="f-carea"></select></label>
-          <input id="f-cphone" type="hidden">
+          <div class="me-sum" id="me-sum" hidden></div>
+          <div id="me-edit">
+            <label class="field" for="f-name">שם<input id="f-name" type="text" autocomplete="name" placeholder="השם שלך"></label>
+            <label class="field" for="f-phone">טלפון<input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05X-XXXXXXX"></label>
+            <label class="field" for="f-street">רחוב ומספר<input id="f-street" type="text" autocomplete="street-address"></label>
+            <div class="two">
+              <label class="field" for="f-apt">דירה<input id="f-apt" type="text"></label>
+              <label class="field" for="f-floor">קומה<input id="f-floor" type="text"></label>
+            </div>
+            <label class="field" for="f-code">קוד כניסה<input id="f-code" type="text"></label>
+            <label class="field" for="f-cnote">הערות לשליח<input id="f-cnote" type="text"></label>
+            <label class="field" for="f-carea">אזור המשלוח<select id="f-carea"></select></label>
+            <input id="f-cphone" type="hidden">
+            <button class="btn go me-save" id="me-save" type="button">שמירת הפרטים</button>
+            <p class="hint" id="me-msg" aria-live="polite"></p>
+          </div>
+          <div class="cour-pick" id="cour-pick" hidden></div>
         </div>
-        <button class="btn go me-save" id="me-save" type="button">שמירת הפרטים</button>
-        <p class="hint" id="me-msg" aria-live="polite"></p>
-        </div>
-        <div class="cour-pick" id="cour-pick" hidden></div>
       </div>
       <div class="ml-box">
         <h3>ממי הזמנתי</h3>
@@ -1356,7 +1379,7 @@ function renderGrid(){
 }
 function listText(fc){
   const hs=Object.keys(list);
-  let t=`🛒 *רשימת הקניות של ${me.name||"..."}* – רכישות כדאיות\n`;
+  let t=`🛒 *${me.name?"רשימת הקניות של "+me.name:"רשימת הקניות שלי"}* – רכישות כדאיות\n`;
   if(fc||me.mode==="courier"){
     t+=`🛵 משלוח בתשלום עד הבית\n📞 טלפון: ${me.phone||"..."}\n`;
     t+=`🚚 משלוח לכתובת: ${[me.street,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", ")||"..."}\n`;
@@ -1450,13 +1473,13 @@ function fillMe(){
   renderMeSum();
 }
 let EDITING=false;
-function meDone(){return !!((me.name||"").trim()&&(me.phone||"").trim()&&(me.mode==="courier"?((me.street||"").trim()&&me.carea!==""&&me.carea!=null):me.point))}
+function meDone(){return me.mode==="courier"&&!!((me.name||"").trim()&&(me.phone||"").trim()&&(me.street||"").trim()&&me.carea!==""&&me.carea!=null)}
 function meMissing(){const m=[];if(!(me.name||"").trim())m.push("שם");if(!(me.phone||"").trim())m.push("טלפון");if(me.mode==="courier"){if(!(me.street||"").trim())m.push("רחוב ומספר");if(me.carea===""||me.carea==null)m.push("אזור");}else if(!me.point)m.push("נקודת חלוקה");return m}
 function renderMeSum(){
   const L=meDone()&&me.locked!==false&&!EDITING;$("me-sum").hidden=!L;$("me-edit").hidden=L;if(!L)return;
   const c=COURIERS[+me.carea],addr=[me.street,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", ");
-  $("me-sum").innerHTML=`<p class="me-who"><b>${esc(me.name)}</b> · <span dir="ltr">${esc(me.phone)}</span></p>`+(me.mode==="courier"
-    ?`<p>🛵 <b>שליח בתשלום</b>${c?" · "+esc(c.area):""}</p><p>📍 ${esc(addr)}${me.code?" · קוד כניסה "+esc(me.code):""}</p>${me.cnote?`<p>📝 ${esc(me.cnote)}</p>`:""}`
+  $("me-sum").innerHTML=`<b>הפרטים שלי למשלוח</b>`+`<p class="me-who"><b>${esc(me.name)}</b> · <span dir="ltr">${esc(me.phone)}</span></p>`+(me.mode==="courier"
+    ?`<p>🛵 משלוח עד הבית${c?" · אזור "+esc(c.area):""}</p><p>📍 ${esc(addr)}${me.code?" · קוד כניסה "+esc(me.code):""}</p>${me.cnote?`<p>📝 ${esc(me.cnote)}</p>`:""}`
     :`<p>📍 <b>איסוף עצמי</b> מ${esc(me.point)}</p>`)+`<p class="hint">הפרטים שמורים ויישארו כך גם בשבועות הבאים.</p><button class="btn ghost" type="button" id="me-change">שינוי פרטים</button>`;
 }
 function renderAll(){renderGrid();renderList()}
