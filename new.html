@@ -736,6 +736,8 @@ footer .floatbar b{font-family:var(--body);font-size:inherit;color:inherit}
 .toast:empty{display:none}
 footer .toast b{font-family:inherit;font-size:inherit;color:inherit}
 #cour-fields>#cour-pick{order:0!important}
+.badge.tag{color:var(--cd-ink);border-color:currentColor;background:var(--leaf-soft)}
+.card.closed .badge.tag{color:var(--cd-ink)}
 .join{padding-block:10px 6px}
 .join-card{background:var(--surface);border:2px solid var(--frame);border-top:6px solid var(--sun);border-radius:20px;padding:20px;display:grid;gap:10px}
 .join h2{font-family:var(--hand);font-weight:700;font-size:clamp(36px,6vw,48px);color:var(--leaf-deep);line-height:1}
@@ -1398,7 +1400,7 @@ function renderGrid(){
     ${/^(https:\/\/|img\/)/.test(s.cov||"")?`<img class="cover" src="${esc(s.cov)}" alt="" loading="lazy">`:""}
     <div class="top">${/^(https:\/\/|img\/)/.test(s.img||"")?`<img class="mark logo-mark" src="${esc(s.img)}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
       <div><div class="cat">${C.label}</div><h3>${esc(s.n)}</h3>
-      <div class="badges">${s.ks==="כשר"?'<span class="badge kosher">✡️ כשר</span>':s.ks&&s.ks!=="לא כשר"?`<span class="badge kosher-home">✡️ ${esc(s.ks)}</span>`:""}${isOpen(s)?'<span class="badge open">פתוח להזמנות</span>':s.o?'<span class="badge">ההזמנות נסגרו לשבוע הזה</span>':'<span class="badge">לא מגיע השבוע</span>'}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>
+      <div class="badges">${s.ks==="כשר"?'<span class="badge kosher">✡️ כשר</span>':s.ks&&s.ks!=="לא כשר"?`<span class="badge kosher-home">✡️ ${esc(s.ks)}</span>`:""}${String(s.tags||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="badge tag">${esc(x)}</span>`).join("")}${isOpen(s)?'<span class="badge open">פתוח להזמנות</span>':s.o?'<span class="badge">ההזמנות נסגרו לשבוע הזה</span>':'<span class="badge">לא מגיע השבוע</span>'}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>
     <p class="desc">${esc(s.d)}</p>
     ${s.more?`<details class="more"><summary>מידע נוסף</summary><p>${esc(s.more).replace(/\n/g,"<br>")}</p></details>`:""}
     <dl class="rows">
@@ -1712,7 +1714,7 @@ function applySite(d){
   if(!d||!Array.isArray(d.suppliers))return;
   if((d.ver||0)<(DATA.ver||0))return;
   DATA=Object.assign({people:[],products:[],collabs:[],posts:[],points:[]},d);
-  DATA.suppliers=DATA.suppliers.map(s=>Object.assign({h:"",n:"",c:"veg",o:0,d:"",k:"",url:"",cd:null,ct:"",p:"",pl:"",ks:"",f:0,img:"",cov:""},s));
+  DATA.suppliers=DATA.suppliers.map(s=>Object.assign({h:"",n:"",c:"veg",o:0,d:"",k:"",url:"",cd:null,ct:"",p:"",pl:"",ks:"",tags:"",f:0,img:"",cov:""},s));
   S=DATA.suppliers;byH=Object.fromEntries(S.map(s=>[s.h,s]));
   applyLook(DATA);renderMedia();renderPoints();computeTimes();fillMe();renderAll();
   $("f-pts").textContent=(DATA.points||[]).length;
@@ -1769,6 +1771,7 @@ function edSups(openIdx){
       <label class="field">תמונת לוגו (קישור)<input data-i="${i}" data-f="img" value="${esc(s.img||"")}" dir="ltr" placeholder="https://"></label>
       <label class="field">תמונת כיסוי (קישור)<input data-i="${i}" data-f="cov" value="${esc(s.cov||"")}" dir="ltr" placeholder="https://"></label>
       <label class="field">כשרות<select data-i="${i}" data-f="ks">${opt([["","לא מוצג"],["כשר","כשר"],["הקפדה על כשרות, ללא תעודה","הקפדה על כשרות, ללא תעודה"],["לא כשר","לא כשר"]],s.ks)}</select></label>
+      <label class="field">תגיות נוספות (מפרידים בפסיק, למשל: טבעוני, ללא גלוטן)<input data-i="${i}" data-f="tags" value="${esc(s.tags||"")}" placeholder="טבעוני, ללא גלוטן"></label>
       <label class="field">מילות חיפוש<input data-i="${i}" data-f="k" value="${esc(s.k)}"></label>
       <label class="field wide">מידע נוסף (נפתח בלחיצה בכרטיס: סיפור, הוראות, כשרות, משלוח)<textarea data-i="${i}" data-f="more" rows="4">${esc(s.more||"")}</textarea></label>
       <div class="wide ed-del"><button class="btn ghost" type="button" data-del="${i}">מחיקת הספק</button></div>
