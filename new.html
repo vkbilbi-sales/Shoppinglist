@@ -716,6 +716,27 @@ footer .floatbar b{font-family:var(--body);font-size:inherit;color:inherit}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .cour-explain{background:var(--warm-bg);color:var(--ink)}:root:not([data-theme="light"]) .cour-explain .price{color:var(--heart)}}
 :root[data-theme="dark"] .cour-explain{background:var(--warm-bg);color:var(--ink)}:root[data-theme="dark"] .cour-explain .price{color:var(--heart)}
 #cour-fields{display:grid;gap:12px}
+:root{--frame:#7FA6A3}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--frame:#4F7775}}
+:root[data-theme="dark"]{--frame:#4F7775}
+.card{border:2px solid var(--frame)!important;box-shadow:0 3px 0 var(--frame)!important}
+.item{border:2px solid var(--frame)!important;border-inline-start:6px solid var(--sun)!important;border-radius:14px}
+.item.got{border-inline-start-color:var(--leaf)!important}
+.ml-flow{display:grid;gap:16px;max-width:760px}
+.ml-box h3{font-size:21px!important}
+.ml-small .btn{font-size:14px;padding:7px 14px}
+.cour-lead{margin:0;font-size:16px}
+.cour-lead .price{font-weight:700;color:var(--heart)}
+.cour-open{justify-content:center;font-size:18px;padding:13px 18px}
+.cour-who{background:var(--leaf-soft);border-radius:12px;padding:10px 12px;font-size:16.5px}
+.cour-miss{margin:0;background:var(--heart-soft);border-radius:12px;padding:10px 12px;color:var(--ink)}
+.wa-go{background:var(--wa)!important;color:#fff!important;justify-content:center;font-size:17px;padding:13px 18px;white-space:normal;text-align:center}
+.cour-close{justify-self:start;color:var(--muted)}
+.toast{position:fixed;inset-inline:12px;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:40;max-width:520px;margin-inline:auto;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 16px;font-size:15.5px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast:empty{display:none}
+footer .toast b{font-family:inherit;font-size:inherit;color:inherit}
+#cour-fields>#cour-pick{order:0!important}
+.toast a{color:inherit;font-weight:700}
 .addbtn{white-space:normal!important;height:auto!important;min-height:40px;line-height:1.25;padding:6px 12px}
 .me-sum{display:grid;gap:4px;background:var(--leaf-soft);border-radius:14px;padding:12px 14px}
 .me-sum p{margin:0}
@@ -1048,73 +1069,67 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
       <div><span class="ml-kicker">רשימת הקניות שלי</span><h2 id="ml-h">בחרו לכם מי עולה לעגלת הקניות 🛒</h2><p>הרשימה נשמרת אצלנו ומתעדכנת בכל טלפון שפותח אותה. אפשר לשתף אותה עם בן או בת הזוג, או עם מי שאוסף, וכל סימון מתעדכן אצל כולם.</p><p class="syncline busy" id="sync"><i></i><span id="sync-t">מתחבר…</span></p></div>
       <div class="progress" id="progress"></div>
     </div>
-    <div class="ml-grid">
-      <div class="ml-box">
-        <h3>איך מקבלים את ההזמנה?</h3>
-        <div class="seg" role="radiogroup" aria-label="איך מקבלים את ההזמנה">
-          <label><input type="radio" name="mode" id="m-pick" value="pickup" checked> איסוף עצמי</label>
-          <label><input type="radio" name="mode" id="m-cour" value="courier"> שליח בתשלום</label>
+    <div class="ml-flow">
+      <div class="ml-box ml-items">
+        <h3>🛒 הספקים ברשימה שלי</h3>
+        <p class="hint">כל ספק שלוחצים עליו "להוסיף לרשימת הקניות" מופיע כאן אוטומטית. רושמים ליד כל ספק מה הזמנתם, ובזמן האיסוף מסמנים מה נאסף.</p>
+        <ul class="items" id="items"></ul>
+        <div class="pick-sup"><label class="field" for="pick-sup">הוספת ספק נוסף<select id="pick-sup"></select></label></div>
+        <div class="paysum" id="paysum" hidden><h4>תשלום לספקים ברשימה</h4><ul id="paysum-l"></ul></div>
+        <div class="ml-actions ml-small">
+          <button class="btn alt" id="copy" type="button">העתקת הרשימה</button>
+          <button class="btn ghost" id="reset" type="button">איפוס הרשימה</button>
         </div>
-        <div id="pick-fields">
-          <label class="field" for="f-point">מאיזו נקודת חלוקה אוספים?
-            <select id="f-point"></select>
-          </label>
-          <p class="hint">באיסוף עצמי לא צריך למלא פרטים. שעה ומיקום מדויקים מופיעים בהודעה המרכזת של השבוע.</p>
-        </div>
+        <p class="hint" id="ml-msg" aria-live="polite"></p>
+      </div>
+
+      <div class="ml-box ml-deliver">
+        <h3>🛵 משלוח עד הבית עם שליח</h3>
+        <p class="cour-lead">השליח אוסף עבורכם את ההזמנות מכל היצרנים, ומביא אותן עד פתח הבית. <span class="price">40 ₪ למשלוח, משלמים לשליח.</span></p>
+        <button class="btn go cour-open" id="cour-open" type="button" aria-expanded="false" aria-controls="cour-fields">שליחת רשימת הקניות לשליח ←</button>
         <div id="cour-fields" hidden>
-          <div class="cour-explain">
-            <b>🛵 מה עושה השליח?</b>
-            <p>השליח אוסף עבורכם את ההזמנות מכל היצרנים, ומביא אותן עד פתח הבית. <span class="price">המשלוח עולה 40 ₪, ומשלמים אותם לשליח.</span></p>
-            <b>איך שולחים לשליח?</b>
-            <ol class="cour-steps">
-              <li>ממלאים כאן את הפרטים למשלוח ולוחצים "שמירת הפרטים". עושים את זה פעם אחת, והפרטים נשמרים גם לשבועות הבאים.</li>
-              <li>מוסיפים לרשימה את כל הספקים שהזמנתם מהם.</li>
-              <li>לוחצים על "שליחת הרשימה לשליח בוואטסאפ". ההודעה לשליח כבר כוללת את הרשימה ואת כל הפרטים.</li>
-              <li>משלמים לשליח 40 ₪ על המשלוח.</li>
-            </ol>
-          </div>
           <div class="me-sum" id="me-sum" hidden></div>
           <div id="me-edit">
-            <label class="field" for="f-name">שם<input id="f-name" type="text" autocomplete="name" placeholder="השם שלך"></label>
-            <label class="field" for="f-phone">טלפון<input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05X-XXXXXXX"></label>
-            <label class="field" for="f-street">רחוב ומספר<input id="f-street" type="text" autocomplete="street-address"></label>
+            <p class="hint">שדות עם <b>*</b> הם חובה. ממלאים פעם אחת, והפרטים נשמרים גם לשבועות הבאים.</p>
+            <label class="field" for="f-carea">נקודת האיסוף שלכם *<select id="f-carea" required aria-required="true"></select></label>
+            <div class="cour-who" id="cour-who" hidden></div>
+            <label class="field" for="f-name">שם *<input id="f-name" type="text" autocomplete="name" required aria-required="true"></label>
+            <label class="field" for="f-phone">טלפון *<input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05X-XXXXXXX" required aria-required="true"></label>
+            <label class="field" for="f-street">רחוב ומספר בית *<input id="f-street" type="text" autocomplete="street-address" required aria-required="true"></label>
             <div class="two">
               <label class="field" for="f-apt">דירה<input id="f-apt" type="text"></label>
               <label class="field" for="f-floor">קומה<input id="f-floor" type="text"></label>
             </div>
             <label class="field" for="f-code">קוד כניסה<input id="f-code" type="text"></label>
             <label class="field" for="f-cnote">הערות לשליח<input id="f-cnote" type="text"></label>
-            <label class="field" for="f-carea">אזור המשלוח<select id="f-carea"></select></label>
             <input id="f-cphone" type="hidden">
-            <button class="btn go me-save" id="me-save" type="button">שמירת הפרטים</button>
-            <p class="hint" id="me-msg" aria-live="polite"></p>
           </div>
           <div class="cour-pick" id="cour-pick" hidden></div>
+          <button class="linkbtn cour-close" id="cour-close" type="button">לא צריך שליח, אוספים בעצמנו</button>
         </div>
       </div>
-      <div class="ml-box">
-        <h3>ממי הזמנתי</h3>
-        <div class="pick-sup"><label class="field" for="pick-sup">הוספת ספק לרשימה<select id="pick-sup"></select></label></div>
-        <ul class="items" id="items"></ul>
-        <div class="paysum" id="paysum" hidden><h4>תשלום לספקים ברשימה</h4><ul id="paysum-l"></ul></div>
+
+      <div class="ml-box ml-self" id="pick-fields">
+        <h3>📍 איסוף עצמי</h3>
+        <label class="field" for="f-point">מאיזו נקודת חלוקה אוספים?<select id="f-point"></select></label>
+        <p class="hint">באיסוף עצמי לא צריך למלא פרטים. שעה ומיקום מדויקים מופיעים בהודעה המרכזת של השבוע.</p>
         <div class="ml-actions">
-          <a class="btn go" id="wa-share" href="#" target="_blank" rel="noopener">שליחת הרשימה בוואטסאפ</a>
+          <a class="btn go" id="wa-share" href="#" target="_blank" rel="noopener">שליחת הרשימה בוואטסאפ למי שאוסף</a>
           <a class="btn alt" id="wa-cour" href="#" target="_blank" rel="noopener" hidden>שליחה לשליח בוואטסאפ</a>
-          <button class="btn alt" id="copy" type="button">העתקת הרשימה</button>
-          <button class="btn ghost" id="reset" type="button">איפוס הרשימה</button>
         </div>
-        <p class="hint" id="ml-msg" aria-live="polite"></p>
-        <div class="sharebox" id="sharebox">
+      </div>
+
+      <div class="sharebox" id="sharebox">
           <b>👫 רשימה משותפת</b>
           <p>שולחים את הקישור לבן או בת הזוג, או למי שאוסף. מי שפותח אותו רואה את אותה רשימה בדיוק, ויכול להוסיף ולסמן מה נאסף.</p>
           <div class="row"><a class="btn go" id="share-wa" href="#" target="_blank" rel="noopener">שיתוף הרשימה בוואטסאפ</a><button class="btn alt" id="share-copy" type="button">העתקת הקישור</button></div>
         </div>
-      </div>
     </div>
   </section>
 </main>
 
 <footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <a class="floatbar" id="floatbar" href="#mylist" hidden><span id="fb-txt"></span><b>לרשימה ↓</b></a>
   <div class="wrap">
     <div><button class="edbtn" id="ed-open" type="button" hidden>✏️ עריכת הדף</button><b>רכישות כדאיות</b><br><span class="f-sl">כי באנו לעשות טוב ♥️</span><br><span class="f-sl">חיבור בין יצרנים ואנשים</span><br>ורד</div>
@@ -1435,13 +1450,16 @@ const COURIERS=[
 ];
 function fillCourierArea(){
   const sel=$("f-carea");if(!sel)return;
-  sel.innerHTML='<option value="">-- בחרו אזור --</option>'+COURIERS.map((c,i)=>`<option value="${i}"${String(me.carea)===String(i)?" selected":""}>${esc(c.area)}</option>`).join("");
-  const c=COURIERS[+me.carea];const box=$("cour-pick");
-  if(me.mode!=="courier"||me.carea===""||me.carea==null||!c){box.hidden=true;return}
-  const n=Object.keys(list).filter(h=>byH[h]).length,ph=c.phone.replace(/\D/g,"").slice(1);
+  if(document.activeElement!==sel)sel.innerHTML='<option value="">-- בחרו נקודת איסוף --</option>'+COURIERS.map((c,i)=>`<option value="${i}"${String(me.carea)===String(i)?" selected":""}>${esc(c.area)}</option>`).join("");
+  const c=COURIERS[+me.carea],who=$("cour-who"),box=$("cour-pick"),has=me.carea!==""&&me.carea!=null&&!!c;
+  const ph=has?c.phone.replace(/\D/g,"").slice(1):"";
+  who.hidden=!has;if(has)who.innerHTML=`🛵 השליח של ${esc(c.area)}: <b>${esc(c.name)}</b> · <a class="tel" dir="ltr" href="tel:+972${ph}">${c.phone}</a>`;
+  if(me.mode!=="courier"){box.hidden=true;return}
   box.hidden=false;
-  box.innerHTML=`<div class="cp-who">🛵 השליח של ${esc(c.area)}: <b>${esc(c.name)}</b> · <a class="tel" dir="ltr" href="${n?`https://wa.me/972${ph}?text=${encodeURIComponent(listText(true))}`:`https://wa.me/972${ph}`}" target="_blank" rel="noopener">${c.phone}</a></div><div class="cp-note">${esc(c.note)}</div>`+
-    (n?`<a class="btn go" target="_blank" rel="noopener" href="https://wa.me/972${ph}?text=${encodeURIComponent(listText(true))}">שליחת הרשימה ל${esc(c.name)} בוואטסאפ ←</a>`:`<p class="hint">כדי לשלוח לשליח, קודם מוסיפים ספקים לרשימה.</p>`);
+  const n=Object.keys(list).filter(h=>byH[h]).length,miss=meMissing();
+  box.innerHTML=!n?`<p class="hint">כדי לשלוח לשליח, קודם מוסיפים ספקים לרשימה.</p>`
+    :miss.length?`<p class="cour-miss">כדי לשלוח לשליח, צריך למלא עוד: <b>${miss.join(", ")}</b></p>`
+    :`<a class="btn wa-go" id="cour-send" target="_blank" rel="noopener" href="https://wa.me/972${ph}?text=${encodeURIComponent(listText(true))}">שליחת הרשימה ל${esc(c.name)} בוואטסאפ ←</a><p class="hint">נפתח וואטסאפ של ${esc(c.name)} (<span dir="ltr">${c.phone}</span>) עם הודעה מוכנה: הרשימה וכל הפרטים שלכם. נשאר רק ללחוץ "שליחה".</p>`;
 }
 function renderCouriers(){fillCourierArea();
   if(!$("cour-grid"))return;
@@ -1467,19 +1485,21 @@ function updateLinks(){renderCouriers();
 }
 function fillMe(){
   const put=(id,v)=>{const el=$(id);if(el&&document.activeElement!==el)el.value=v||""};
-  put("f-name",me.name);put("f-phone",me.phone);$("m-pick").checked=me.mode!=="courier";$("m-cour").checked=me.mode==="courier";
+  put("f-name",me.name);put("f-phone",me.phone);$("cour-open").setAttribute("aria-expanded",me.mode==="courier");$("cour-open").hidden=me.mode==="courier";
   $("f-point").value=me.point||"";["street","apt","floor","code","cnote","cphone"].forEach(k=>put("f-"+k,me[k]));
   $("pick-fields").hidden=me.mode==="courier";$("cour-fields").hidden=me.mode!=="courier";
   renderMeSum();
 }
 let EDITING=false;
+let toastT=null;
+function toast(n){const t=$("toast");t.innerHTML=`✓ <b>${esc(n)}</b> נוסף לרשימת הקניות · <a href="#mylist">לרשימה ←</a>`;clearTimeout(toastT);toastT=setTimeout(()=>{t.innerHTML=""},4500)}
 function meDone(){return me.mode==="courier"&&!!((me.name||"").trim()&&(me.phone||"").trim()&&(me.street||"").trim()&&me.carea!==""&&me.carea!=null)}
-function meMissing(){const m=[];if(!(me.name||"").trim())m.push("שם");if(!(me.phone||"").trim())m.push("טלפון");if(me.mode==="courier"){if(!(me.street||"").trim())m.push("רחוב ומספר");if(me.carea===""||me.carea==null)m.push("אזור");}else if(!me.point)m.push("נקודת חלוקה");return m}
+function meMissing(){const m=[];if(!(me.name||"").trim())m.push("שם");if(!(me.phone||"").trim())m.push("טלפון");if(me.mode==="courier"){if(!(me.street||"").trim())m.push("רחוב ומספר");if(me.carea===""||me.carea==null)m.push("נקודת האיסוף");}else if(!me.point)m.push("נקודת חלוקה");return m}
 function renderMeSum(){
   const L=meDone()&&me.locked!==false&&!EDITING;$("me-sum").hidden=!L;$("me-edit").hidden=L;if(!L)return;
   const c=COURIERS[+me.carea],addr=[me.street,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", ");
   $("me-sum").innerHTML=`<b>הפרטים שלי למשלוח</b>`+`<p class="me-who"><b>${esc(me.name)}</b> · <span dir="ltr">${esc(me.phone)}</span></p>`+(me.mode==="courier"
-    ?`<p>🛵 משלוח עד הבית${c?" · אזור "+esc(c.area):""}</p><p>📍 ${esc(addr)}${me.code?" · קוד כניסה "+esc(me.code):""}</p>${me.cnote?`<p>📝 ${esc(me.cnote)}</p>`:""}`
+    ?`<p>📍 נקודת האיסוף: <b>${c?esc(c.area):""}</b></p>${c?`<p>🛵 השליח: <b>${esc(c.name)}</b> · <a class="tel" dir="ltr" href="tel:+972${c.phone.replace(/\D/g,"").slice(1)}">${c.phone}</a></p>`:""}<p>🏠 ${esc(addr)}${me.code?" · קוד כניסה "+esc(me.code):""}</p>${me.cnote?`<p>📝 ${esc(me.cnote)}</p>`:""}`
     :`<p>📍 <b>איסוף עצמי</b> מ${esc(me.point)}</p>`)+`<p class="hint">הפרטים שמורים ויישארו כך גם בשבועות הבאים.</p><button class="btn ghost" type="button" id="me-change">שינוי פרטים</button>`;
 }
 function renderAll(){renderGrid();renderList()}
@@ -1487,7 +1507,7 @@ function renderAll(){renderGrid();renderList()}
 document.addEventListener("click",e=>{
   const c=e.target.closest("[data-cat]");if(c){state.cat=c.dataset.cat;chips();renderGrid();return}
   const f=e.target.closest("[data-fav]");if(f){const h=f.dataset.fav;favs.has(h)?favs.delete(h):favs.add(h);LS.set("rk-favs",[...favs]);renderGrid();return}
-  const a=e.target.closest("[data-add]");if(a){const h=a.dataset.add;list[h]?delete list[h]:list[h]={note:"",got:false};saveList();renderAll();return}
+  const a=e.target.closest("[data-add]");if(a){const h=a.dataset.add;list[h]?delete list[h]:list[h]={note:"",got:false};saveList();renderAll();if(list[h])toast(byH[h].n);return}
   const r=e.target.closest("[data-rm]");if(r){delete list[r.dataset.rm];saveList();renderAll();return}
 });
 document.addEventListener("change",e=>{const g=e.target.dataset&&e.target.dataset.got;if(g&&list[g]){list[g].got=e.target.checked;saveList();renderList()}});
@@ -1611,8 +1631,10 @@ $("a11y-link").addEventListener("click",()=>{$("a11y").open=true});
    if(e.key==="Tab"){const f=foc(d);if(!f.length)return;const i=f.indexOf(document.activeElement);
      if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&(i===-1||i===f.length-1)){e.preventDefault();f[0].focus()}}});}
 $("me-edit").addEventListener("focusin",()=>{EDITING=true});
-$("me-save").addEventListener("click",()=>{const m=meMissing();if(m.length){$("me-msg").textContent="חסר: "+m.join(", ");return}
-  EDITING=false;me.locked=true;$("me-msg").textContent="";saveMe();renderMeSum();updateLinks();$("me-sum").tabIndex=-1;$("me-sum").focus()});
+$("cour-open").addEventListener("click",()=>{me.mode="courier";saveMe();fillMe();updateLinks();requestAnimationFrame(()=>{const t=$("me-edit").hidden?$("me-sum"):$("f-carea");t.scrollIntoView({behavior:"smooth",block:"center"});if(t.id==="me-sum")t.tabIndex=-1;t.focus({preventScroll:true})})});
+$("cour-close").addEventListener("click",()=>{me.mode="pickup";saveMe();fillMe();updateLinks();$("cour-open").focus()});
+document.addEventListener("click",e=>{if(!e.target.closest("#cour-send"))return;EDITING=false;me.locked=true;saveMe();setTimeout(renderMeSum,400)});
+document.addEventListener("input",e=>{if(e.target.tagName!=="SELECT"&&e.target.closest&&e.target.closest("#me-edit"))fillCourierArea()});
 document.addEventListener("click",e=>{if(e.target.id!=="me-change")return;EDITING=true;me.locked=false;saveMe();renderMeSum();$("f-name").focus()});
 renderMedia();renderPoints();computeTimes();chips();fillMe();renderAll();
 // ---- live data from Firebase ----
