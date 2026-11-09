@@ -689,22 +689,68 @@ main [data-tab]:not(.tab-on){display:none!important}
 .tabs button b{display:inline-block;min-width:20px;padding:0 6px;margin-inline-start:4px;border-radius:999px;background:var(--heart);color:#fff;font-size:12px}
 main>[data-tab].tab-on:first-of-type{margin-top:18px}
 .tel{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px;unicode-bidi:isolate}
+
+/* ---------- נגישות: ת"י 5568 / WCAG 2.0 AA ---------- */
+:root{--leaf:#127479;--leaf-deep:#0F6267;--heart:#C2353A;--sun:#A35F0C;--c-veg:#4E7510;--c-dairy:#127479;--c-meat:#C2353A;--c-bake:#946010;--c-sweet:#BB2F62;--road:#5A7A12;--on-heart:#fff;--on-sun:#fff;--on-leaf:#fff;--cd-ink:var(--leaf-deep);--closed-ink:var(--muted);--gold-ink:#9A5A0A;--kosher:#1F6FB2;--kosher-home:#6A5BB0;--wa:#0F7A3D;--who-red:#A82A2F;--warm-bg:#FFF1DC}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--leaf:#4CC3C8;--cloud:#21495A;--leaf-deep:#2E9EA3;--heart:#FF6B6B;--sun:#F0B455;--c-veg:#A6CC54;--c-dairy:#5FCBD0;--c-meat:#FF7C7C;--c-bake:#EDB45A;--c-sweet:#F28DB0;--c-well:#A9A9F0;--road:#4F6C14;--on-heart:#1A0C0C;--on-sun:#1A1206;--on-leaf:#0E1C1E;--cd-ink:#7FD6DA;--closed-ink:#9BB7B7;--gold-ink:#F0B455;--kosher:#7DB5EA;--kosher-home:#B3A8F0;--wa:#0F7A3D;--who-red:#FF7C7C;--warm-bg:#2A2214}}
+:root[data-theme="dark"]{--leaf:#4CC3C8;--cloud:#21495A;--leaf-deep:#2E9EA3;--heart:#FF6B6B;--sun:#F0B455;--c-veg:#A6CC54;--c-dairy:#5FCBD0;--c-meat:#FF7C7C;--c-bake:#EDB45A;--c-sweet:#F28DB0;--c-well:#A9A9F0;--road:#4F6C14;--on-heart:#1A0C0C;--on-sun:#1A1206;--on-leaf:#0E1C1E;--cd-ink:#7FD6DA;--closed-ink:#9BB7B7;--gold-ink:#F0B455;--kosher:#7DB5EA;--kosher-home:#B3A8F0;--wa:#0F7A3D;--who-red:#FF7C7C;--warm-bg:#2A2214}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip{position:absolute;inset-inline-start:12px;top:-80px;z-index:100;background:var(--ink);color:var(--bg);font-weight:700;padding:10px 16px;border-radius:10px;text-decoration:none}
+.skip:focus{top:12px}
+main:focus,#suppliers:focus{outline:none}
+.facts b,.facts div b{color:#FFC861!important}
+.post.pc-red .who{color:var(--who-red)}
+.floatbar{background:var(--band)}
+footer .floatbar b{font-family:var(--body);font-size:inherit;color:inherit}
+.a11y{flex:1 1 100%}
+@media (max-width:360px){#grid,#grid-fri{grid-template-columns:minmax(0,1fr)!important}.btn{white-space:normal;text-align:center}.search{flex-basis:100%}}
+.tools{grid-template-columns:minmax(0,1fr)}.tools>*{min-width:0}
+.card h3,.card .top>div{overflow-wrap:anywhere;min-width:0}
+.contact-rules b{color:var(--cd-ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) :is(.vered .bio-belief,.sharebox,.perk-offer,#pick-sup,.cour-pick){background:var(--warm-bg)!important;color:var(--ink)}}
+:root[data-theme="dark"] :is(.vered .bio-belief,.sharebox,.perk-offer,#pick-sup,.cour-pick){background:var(--warm-bg)!important;color:var(--ink)}
+.story{grid-template-columns:minmax(0,1fr)}
+@media (max-width:820px){.story-top{grid-template-columns:minmax(0,1fr)}}
+.road-cap{background:var(--road)}
+.stops .end,.spread,.paylink,.tabs button b{color:var(--on-heart)!important}
+.btn-light,.co-mark,.edbtn,.ed-acts .go,.counter.a2hs,.counter.a2hs b,.counter.a2hs span,.tabs .tab-a2hs,#wk-n,#wk-n b{color:var(--on-sun)!important}
+.chip[aria-pressed="true"],.counter[aria-pressed="true"],.counter[aria-pressed="true"] b,.counter[aria-pressed="true"] span,.seg3 label:has(input:checked),.progress,.seg label:has(input:checked),.tabs button[aria-current="true"]{color:var(--on-leaf)!important}
+.tabs button[aria-current="true"]{background:var(--leaf);border-color:var(--leaf)}
+.cd{color:var(--cd-ink)}
+.cd.soon{color:var(--heart)}
+.collab-cta b{color:var(--cd-ink)}
+.perk-offer h3,.post.pc-gold h3,.sharebox b{color:var(--gold-ink)!important}
+.badge.kosher{color:var(--kosher);border-color:var(--kosher)}
+.badge.kosher-home{color:var(--kosher-home);border-color:var(--kosher-home)}
+.cour-pick .btn,#wa-share{background:var(--wa)!important;color:#fff!important}
+.card.closed{opacity:1}
+.card.closed .mini-awning{filter:grayscale(1);opacity:.5}
+.card.closed .desc,.card.closed .badge:not(.kosher):not(.kosher-home),.card.closed dt{color:var(--closed-ink)}
+.motion-btn{position:absolute;top:8px;inset-inline-end:12px;z-index:30;font-size:13px;font-weight:700;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:4px 12px;display:none}
+@media (prefers-reduced-motion:no-preference){.motion-btn{display:inline-flex}}
+html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none!important;transition:none!important}
+.a11y{margin-top:14px;border-top:1px solid rgba(127,127,127,.35);padding-top:10px}
+.a11y summary{cursor:pointer;font-weight:700;display:inline-block}
+.a11y-body{max-width:72ch;font-size:15.5px;line-height:1.65;margin-top:8px;color:var(--ink)}
+.a11y-body h3{font-size:17px;margin:14px 0 4px}
+.a11y-body ul{margin:4px 0;padding-inline-start:20px}
+.a11y-body a{text-decoration:underline}
 </style>
 </head>
 <body>
 <div id="rk-root"></div>
-<script type="text/html" id="rk-body"><div class="awning" aria-hidden="true"></div>
+<script type="text/html" id="rk-body"><a class="skip" href="#main">דילוג לתוכן הראשי</a><button class="motion-btn" id="motion-btn" type="button" aria-pressed="false">⏸ עצירת אנימציה</button><div class="awning" aria-hidden="true"></div>
 <nav class="tabs" id="tabs" aria-label="אזורים בדף">
-  <div class="wrap tabs-in" role="tablist">
-    <button type="button" role="tab" data-tabbtn="about">💚 קצת עלינו</button>
-    <button type="button" role="tab" data-tabbtn="sup">🛒 ספקי השבוע</button>
-    <button type="button" role="tab" data-tabbtn="list">📝 רשימת הקניות <b id="tab-n" hidden></b></button>
-    <button type="button" role="tab" data-tabbtn="couriers">🛵 שליחים</button>
-    <button type="button" role="tab" data-tabbtn="news">📣 הודעות</button>
-    <button type="button" role="tab" data-tabbtn="recipes">🍳 מתכונים</button>
-    <button type="button" role="tab" data-tabbtn="reviews">💬 לקוחות ממליצים</button>
-    <button type="button" role="tab" data-tabbtn="gallery">📸 גלריה</button>
-    <button type="button" role="tab" data-tabbtn="contact">💬 התקשרות עם ורד</button>
+  <div class="wrap tabs-in">
+    <button type="button" data-tabbtn="about">💚 קצת עלינו</button>
+    <button type="button" data-tabbtn="sup">🛒 ספקי השבוע</button>
+    <button type="button" data-tabbtn="list">📝 רשימת הקניות <b id="tab-n" hidden></b></button>
+    <button type="button" data-tabbtn="couriers">🛵 שליחים</button>
+    <button type="button" data-tabbtn="news">📣 הודעות</button>
+    <button type="button" data-tabbtn="recipes">🍳 מתכונים</button>
+    <button type="button" data-tabbtn="reviews">💬 לקוחות ממליצים</button>
+    <button type="button" data-tabbtn="gallery">📸 גלריה</button>
+    <button type="button" data-tabbtn="contact">💬 התקשרות עם ורד</button>
     <button type="button" class="tab-a2hs" data-a2hs>📲 לחצו כאן לשמירת האפליקציה במסך הבית</button>
   </div>
 </nav>
@@ -748,7 +794,7 @@ main>[data-tab].tab-on:first-of-type{margin-top:18px}
   <svg class="hills" viewBox="0 0 1200 70" preserveAspectRatio="none" aria-hidden="true"><path class="h1" d="M0 40 C200 0 380 10 560 34 S900 60 1200 20 V70 H0Z"/><path class="h2" d="M0 58 C260 30 520 40 760 52 S1050 64 1200 46 V70 H0Z"/></svg>
 </header>
 
-<main class="wrap">
+<main class="wrap" id="main" tabindex="-1">
   <section class="posts" id="sec-news" hidden aria-labelledby="h-news">
     <div class="gal-head"><h2 id="h-news">הודעות ועדכונים</h2><p>מה חדש ומה חשוב השבוע</p></div>
     <div class="post-grid" id="pg-news"></div>
@@ -957,7 +1003,8 @@ main>[data-tab].tab-on:first-of-type{margin-top:18px}
     <div class="viewbar" id="viewbar" hidden><span id="viewtxt"></span><button class="linkbtn" id="showall" type="button">הצגת כל הספקים</button></div>
   </div>
 
-  <section class="grid" id="grid" aria-live="polite"></section>
+  <p class="sr-only" id="grid-status" role="status" aria-live="polite"></p>
+  <section class="grid" id="grid" aria-label="ספקי השבוע"></section>
   <section class="fri-sec" id="fri-sec" hidden aria-labelledby="fri-h">
     <div class="section-head"><h2 id="fri-h">יום שישי: משלוח עד הבית 🚚</h2>
       <p>הספקים האלה לא מגיעים לחלוקה של יום רביעי. ההזמנה נשלחת ישירות אליכם הביתה ביום שישי.</p></div>
@@ -1025,9 +1072,9 @@ main>[data-tab].tab-on:first-of-type{margin-top:18px}
     </div>
   </section>
 </main>
-<a class="floatbar" id="floatbar" href="#mylist" hidden><span id="fb-txt"></span><b>לרשימה ↓</b></a>
 
 <footer>
+<a class="floatbar" id="floatbar" href="#mylist" hidden><span id="fb-txt"></span><b>לרשימה ↓</b></a>
   <div class="wrap">
     <div><button class="edbtn" id="ed-open" type="button" hidden>✏️ עריכת הדף</button><b>רכישות כדאיות</b><br><span class="f-sl">כי באנו לעשות טוב ♥️</span><br><span class="f-sl">חיבור בין יצרנים ואנשים</span><br>ורד</div>
     <div class="flinks">
@@ -1037,8 +1084,29 @@ main>[data-tab].tab-on:first-of-type{margin-top:18px}
       <a href="#" data-a2hs>📲 לחצו כאן לשמירת האפליקציה במסך הבית</a>
       <a href="https://www.facebook.com/groups/250286642976195/" target="_blank" rel="noopener">קבוצת הפייסבוק</a>
       <a href="https://wa.me/972544462223" target="_blank" rel="noopener">וואטסאפ לורד</a>
+      <a href="#a11y" id="a11y-link">הצהרת נגישות</a>
     </div>
   </div>
+  <div class="wrap"><details class="a11y" id="a11y"><summary>הצהרת נגישות</summary><div class="a11y-body">
+    <p>חשוב לנו שכל אחד ואחת יוכלו להשתמש באתר בקלות, כולל אנשים עם מוגבלות. האתר הונגש בהתאם לתקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), התשע"ג-2013, ולתקן הישראלי ת"י 5568 ברמה AA, המבוסס על הנחיות WCAG 2.0.</p>
+    <h3>מה עשינו באתר</h3>
+    <ul>
+      <li>מבנה כותרות ואזורים ברורים, שמאפשר ניווט עם קורא מסך.</li>
+      <li>אפשר להשתמש בכל האתר עם מקלדת בלבד, כולל הלשוניות, רשימת הקניות והחלונות הקופצים. בתחילת הדף יש כפתור "דילוג לתוכן הראשי".</li>
+      <li>סימון ברור של המיקום במקלדת (פוקוס).</li>
+      <li>ניגודיות צבעים לפי התקן, במצב בהיר ובמצב כהה.</li>
+      <li>טקסט חלופי לתמונות, ותוויות לכל השדות והכפתורים.</li>
+      <li>אפשר להגדיל את הטקסט עד 200% בלי לאבד תוכן, והאתר מותאם לנייד.</li>
+      <li>כפתור לעצירת האנימציה. למי שהגדיר במכשיר הפחתת תנועה, האנימציה לא מופעלת בכלל.</li>
+    </ul>
+    <h3>מה לא בשליטתנו</h3>
+    <p>הקישורים להזמנה מובילים לחנויות של ספקים באתר mypips, לטפסי Google ולאתרי תשלום. האתרים האלה מופעלים בידי צד שלישי, והנגישות שלהם באחריותו.</p>
+    <h3>נקודות האיסוף</h3>
+    <p>מי שצריך התאמה באיסוף ההזמנה מוזמן לפנות אלינו מראש, ונעשה כל מאמץ לסייע.</p>
+    <h3>נתקלתם בבעיה?</h3>
+    <p>אם משהו באתר לא נגיש לכם, נשמח לשמוע ולתקן. רכזת הנגישות: ורד קיסר, בוואטסאפ <a href="https://wa.me/972544462223" target="_blank" rel="noopener">054-4462223</a>.</p>
+    <p>ההצהרה עודכנה ב־9 בנובמבר 2026.</p>
+  </div></details></div>
 </footer>
 
 <div class="sub" id="sub" hidden role="dialog" aria-modal="true" aria-labelledby="sub-h">
@@ -1453,9 +1521,9 @@ let TAB="sup";
 function showTab(t,scroll){
   if(!document.querySelector(`[data-tabbtn="${t}"]`))t="sup";TAB=t;
   document.querySelectorAll("main [data-tab]").forEach(el=>el.classList.toggle("tab-on",el.dataset.tab===t));
-  document.querySelectorAll("[data-tabbtn]").forEach(b=>b.setAttribute("aria-selected",b.dataset.tabbtn===t));
+  document.querySelectorAll("[data-tabbtn]").forEach(b=>b.setAttribute("aria-current",b.dataset.tabbtn===t));
   {const ab=document.querySelector(`[data-tabbtn="${t}"]`);const bar=ab.parentElement;bar.scrollLeft=ab.offsetLeft-(bar.clientWidth-ab.offsetWidth)/2}
-  if(scroll){const nav=$("tabs"),m=t==="sup"?$("suppliers"):document.querySelector("main");window.scrollTo({top:m.getBoundingClientRect().top+window.scrollY-nav.offsetHeight-6,behavior:"smooth"})}
+  if(scroll){const nav=$("tabs"),m=t==="sup"?$("suppliers"):document.querySelector("main");window.scrollTo({top:m.getBoundingClientRect().top+window.scrollY-nav.offsetHeight-6,behavior:"smooth"});m.setAttribute("tabindex","-1");m.focus({preventScroll:true})}
 }
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-tabbtn]");if(b){showTab(b.dataset.tabbtn,true);return}
@@ -1466,6 +1534,28 @@ document.addEventListener("click",e=>{
 });
 {const id=location.hash.slice(1),el=id&&document.getElementById(id),host=el&&el.closest("[data-tab]");
  showTab(host?host.dataset.tab:(SHARED?"list":"sup"),false);if(host)setTimeout(()=>el.scrollIntoView(),50)}
+// ---------- accessibility helpers ----------
+function keepFocus(fn){return function(...a){const el=document.activeElement;let sel=null;
+  if(el&&el!==document.body){if(el.id)sel="#"+CSS.escape(el.id);else{const ds=Object.entries(el.dataset||{});if(ds.length)sel=el.tagName.toLowerCase()+ds.map(([k,v])=>`[data-${k.replace(/[A-Z]/g,m=>"-"+m.toLowerCase())}="${CSS.escape(v)}"]`).join("")}}
+  const r=fn.apply(this,a);
+  if(sel&&!document.contains(el)){const n=document.querySelector(sel);if(n)n.focus()}
+  return r}}
+{const rg=renderGrid;renderGrid=keepFocus(function(...a){const r=rg.apply(this,a);const n=document.querySelectorAll("#grid article,#grid-fri article").length,t=n?`מוצגים ${n} ספקים`:"לא נמצאו ספקים";if($("grid-status").textContent!==t)$("grid-status").textContent=t;return r})}
+renderList=keepFocus(renderList);chips=keepFocus(chips);
+{const b=$("motion-btn"),set=on=>{document.documentElement.classList.toggle("no-motion",on);b.setAttribute("aria-pressed",on);b.textContent=on?"▶ הפעלת אנימציה":"⏸ עצירת אנימציה";try{localStorage.setItem("rk-nomotion",on?"1":"")}catch(e){}};
+  let on=false;try{on=localStorage.getItem("rk-nomotion")==="1"}catch(e){}set(on);b.addEventListener("click",()=>set(!document.documentElement.classList.contains("no-motion")))}
+$("a11y-link").addEventListener("click",()=>{$("a11y").open=true});
+// dialogs: move focus in, keep it inside, Escape closes, return focus on close
+{const DLG=[...document.querySelectorAll('[role="dialog"]')],ret=new Map();
+ const foc=d=>[...d.querySelectorAll('a[href],button,input,select,textarea,summary,[tabindex]:not([tabindex="-1"])')].filter(x=>!x.disabled&&x.getClientRects().length);
+ const mo=new MutationObserver(ms=>ms.forEach(m=>{const d=m.target;
+   if(!d.hidden){if(!ret.has(d)){ret.set(d,document.activeElement);let f=d.querySelector("h2[id]");if(d.id==="ed"&&f){f.tabIndex=-1}else f=foc(d)[0];if(f)setTimeout(()=>f.focus(),0)}}
+   else if(ret.has(d)){const r=ret.get(d);ret.delete(d);if(r&&r!==document.body&&document.contains(r))r.focus()}}));
+ DLG.forEach(d=>mo.observe(d,{attributes:true,attributeFilter:["hidden"]}));
+ document.addEventListener("keydown",e=>{const d=DLG.filter(x=>!x.hidden).pop();if(!d)return;
+   if(e.key==="Escape"&&d.id!=="ed"){const x=d.querySelector(".lb-x");if(x)x.click();return}
+   if(e.key==="Tab"){const f=foc(d);if(!f.length)return;const i=f.indexOf(document.activeElement);
+     if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&(i===-1||i===f.length-1)){e.preventDefault();f[0].focus()}}});}
 renderMedia();renderPoints();computeTimes();chips();fillMe();renderAll();
 // ---- live data from Firebase ----
 function applySite(d){
