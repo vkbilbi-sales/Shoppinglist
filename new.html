@@ -1501,8 +1501,8 @@ function wkKey(){return DIST?`${DIST.y}-${DIST.mo}-${DIST.d}`:""}
 function weeklyReset(){if(!DIST||!fbReady)return;const now=Date.now(),cur=wkKey();let ch=false,rm=false;
   for(const h of Object.keys(list)){const it=list[h];if(!it||typeof it!=="object")continue;
     if(!it.wk){it.wk=cur;ch=true;continue}
-    const[y,mo,d]=it.wk.split("-").map(Number);if(now<ilDate(y,mo,d+1,6,0))continue;
-    const fri=byH[h]&&byH[h].f;if(fri&&now<ilDate(y,mo,d+3,23,0))continue;
+    const[y,mo,d]=it.wk.split("-").map(Number);if(now<ilDate(y,mo,d+1,20,0))continue;
+    const fri=byH[h]&&byH[h].f;if(fri&&now<ilDate(y,mo,d+3,20,0))continue;
     delete list[h];ch=rm=true}
   if(ch){saveList();if(rm){renderAll();$("ml-msg").textContent="הרשימה של השבוע שעבר התאפסה אוטומטית. הפרטים שלכם נשמרו."}}}
 let toastT=null;
