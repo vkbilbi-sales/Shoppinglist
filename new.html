@@ -1677,7 +1677,8 @@ function applySite(d){
   applyLook(DATA);renderMedia();renderPoints();computeTimes();fillMe();renderAll();
   $("f-pts").textContent=(DATA.points||[]).length;
 }
-onValue(ref(db,SITE),snap=>applySite(snap.val()),()=>{});
+let SITE_LOADED=false,WANT_EDIT=false;
+onValue(ref(db,SITE),snap=>{applySite(snap.val());SITE_LOADED=true;if(WANT_EDIT){WANT_EDIT=false;edOpen()}},()=>{});
 let held=null;
 function applyList(v){
   const s=JSON.stringify({me:Object.assign({},ME0,v.me||{}),list:v.list||{}});
@@ -1823,7 +1824,7 @@ function edBind(){
     const bad=draft.suppliers.find(s=>!s.n.trim()||!/^https?:\/\//.test(s.url||""));
     if(bad){$("ed-msg").textContent=`חסר שם או קישור תקין (שמתחיל ב-https) אצל "${bad.n||"ספק חדש"}"`;return}
     $("ed-save").disabled=true;$("ed-msg").textContent="שומרת…";
-    try{draft.ver=Date.now();await set(ref(db,SITE),JSON.parse(JSON.stringify(draft)));APPROVED.forEach(id=>set(ref(db,SUBS+"/"+id),null));APPROVED=[];$("ed-msg").textContent="נשמר ✓ הלקוחות כבר רואים את השינוי.";$("ed-save").disabled=false;setTimeout(edClose,900)}
+    try{if(DATA.theme)draft.theme=DATA.theme;if(DATA.tabOrder)draft.tabOrder=DATA.tabOrder;draft.ver=Date.now();await set(ref(db,SITE),JSON.parse(JSON.stringify(draft)));APPROVED.forEach(id=>set(ref(db,SUBS+"/"+id),null));APPROVED=[];$("ed-msg").textContent="נשמר ✓ הלקוחות כבר רואים את השינוי.";$("ed-save").disabled=false;setTimeout(edClose,900)}
     catch(err){$("ed-msg").textContent="השמירה לא הצליחה. בדקי את החיבור ונסי שוב.";$("ed-save").disabled=false}
   });
 }
@@ -1892,7 +1893,7 @@ document.addEventListener("click",e=>{if(!e.target.closest("#ed"))return;
     APPROVED.push(id);edSubs();$("ed-msg").textContent='אושר. לחצי "שמירה" כדי לפרסם.';return}
   const del=e.target.closest("[data-subdel]");if(del){const id=del.dataset.subdel;set(ref(db,SUBS+"/"+id),null).then(()=>{delete SUBLIST[id];edSubs()});}
 });
-function adminCheck(){if(/admin/.test(location.hash)){OWNER=true;$("ed-open").hidden=false;renderMedia()}}
+function adminCheck(){if(/admin/.test(location.hash)){OWNER=true;$("ed-open").hidden=false;renderMedia();if(/edit/.test(location.hash)){if(window!==window.top)$("ed-cancel").hidden=true;if(SITE_LOADED)edOpen();else WANT_EDIT=true}}}
 adminCheck();window.addEventListener("hashchange",adminCheck);
 </script>
 </body>

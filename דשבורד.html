@@ -113,6 +113,17 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
     <button class="btn bg bfull" onclick="waLink()">💬 שלחי בוואטסאפ</button>
   </div>
 
+  <!-- Full content editor of the customer page, inside the dashboard -->
+  <div class="card" id="edit-card">
+    <div class="slabel">✏️ עריכת תוכן האתר</div>
+    <p class="lk-p">כאן משנים הכול: ספקים, "מגיע השבוע", יום ושעת סגירה להזמנות, אופן ולינק תשלום, נקודות חלוקה, תאריך חלוקה מיוחד, הודעות, מתכונים, המלצות ותמונות. בסוף לוחצים "שמירה", והלקוחות רואים את השינוי מיד.</p>
+    <button class="btn bt bfull" type="button" id="edit-open">✏️ פתיחת העורך</button>
+    <div class="edit-wrap" id="edit-wrap" hidden>
+      <iframe id="edit-frame" title="עריכת תוכן האתר" loading="lazy"></iframe>
+      <a class="edit-full" href="new.html#admin-edit" target="_blank" rel="noopener">פתיחת העורך במסך מלא ↗</a>
+    </div>
+  </div>
+
   <!-- Order of suppliers and messages on the customer page (new.html) -->
   <div class="card" id="ord-card">
     <div class="slabel">↕️ סדר הספקים וההודעות בדף הלקוחות</div>
@@ -550,6 +561,10 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .ord-list li button{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:#EEF9F7;font-weight:700;cursor:pointer}
 .ord-list li.moved{background:#FFF6E8}
 .lk-h{margin:1rem 0 .2rem;font-size:1rem}
+.edit-wrap{margin-top:.7rem;display:grid;gap:.4rem}
+.edit-wrap[hidden]{display:none}
+.edit-wrap iframe{width:100%;height:85vh;border:2px solid var(--border);border-radius:12px;background:#fff}
+.edit-full{font-weight:700;color:#1A3A38}
 .lk-p{margin:.1rem 0 .6rem;color:#4A6E6B;font-size:.85rem}
 .lk-presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem}
 .lk-presets button{display:grid;gap:.35rem;justify-items:start;border:2px solid var(--border);border-radius:12px;background:#fff;padding:.5rem .6rem;cursor:pointer;font:inherit;font-weight:700;text-align:right}
@@ -605,7 +620,13 @@ document.addEventListener("click",e=>{
 });
 $("ord-save").addEventListener("click",async()=>{
   $("ord-save").disabled=true;$("ord-msg").textContent="שומרת…";
-  try{DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));dirty=false;moved.clear();$("ord-msg").textContent="נשמר ✓ הלקוחות כבר רואים את הסדר החדש.";render()}
+  try{const live=(await get(ref(db,"site5"))).val();
+    if(live&&Array.isArray(live.suppliers)&&(live.ver||0)>(DATA.ver||0)){
+      const pos=(arr,key)=>{const m=new Map(arr.map((x,i)=>[key(x),i]));return x=>m.has(key(x))?m.get(key(x)):1e9};
+      const ps=pos(DATA.suppliers,x=>x.h);live.suppliers.sort((a,b)=>ps(a)-ps(b));
+      const pk=x=>(x.sec||"")+"|"+(x.t||"")+"|"+(x.b||"").slice(0,60),pp=pos(DATA.posts||[],pk);live.posts=(live.posts||[]).slice().sort((a,b)=>pp(a)-pp(b));
+      DATA=live}
+    DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));dirty=false;moved.clear();$("ord-msg").textContent="נשמר ✓ הלקוחות כבר רואים את הסדר החדש.";render()}
   catch(e){$("ord-msg").textContent="השמירה לא הצליחה. בדקי את החיבור ונסי שוב.";$("ord-save").disabled=false}
 });
 function hx(h){h=h.replace("#","");return [0,2,4].map(i=>parseInt(h.substr(i,2),16))}
@@ -648,6 +669,8 @@ $("look-save").addEventListener("click",async()=>{if(lookCheck(LOOK).some(x=>!x.
     await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));lookDirty=false;$("look-msg").textContent="נשמר ✓ הלקוחות כבר רואים את המראה החדש.";render();lookRender()}
   catch(e){$("look-msg").textContent="השמירה לא הצליחה. בדקי את החיבור ונסי שוב.";$("look-save").disabled=false}
 });
+$("edit-open").addEventListener("click",()=>{const w=$("edit-wrap");if(!w.hidden){w.hidden=true;$("edit-open").textContent="✏️ פתיחת העורך";return}
+  const f=$("edit-frame");if(!f.src)f.src="new.html#admin-edit";w.hidden=false;$("edit-open").textContent="סגירת העורך";w.scrollIntoView({behavior:"smooth",block:"start"})});
 load();
 </script>
 </body>
