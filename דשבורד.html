@@ -144,7 +144,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
   <!-- Order of suppliers and messages on the customer page (new.html) -->
   <div class="card" id="ord-card">
     <div class="slabel">↕️ סדר הספקים וההודעות בדף הלקוחות</div>
-    <p style="margin:.2rem 0 .7rem;color:var(--muted);font-size:.85rem;">מזיזים עם החצים ולוחצים "שמירת הסדר". הלקוחות רואים את השינוי מיד.</p>
+    <p style="margin:.2rem 0 .7rem;color:var(--muted);font-size:.85rem;">גוררים כל שורה למקום שרוצים (לוחצים ומחזיקים על ☰), ולוחצים "שמירת הסדר". הלקוחות רואים את השינוי מיד.</p>
     <div class="ord-tabs">
       <button class="btn bt bsm" type="button" data-ordk="suppliers">🛒 ספקים</button>
       <button class="btn bg bsm" type="button" data-ordk="news">📣 הודעות</button>
@@ -160,7 +160,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
   <div class="card" id="look-card">
     <div class="slabel">🎨 מראה דף הלקוחות</div>
     <h3 class="lk-h">סדר הלשוניות למעלה</h3>
-    <p class="lk-p">מזיזים עם החצים. הלשונית הראשונה תופיע ראשונה מימין.</p>
+    <p class="lk-p">גוררים כל שורה למקום שרוצים (לוחצים ומחזיקים על ☰). הלשונית הראשונה תופיע ראשונה מימין.</p>
     <ol id="tab-list" class="ord-list"></ol>
     <h3 class="lk-h">צבעים</h3>
     <p class="lk-p">בוחרים ערכה מוכנה, או צבעים חופשיים. כל ערכה נבדקת מול חוק הנגישות (ניגודיות). אם צבע לא עומד בחוק, אי אפשר לשמור אותו. במצב כהה בטלפון נשארים צבעי ברירת המחדל הנגישים.</p>
@@ -577,6 +577,9 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .ord-list li .st{font-size:.75rem;color:var(--muted)}
 .ord-list li button{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:#EEF9F7;font-weight:700;cursor:pointer}
 .ord-list li.moved{background:#FFF6E8}
+.ord-list .grip{cursor:grab;font-size:1.2rem;padding:0 .25rem;color:#4A6E6B;touch-action:none;user-select:none}
+.ord-list li.sort-ghost{opacity:.4;background:#E0F7F4}
+.ord-list li.sort-drag{box-shadow:0 6px 16px rgba(0,0,0,.18)}
 .lk-h{margin:1rem 0 .2rem;font-size:1rem}
 .edit-wrap{margin-top:.7rem;display:grid;gap:.4rem}
 .st-sum{font-weight:700;margin:.2rem 0 .6rem}
@@ -601,6 +604,7 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .lk-check{list-style:none;margin:.4rem 0 .8rem;padding:0;display:grid;gap:.25rem;font-size:.85rem}
 .lk-check li.bad{color:#A11B22;font-weight:700}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <script type="module">
 // Order of suppliers and posts on the customer page: reads/writes the same "site5" data as new.html#admin
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -628,7 +632,7 @@ function items(){
 function render(){
   document.querySelectorAll("[data-ordk]").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.ordk===K);b.className="btn bsm "+(b.dataset.ordk===K?"bt":"bg")});
   const L=items();
-  $("ord-list").innerHTML=L.length?L.map((x,j)=>`<li class="${moved.has(K+":"+x.n)?"moved":""}"><b>${j+1}.</b><span class="n">${esc(x.n)}<br><span class="st">${esc(x.st)}</span></span><button type="button" data-up="${j}" aria-label="למעלה">↑</button><button type="button" data-dn="${j}" aria-label="למטה">↓</button></li>`).join(""):'<li style="color:var(--muted)">אין פריטים באזור הזה.</li>';
+  $("ord-list").innerHTML=L.length?L.map((x,j)=>`<li class="${moved.has(K+":"+x.n)?"moved":""}"><span class="grip" aria-hidden="true">☰</span><b>${j+1}.</b><span class="n">${esc(x.n)}<br><span class="st">${esc(x.st)}</span></span><button type="button" data-up="${j}" aria-label="למעלה">↑</button><button type="button" data-dn="${j}" aria-label="למטה">↓</button></li>`).join(""):'<li style="color:var(--muted)">אין פריטים באזור הזה.</li>';
   $("ord-save").disabled=!dirty;
 }
 function move(j,d){
@@ -670,7 +674,7 @@ let TORD=null,LOOK=null,lookDirty=false;
 function lookInit(){const known=TABS.map(t=>t[0]);const saved=(DATA.tabOrder||[]).filter(k=>known.includes(k));TORD=[...saved,...known.filter(k=>!saved.includes(k))];
   LOOK=Object.assign({},PRESETS[0][1],(DATA.theme&&DATA.theme.c)||{});lookRender()}
 function lookRender(){
-  $("tab-list").innerHTML=TORD.map((k,j)=>`<li><b>${j+1}.</b><span class="n">${esc((TABS.find(t=>t[0]===k)||[k,k])[1])}</span><button type="button" data-tup="${j}" aria-label="למעלה">↑</button><button type="button" data-tdn="${j}" aria-label="למטה">↓</button></li>`).join("");
+  $("tab-list").innerHTML=TORD.map((k,j)=>`<li><span class="grip" aria-hidden="true">☰</span><b>${j+1}.</b><span class="n">${esc((TABS.find(t=>t[0]===k)||[k,k])[1])}</span><button type="button" data-tup="${j}" aria-label="למעלה">↑</button><button type="button" data-tdn="${j}" aria-label="למטה">↓</button></li>`).join("");
   $("lk-presets").innerHTML=PRESETS.map(([n,c],i)=>`<button type="button" data-preset="${i}" aria-pressed="${c.leaf===LOOK.leaf&&c.heart===LOOK.heart&&c.sun===LOOK.sun}"><span class="lk-sw"><i style="background:${c.leaf}"></i><i style="background:${c.heart}"></i><i style="background:${c.sun}"></i></span>${esc(n)}</button>`).join("");
   $("lk-leaf").value=LOOK.leaf;$("lk-heart").value=LOOK.heart;$("lk-sun").value=LOOK.sun;
   $("lk-prev").innerHTML=`<b style="color:${LOOK.sun};font-size:1.3rem">רכישות כדאיות</b><span style="background:${LOOK.leaf};color:#fff">לחנות הזמנה ←</span><span style="background:${LOOK.heart};color:#fff">לחצו כאן לתשלום</span><span style="background:${LOOK.sun};color:#fff">ליצרנים של השבוע</span>`;
@@ -711,6 +715,15 @@ $("mb-export").addEventListener("click",()=>{const q=v=>'"'+String(v??"").replac
   const csv="\uFEFF"+[["שם","טלפון","נקודה","תאריך הרשמה"],...MEMBERS.map(x=>[x.name,x.phone,x.point,x.date])].map(r=>r.map(q).join(",")).join("\r\n");
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="מאגר-לקוחות.csv";document.body.appendChild(a);a.click();a.remove()});
 statsLoad();
+// drag & drop ordering (arrows stay for keyboard use)
+function dragMove(from,to){const L=items();if(from===to||!L[from]||!L[to])return;
+  const arr=K==="suppliers"?DATA.suppliers:DATA.posts,slots=L.map(x=>x.i),vals=slots.map(i=>arr[i]);
+  const [it]=vals.splice(from,1);vals.splice(to,0,it);slots.forEach((i,j)=>{arr[i]=vals[j]});
+  moved.add(K+":"+L[from].n);dirty=true;$("ord-msg").textContent="יש שינויים שלא נשמרו.";render()}
+if(window.Sortable){
+  Sortable.create($("ord-list"),{handle:".grip",forceFallback:true,fallbackTolerance:3,animation:150,ghostClass:"sort-ghost",dragClass:"sort-drag",onEnd:e=>dragMove(e.oldIndex,e.newIndex)});
+  Sortable.create($("tab-list"),{handle:".grip",forceFallback:true,fallbackTolerance:3,animation:150,ghostClass:"sort-ghost",dragClass:"sort-drag",onEnd:e=>{if(e.oldIndex===e.newIndex)return;const [k]=TORD.splice(e.oldIndex,1);TORD.splice(e.newIndex,0,k);lookDirty=true;$("look-msg").textContent="יש שינויים שלא נשמרו.";lookRender()}});
+}
 $("edit-open").addEventListener("click",()=>{const w=$("edit-wrap");if(!w.hidden){w.hidden=true;$("edit-open").textContent="✏️ פתיחת העורך";return}
   const f=$("edit-frame");if(!f.src)f.src="new.html#admin-edit";w.hidden=false;$("edit-open").textContent="סגירת העורך";w.scrollIntoView({behavior:"smooth",block:"start"})});
 load();

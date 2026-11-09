@@ -738,6 +738,7 @@ footer .toast b{font-family:inherit;font-size:inherit;color:inherit}
 #cour-fields>#cour-pick{order:0!important}
 .badge.tag{color:var(--cd-ink);border-color:currentColor;background:var(--leaf-soft)}
 .card.closed .badge.tag{color:var(--cd-ink)}
+.badge.next{color:var(--ink)!important;border-color:var(--sun)!important;background:var(--warm-bg)}
 .join{padding-block:10px 6px}
 .join-card{background:var(--surface);border:2px solid var(--frame);border-top:6px solid var(--sun);border-radius:20px;padding:20px;display:grid;gap:10px}
 .join h2{font-family:var(--hand);font-weight:700;font-size:clamp(36px,6vw,48px);color:var(--leaf-deep);line-height:1}
@@ -1398,7 +1399,7 @@ function srchMatch(s,q){const hay=[s.n,s.d,s.k,s.tags,s.ks,(CATS[s.c]||{}).label
 function renderGrid(){
   renderWk();
   const q=state.q.trim();
-  let L=S.filter(s=>(state.cat==="all"||s.c===state.cat)&&(!state.open||isOpen(s))&&(!q||srchMatch(s,q)));
+  let L=S.filter(s=>(s.o||s.nx)&&(state.cat==="all"||s.c===state.cat)&&(!state.open||isOpen(s))&&(!q||srchMatch(s,q)));
   if(state.view==="favs")L=L.filter(s=>favs.has(s.h));
   L.sort((a,b)=>(isOpen(b)-isOpen(a))||(state.sort==="mine"?S.indexOf(a)-S.indexOf(b):0)||(state.sort==="close"&&isOpen(a)?closeAt(a)-closeAt(b):0)||a.n.localeCompare(b.n,"he"));
   $("grid").innerHTML=L.length?L.map(s=>{const C=CATS[s.c],inL=!!list[s.h];return `
@@ -1407,7 +1408,7 @@ function renderGrid(){
     ${/^(https:\/\/|img\/)/.test(s.cov||"")?`<img class="cover" src="${esc(s.cov)}" alt="" loading="lazy">`:""}
     <div class="top">${/^(https:\/\/|img\/)/.test(s.img||"")?`<img class="mark logo-mark" src="${esc(s.img)}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
       <div><div class="cat">${C.label}</div><h3>${esc(s.n)}</h3>
-      <div class="badges">${s.ks==="כשר"?'<span class="badge kosher">✡️ כשר</span>':s.ks&&s.ks!=="לא כשר"?`<span class="badge kosher-home">✡️ ${esc(s.ks)}</span>`:""}${String(s.tags||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="badge tag">${esc(x)}</span>`).join("")}${isOpen(s)?'<span class="badge open">פתוח להזמנות</span>':s.o?'<span class="badge">ההזמנות נסגרו לשבוע הזה</span>':'<span class="badge">לא מגיע השבוע</span>'}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>
+      <div class="badges">${s.ks==="כשר"?'<span class="badge kosher">✡️ כשר</span>':s.ks&&s.ks!=="לא כשר"?`<span class="badge kosher-home">✡️ ${esc(s.ks)}</span>`:""}${String(s.tags||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="badge tag">${esc(x)}</span>`).join("")}${isOpen(s)?'<span class="badge open">פתוח להזמנות</span>':s.o?'<span class="badge">ההזמנות נסגרו לשבוע הזה</span>':'<span class="badge next">⏳ מגיע בשבוע הבא</span>'}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>
     <p class="desc">${esc(s.d)}</p>
     ${s.more?`<details class="more"><summary>מידע נוסף</summary><p>${esc(s.more).replace(/\n/g,"<br>")}</p></details>`:""}
     <dl class="rows">
@@ -1721,7 +1722,7 @@ function applySite(d){
   if(!d||!Array.isArray(d.suppliers))return;
   if((d.ver||0)<(DATA.ver||0))return;
   DATA=Object.assign({people:[],products:[],collabs:[],posts:[],points:[]},d);
-  DATA.suppliers=DATA.suppliers.map(s=>Object.assign({h:"",n:"",c:"veg",o:0,d:"",k:"",url:"",cd:null,ct:"",p:"",pl:"",ks:"",tags:"",f:0,img:"",cov:""},s));
+  DATA.suppliers=DATA.suppliers.map(s=>Object.assign({h:"",n:"",c:"veg",o:0,d:"",k:"",url:"",cd:null,ct:"",p:"",pl:"",ks:"",tags:"",f:0,nx:0,img:"",cov:""},s));
   S=DATA.suppliers;byH=Object.fromEntries(S.map(s=>[s.h,s]));
   applyLook(DATA);renderMedia();renderPoints();computeTimes();fillMe();renderAll();
   $("f-pts").textContent=(DATA.points||[]).length;
@@ -1767,7 +1768,7 @@ function edSups(openIdx){
       <label class="field">קטגוריה<select data-i="${i}" data-f="c">${opt(cats,s.c)}</select></label>
       <label class="field wide">תיאור<textarea data-i="${i}" data-f="d" rows="3">${esc(s.d)}</textarea></label>
       <label class="field wide">קישור להזמנה (חנות במייפיפס או טופס)<input data-i="${i}" data-f="url" value="${esc(s.url)}" dir="ltr"></label>
-      <label class="chk"><input type="checkbox" data-i="${i}" data-f="o"${s.o?" checked":""}> מגיע השבוע</label>
+      <label class="field">סטטוס השבוע<select data-i="${i}" data-f="stt">${opt([["on","✅ מגיע השבוע"],["next","⏳ לא מגיע השבוע, מגיע בשבוע הבא (מוצג באפור)"],["off","🚫 מוסתר מהלקוחות עד הודעה חדשה"]],s.o?"on":s.nx?"next":"off")}</select></label>
       <label class="chk"><input type="checkbox" data-i="${i}" data-f="f"${s.f?" checked":""}> יום שישי, משלוח עד הבית (לא בחלוקה של רביעי)</label>
       <label class="field">פתוח עד יום<select data-i="${i}" data-f="cd">${opt(DAYS,s.cd)}</select></label>
       <label class="field">בשעה<input type="time" data-i="${i}" data-f="ct" value="${esc(s.ct)}"></label>
@@ -1860,7 +1861,8 @@ function edBind(){
     if(t.dataset.pt!==undefined){draft.points[+t.dataset.pt][f]=t.value;return}
     if(t.dataset.i===undefined)return;const s=draft.suppliers[+t.dataset.i];
     if(t.type==="checkbox")s[f]=t.checked?1:0;else if(f==="cd")s[f]=t.value===""?null:+t.value;else s[f]=t.value;
-    if(["n","o","cd","ct"].includes(f)){const sm=t.closest("details").querySelector("summary");sm.querySelector("b").textContent=s.n||"ספק חדש";sm.querySelector(".dot").classList.toggle("on",!!s.o);sm.querySelector(".hint").textContent=s.o?(s.cd!==null?"יום "+DAYN[s.cd]+" "+(s.ct||""):"מגיע השבוע"):"לא מגיע השבוע"}});
+    if(f==="stt"){s.o=t.value==="on"?1:0;s.nx=t.value==="next"?1:0}
+    if(["n","o","stt","cd","ct"].includes(f)){const sm=t.closest("details").querySelector("summary");sm.querySelector("b").textContent=s.n||"ספק חדש";sm.querySelector(".dot").classList.toggle("on",!!s.o);sm.querySelector(".hint").textContent=s.o?(s.cd!==null?"יום "+DAYN[s.cd]+" "+(s.ct||""):"מגיע השבוע"):s.nx?"מגיע בשבוע הבא":"מוסתר"}});
   let delArm=null;
   $("ed").addEventListener("click",e=>{
     const rp=e.target.closest("[data-rmpt]");if(rp){draft.points.splice(+rp.dataset.rmpt,1);edPoints();return}
