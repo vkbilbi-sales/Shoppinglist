@@ -128,6 +128,28 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
     <div id="ord-msg" style="margin-top:.5rem;font-size:.85rem;color:var(--muted)"></div>
   </div>
 
+  <!-- Look of the customer page: tab order + colours -->
+  <div class="card" id="look-card">
+    <div class="slabel">🎨 מראה דף הלקוחות</div>
+    <h3 class="lk-h">סדר הלשוניות למעלה</h3>
+    <p class="lk-p">מזיזים עם החצים. הלשונית הראשונה תופיע ראשונה מימין.</p>
+    <ol id="tab-list" class="ord-list"></ol>
+    <h3 class="lk-h">צבעים</h3>
+    <p class="lk-p">בוחרים ערכה מוכנה, או צבעים חופשיים. כל ערכה נבדקת מול חוק הנגישות (ניגודיות). אם צבע לא עומד בחוק, אי אפשר לשמור אותו. במצב כהה בטלפון נשארים צבעי ברירת המחדל הנגישים.</p>
+    <div class="lk-presets" id="lk-presets"></div>
+    <details class="lk-free"><summary>בחירה חופשית של צבעים</summary>
+      <div class="lk-pick">
+        <label>צבע ראשי (כפתורים, פסים)<input type="color" id="lk-leaf"></label>
+        <label>צבע הדגשה (תשלום, לבבות)<input type="color" id="lk-heart"></label>
+        <label>צבע הכותרת "רכישות כדאיות"<input type="color" id="lk-sun"></label>
+      </div>
+    </details>
+    <div class="lk-prev" id="lk-prev" aria-hidden="true"></div>
+    <ul class="lk-check" id="lk-check"></ul>
+    <button class="btn bt bfull" type="button" id="look-save" disabled>💾 שמירת המראה</button>
+    <div id="look-msg" style="margin-top:.5rem;font-size:.85rem;color:var(--muted)" aria-live="polite"></div>
+  </div>
+
   <!-- Couriers list -->
   <div class="card">
     <div class="slabel">🚴 שליחים ונקודות חלוקה</div>
@@ -527,6 +549,19 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .ord-list li .st{font-size:.75rem;color:var(--muted)}
 .ord-list li button{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:#EEF9F7;font-weight:700;cursor:pointer}
 .ord-list li.moved{background:#FFF6E8}
+.lk-h{margin:1rem 0 .2rem;font-size:1rem}
+.lk-p{margin:.1rem 0 .6rem;color:#4A6E6B;font-size:.85rem}
+.lk-presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem}
+.lk-presets button{display:grid;gap:.35rem;justify-items:start;border:2px solid var(--border);border-radius:12px;background:#fff;padding:.5rem .6rem;cursor:pointer;font:inherit;font-weight:700;text-align:right}
+.lk-presets button[aria-pressed="true"]{border-color:#1A3A38;box-shadow:0 0 0 2px #1A3A38}
+.lk-sw{display:flex;gap:4px}.lk-sw i{width:22px;height:22px;border-radius:50%;display:inline-block;border:1px solid rgba(0,0,0,.15)}
+.lk-free{margin-top:.6rem}.lk-free summary{cursor:pointer;font-weight:700}
+.lk-pick{display:grid;gap:.5rem;margin-top:.5rem}.lk-pick label{display:flex;justify-content:space-between;align-items:center;gap:.5rem;font-size:.9rem}
+.lk-pick input{width:56px;height:36px;border:1px solid var(--border);border-radius:8px;padding:2px;background:#fff}
+.lk-prev{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.8rem 0 .4rem;padding:.6rem;border-radius:12px;background:#CDEBF8}
+.lk-prev span{border-radius:999px;padding:.3rem .8rem;font-weight:700;font-size:.85rem}
+.lk-check{list-style:none;margin:.4rem 0 .8rem;padding:0;display:grid;gap:.25rem;font-size:.85rem}
+.lk-check li.bad{color:#A11B22;font-weight:700}
 </style>
 <script type="module">
 // Order of suppliers and posts on the customer page: reads/writes the same "site5" data as new.html#admin
@@ -545,7 +580,7 @@ async function load(){
     const live=snap.val();
     DATA=(live&&Array.isArray(live.suppliers)&&(live.ver||0)>=((page&&page.ver)||0))?live:page;
     if(!DATA){$("ord-list").innerHTML='<li>לא הצלחתי לטעון את הדף.</li>';return}
-    DATA.posts=DATA.posts||[];render();
+    DATA.posts=DATA.posts||[];render();lookInit();
   }catch(e){$("ord-list").innerHTML='<li>שגיאה בטעינה. נסי לרענן.</li>'}
 }
 function items(){
@@ -572,6 +607,46 @@ $("ord-save").addEventListener("click",async()=>{
   $("ord-save").disabled=true;$("ord-msg").textContent="שומרת…";
   try{DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));dirty=false;moved.clear();$("ord-msg").textContent="נשמר ✓ הלקוחות כבר רואים את הסדר החדש.";render()}
   catch(e){$("ord-msg").textContent="השמירה לא הצליחה. בדקי את החיבור ונסי שוב.";$("ord-save").disabled=false}
+});
+function hx(h){h=h.replace("#","");return [0,2,4].map(i=>parseInt(h.substr(i,2),16))}
+function toHex(a){return "#"+a.map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,"0")).join("")}
+function mix(a,b,t){const A=hx(a),B=hx(b);return toHex(A.map((v,i)=>v+(B[i]-v)*t))}
+function lum(h){return hx(h).map(v=>v/255).map(v=>v<=.03928?v/12.92:((v+.055)/1.055)**2.4).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0)}
+function cr(a,b){const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
+function lookCheck(c){const deep=mix(c.leaf,"#000000",.2),soft=mix(c.leaf,"#ffffff",.88);
+  const T=[["הכפתורים הראשיים (טקסט לבן על הצבע הראשי)","#ffffff",c.leaf,4.5],["טקסט בצבע הראשי על רקע לבן",c.leaf,"#ffffff",4.5],["טקסט בצבע הראשי על רקע בהיר",c.leaf,soft,4.5],["כותרות כהות על רקע בהיר",deep,soft,4.5],
+    ["כפתורי תשלום (טקסט לבן על צבע ההדגשה)","#ffffff",c.heart,4.5],["טקסט בצבע ההדגשה על רקע לבן",c.heart,"#ffffff",4.5],
+    ["כפתורים בצבע הכותרת (טקסט לבן)","#ffffff",c.sun,4.5],["הכותרת הגדולה על השמיים",c.sun,"#CDEBF8",3]];
+  return T.map(([n,a,b,need])=>({n,r:cr(a,b),need,ok:cr(a,b)>=need}))}
+
+// ---- look: tab order + colours ----
+const TABS=[["about","💚 קצת עלינו"],["sup","🛒 ספקי השבוע"],["list","📝 רשימת הקניות"],["couriers","🛵 שליחים"],["news","📣 הודעות"],["recipes","🍳 מתכונים"],["reviews","💬 לקוחות ממליצים"],["gallery","📸 גלריה"],["contact","💬 התקשרות עם ורד"]];
+const PRESETS=[["קלאסי (הנוכחי)",{leaf:"#127479",heart:"#C2353A",sun:"#A35F0C"}],["ירוק זית",{leaf:"#4E6B1E",heart:"#B23A48",sun:"#94580A"}],["כחול ים",{leaf:"#1F5FA3",heart:"#C2353A",sun:"#9A5B00"}],["חום אדמה",{leaf:"#7A4B2A",heart:"#A8323A",sun:"#8C5A00"}],["סגול שזיף",{leaf:"#6A3D8F",heart:"#B8325A",sun:"#94580A"}]];
+let TORD=null,LOOK=null,lookDirty=false;
+function lookInit(){const known=TABS.map(t=>t[0]);const saved=(DATA.tabOrder||[]).filter(k=>known.includes(k));TORD=[...saved,...known.filter(k=>!saved.includes(k))];
+  LOOK=Object.assign({},PRESETS[0][1],(DATA.theme&&DATA.theme.c)||{});lookRender()}
+function lookRender(){
+  $("tab-list").innerHTML=TORD.map((k,j)=>`<li><b>${j+1}.</b><span class="n">${esc((TABS.find(t=>t[0]===k)||[k,k])[1])}</span><button type="button" data-tup="${j}" aria-label="למעלה">↑</button><button type="button" data-tdn="${j}" aria-label="למטה">↓</button></li>`).join("");
+  $("lk-presets").innerHTML=PRESETS.map(([n,c],i)=>`<button type="button" data-preset="${i}" aria-pressed="${c.leaf===LOOK.leaf&&c.heart===LOOK.heart&&c.sun===LOOK.sun}"><span class="lk-sw"><i style="background:${c.leaf}"></i><i style="background:${c.heart}"></i><i style="background:${c.sun}"></i></span>${esc(n)}</button>`).join("");
+  $("lk-leaf").value=LOOK.leaf;$("lk-heart").value=LOOK.heart;$("lk-sun").value=LOOK.sun;
+  $("lk-prev").innerHTML=`<b style="color:${LOOK.sun};font-size:1.3rem">רכישות כדאיות</b><span style="background:${LOOK.leaf};color:#fff">לחנות הזמנה ←</span><span style="background:${LOOK.heart};color:#fff">לחצו כאן לתשלום</span><span style="background:${LOOK.sun};color:#fff">ליצרנים של השבוע</span>`;
+  const r=lookCheck(LOOK),bad=r.filter(x=>!x.ok);
+  $("lk-check").innerHTML=bad.length?bad.map(x=>`<li class="bad">✗ ${esc(x.n)}: ניגודיות ${x.r.toFixed(1)}, צריך לפחות ${x.need}. בחרי גוון כהה יותר.</li>`).join(""):`<li>✓ כל הצבעים עומדים בחוק הנגישות.</li>`;
+  $("look-save").disabled=!lookDirty||!!bad.length;
+}
+function lookSet(c){LOOK=Object.assign({},LOOK,c);lookDirty=true;$("look-msg").textContent="יש שינויים שלא נשמרו.";lookRender()}
+document.addEventListener("click",e=>{
+  const u=e.target.closest("[data-tup]"),d=e.target.closest("[data-tdn]");
+  if(u||d){const j=+(u||d).dataset[u?"tup":"tdn"],k=j+(u?-1:1);if(k<0||k>=TORD.length)return;[TORD[j],TORD[k]]=[TORD[k],TORD[j]];lookDirty=true;$("look-msg").textContent="יש שינויים שלא נשמרו.";lookRender();return}
+  const p=e.target.closest("[data-preset]");if(p){lookSet(PRESETS[+p.dataset.preset][1]);return}
+});
+["leaf","heart","sun"].forEach(k=>$("lk-"+k).addEventListener("input",e=>lookSet({[k]:e.target.value.toUpperCase()})));
+$("look-save").addEventListener("click",async()=>{if(lookCheck(LOOK).some(x=>!x.ok))return;
+  $("look-save").disabled=true;$("look-msg").textContent="שומרת…";
+  try{const live=(await get(ref(db,"site5"))).val();if(live&&Array.isArray(live.suppliers)&&(live.ver||0)>(DATA.ver||0))DATA=live;
+    DATA.tabOrder=TORD.slice();DATA.theme={c:{leaf:LOOK.leaf,heart:LOOK.heart,sun:LOOK.sun}};DATA.ver=Date.now();
+    await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));lookDirty=false;$("look-msg").textContent="נשמר ✓ הלקוחות כבר רואים את המראה החדש.";render();lookRender()}
+  catch(e){$("look-msg").textContent="השמירה לא הצליחה. בדקי את החיבור ונסי שוב.";$("look-save").disabled=false}
 });
 load();
 </script>

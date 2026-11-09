@@ -1341,8 +1341,8 @@ function closeAt(s){
 }
 function isOpen(s){const t=closeAt(s);return !!t&&t>Date.now()}
 function closeLabel(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ${p.d}.${p.mo+1} בשעה ${f}`}
-function cdText(t){let ms=t-Date.now();if(ms<=0)return["הטופס נסגר","over"];const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),sec=s%60;const pad=n=>String(n).padStart(2,"0");
-  if(d>0)return[`נשארו ${d===1?"יום":d+" ימים"} ו-${h} שעות`,""];return[`נשארו ${pad(h)}:${pad(m)}:${pad(sec)}`,ms<3*3600e3?"soon":""]}
+function cdText(t){let ms=t-Date.now();if(ms<=0)return["ההזמנות נסגרו","over"];const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),sec=s%60;const pad=n=>String(n).padStart(2,"0");
+  if(d>0)return[`נשארו ${d===1?"יום":d+" ימים"} ו-${h} שעות להזמנה`,""];return[`נשארו ${pad(h)}:${pad(m)}:${pad(sec)} להזמנה`,ms<3*3600e3?"soon":""]}
 function tick(){let flip=false;document.querySelectorAll("[data-cd]").forEach(el=>{const s=byH[el.dataset.cd],t=closeAt(s);const[tx,c]=cdText(t);el.textContent=tx;el.className="cd "+c;if(c==="over"&&!el.closest(".card").classList.contains("closed"))flip=true});if(flip)renderGrid()}
 
 function isForm(s){return /forms\.gle|docs\.google\.com\/forms/.test(s.url||"")}
@@ -1653,16 +1653,28 @@ $("cour-close").addEventListener("click",()=>{me.mode="pickup";saveMe();fillMe()
 document.addEventListener("click",e=>{if(!e.target.closest("#cour-send"))return;EDITING=false;me.locked=true;saveMe();setTimeout(renderMeSum,400)});
 document.addEventListener("input",e=>{if(e.target.tagName!=="SELECT"&&e.target.closest&&e.target.closest("#me-edit"))fillCourierArea()});
 document.addEventListener("click",e=>{if(e.target.id!=="me-change")return;EDITING=true;me.locked=false;saveMe();renderMeSum();$("f-name").focus()});
+applyLook(DATA);
 $("f-name2").addEventListener("input",e=>{me.name=e.target.value;saveMe();updateLinks()});
 renderMedia();renderPoints();computeTimes();weeklyReset();chips();fillMe();renderAll();
 // ---- live data from Firebase ----
+function lookHex(h){return /^#[0-9a-f]{6}$/i.test(h||"")?h:null}
+function lookMix(a,b,t){const A=[1,3,5].map(i=>parseInt(a.substr(i,2),16)),B=[1,3,5].map(i=>parseInt(b.substr(i,2),16));return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("")}
+function applyLook(d){
+  const bar=document.querySelector(".tabs-in"),order=Array.isArray(d&&d.tabOrder)?d.tabOrder:[];
+  if(bar&&order.length)[...order].reverse().forEach(k=>{const b=bar.querySelector(`[data-tabbtn="${String(k).replace(/[^a-z]/g,"")}"]`);if(b)bar.prepend(b)});
+  let st=document.getElementById("rk-theme");if(!st){st=document.createElement("style");st.id="rk-theme";document.head.appendChild(st)}
+  const c=(d&&d.theme&&d.theme.c)||{},L=lookHex(c.leaf),H=lookHex(c.heart),U=lookHex(c.sun);
+  if(!L||!H||!U){st.textContent="";return}
+  const deep=lookMix(L,"#000000",.2),v=`--leaf:${L};--leaf-deep:${deep};--band:${deep};--leaf-soft:${lookMix(L,"#ffffff",.88)};--c-dairy:${L};--heart:${H};--heart-soft:${lookMix(H,"#ffffff",.88)};--c-meat:${H};--sun:${U}`;
+  st.textContent=`@media not all and (prefers-color-scheme: dark){:root:not([data-theme="dark"]){${v}}}:root[data-theme="light"]{${v}}`;
+}
 function applySite(d){
   if(!d||!Array.isArray(d.suppliers))return;
   if((d.ver||0)<(DATA.ver||0))return;
   DATA=Object.assign({people:[],products:[],collabs:[],posts:[],points:[]},d);
   DATA.suppliers=DATA.suppliers.map(s=>Object.assign({h:"",n:"",c:"veg",o:0,d:"",k:"",url:"",cd:null,ct:"",p:"",pl:"",ks:"",f:0,img:"",cov:""},s));
   S=DATA.suppliers;byH=Object.fromEntries(S.map(s=>[s.h,s]));
-  renderMedia();renderPoints();computeTimes();fillMe();renderAll();
+  applyLook(DATA);renderMedia();renderPoints();computeTimes();fillMe();renderAll();
   $("f-pts").textContent=(DATA.points||[]).length;
 }
 onValue(ref(db,SITE),snap=>applySite(snap.val()),()=>{});
