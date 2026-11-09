@@ -736,6 +736,14 @@ footer .floatbar b{font-family:var(--body);font-size:inherit;color:inherit}
 .toast:empty{display:none}
 footer .toast b{font-family:inherit;font-size:inherit;color:inherit}
 #cour-fields>#cour-pick{order:0!important}
+.join{padding-block:10px 6px}
+.join-card{background:var(--surface);border:2px solid var(--frame);border-top:6px solid var(--sun);border-radius:20px;padding:20px;display:grid;gap:10px}
+.join h2{font-family:var(--hand);font-weight:700;font-size:clamp(36px,6vw,48px);color:var(--leaf-deep);line-height:1}
+.join-card>p{margin:0;font-size:16.5px}
+.join-form{display:grid;gap:12px;max-width:520px}
+.join-ok{font-weight:600!important;align-items:flex-start!important;font-size:15.5px!important;line-height:1.45}
+.join-ok input{margin-top:3px;flex:none}
+.join-form .btn{justify-content:center}
 #paysum{display:none!important}
 .cd{background:#F5C542!important;color:#3A2400!important;font-weight:700}
 .cd.soon{background:#FF9F2E!important;color:#3A1E00!important}
@@ -997,6 +1005,23 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
     <button type="button" id="btn-favs" hidden><b id="n-favs">0</b></button>
   </section>
 
+  <section class="join" id="join" data-tab="contact" aria-labelledby="join-h">
+    <div class="join-card">
+      <h2 id="join-h">📬 רוצים לקבל עדכונים כל שבוע?</h2>
+      <p>מצטרפים לרשימת הלקוחות של רכישות כדאיות, ומקבלים בוואטסאפ את היצרנים של השבוע, מבצעים והטבות.</p>
+      <form id="join-form" class="join-form" novalidate>
+        <p class="hint">שדות עם <b>*</b> הם חובה.</p>
+        <label class="field" for="join-name">שם מלא *<input id="join-name" type="text" autocomplete="name" required aria-required="true"></label>
+        <label class="field" for="join-phone">טלפון *<input id="join-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05X-XXXXXXX" required aria-required="true"></label>
+        <label class="field" for="join-point">נקודת חלוקה קרובה (לא חובה)<select id="join-point"></select></label>
+        <label class="chk join-ok"><input type="checkbox" id="join-ok" required aria-required="true"> אני מסכים/ה שרכישות כדאיות תשמור את השם והטלפון שלי ותשלח לי עדכונים בוואטסאפ. *</label>
+        <button class="btn go" type="submit">הצטרפות לעדכונים</button>
+        <p class="hint" id="join-msg" role="status" aria-live="polite"></p>
+        <p class="hint">הפרטים נשמרים רק כדי לשלוח לכם עדכונים, ולא מועברים לאף אחד אחר. אפשר לבקש הסרה בכל עת בהודעת וואטסאפ לורד (054-4462223).</p>
+      </form>
+    </div>
+  </section>
+
   <section class="contact" id="contact" aria-labelledby="contact-h">
     <div class="contact-card">
       <div class="contact-txt">
@@ -1142,6 +1167,7 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
       <a href="#suppliers">ספקי השבוע</a>
       <a href="#mylist">רשימת הקניות שלי</a>
       <a href="#contact">התקשרות עם ורד</a>
+      <a href="#join">📬 הצטרפות לעדכונים</a>
       <a href="#" data-a2hs>📲 לחצו כאן לשמירת האפליקציה במסך הבית</a>
       <a href="https://www.facebook.com/groups/250286642976195/" target="_blank" rel="noopener">קבוצת הפייסבוק</a>
       <a href="https://wa.me/972544462223" target="_blank" rel="noopener">וואטסאפ לורד</a>
@@ -1351,7 +1377,7 @@ function renderPoints(){
   const P=DATA.points||[], hasInfo=P.some(p=>p.t||p.a);
   $("dist-pts").innerHTML=hasInfo?P.map(p=>`<p><b>${esc(p.n)}</b>${p.t?" · "+esc(p.t):""}${p.a?" · "+esc(p.a):""}</p>`).join("")
     :`<p>${P.map(p=>esc(p.n)).join(" · ")}. ${esc(DATA.note||"")}</p>`;
-  $("f-point").innerHTML='<option value="">-- בחרו נקודה --</option>'+P.map(p=>`<option>${esc(p.n)}</option>`).join("");
+  $("join-point").innerHTML=$("f-point").innerHTML='<option value="">-- בחרו נקודה --</option>'+P.map(p=>`<option>${esc(p.n)}</option>`).join("");
 }
 function chips(){
   const all=[["all","הכל",null],...Object.entries(CATS).map(([k,v])=>[k,v.label,v.color])];
@@ -1653,6 +1679,20 @@ $("cour-close").addEventListener("click",()=>{me.mode="pickup";saveMe();fillMe()
 document.addEventListener("click",e=>{if(!e.target.closest("#cour-send"))return;EDITING=false;me.locked=true;saveMe();setTimeout(renderMeSum,400)});
 document.addEventListener("input",e=>{if(e.target.tagName!=="SELECT"&&e.target.closest&&e.target.closest("#me-edit"))fillCourierArea()});
 document.addEventListener("click",e=>{if(e.target.id!=="me-change")return;EDITING=true;me.locked=false;saveMe();renderMeSum();$("f-name").focus()});
+// anonymous daily visit count (one per device per day; owner's #admin visits are not counted)
+try{const day=new Date().toLocaleDateString("en-CA",{timeZone:"Asia/Jerusalem"});
+  if(!/admin/.test(location.hash)&&LS.get("rk-visit","")!==day){LS.set("rk-visit",day);Promise.resolve().then(()=>set(ref(db,"visits/"+day+"/"+CID),{t:Date.now()})).catch(()=>{})}}catch(e){}
+// optional sign-up for weekly updates (with consent)
+$("join-form").addEventListener("submit",e=>{e.preventDefault();
+  const n=$("join-name").value.trim(),ph=$("join-phone").value.trim(),ok=$("join-ok").checked,miss=[];
+  if(!n)miss.push("שם מלא");if(ph.replace(/\D/g,"").length<9)miss.push("טלפון");if(!ok)miss.push("סימון ההסכמה");
+  if(miss.length){$("join-msg").textContent="חסר: "+miss.join(", ");return}
+  const rec={name:n,phone:ph,point:$("join-point").value||"",consent:true,date:new Date().toLocaleDateString("he-IL"),ts:Date.now()};
+  $("join-msg").textContent="שומרת…";
+  Promise.resolve().then(()=>set(ref(db,"members/"+CID),rec)).then(()=>{$("join-msg").textContent="תודה! נרשמת לעדכונים ✓";$("join-form").reset()})
+    .catch(()=>{$("join-msg").textContent="ההרשמה לא נשמרה. נסו שוב, או כתבו לורד בוואטסאפ."});
+  if(!(me.name||"").trim())me.name=n;if(!(me.phone||"").trim())me.phone=ph;saveMe();
+});
 applyLook(DATA);
 $("f-name2").addEventListener("input",e=>{me.name=e.target.value;saveMe();updateLinks()});
 renderMedia();renderPoints();computeTimes();weeklyReset();chips();fillMe();renderAll();

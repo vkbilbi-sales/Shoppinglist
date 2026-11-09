@@ -124,6 +124,23 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
     </div>
   </div>
 
+  <!-- Visits: who just looked vs who made a list -->
+  <div class="card" id="visits-card">
+    <div class="slabel">👀 כניסות לאתר</div>
+    <p class="lk-p">כמה מכשירים שונים נכנסו לאתר בכל יום, ומתוכם כמה רשמו שם ברשימת הקניות. מי שנכנס ולא רשם רשימה, כנראה רק הסתכל. הכניסות שלך דרך הדשבורד לא נספרות.</p>
+    <div class="st-sum" id="st-sum"></div>
+    <table class="st-tbl"><thead><tr><th scope="col">יום</th><th scope="col">נכנסו</th><th scope="col">רשמו רשימה</th></tr></thead><tbody id="st-rows"><tr><td colspan="3">טוען…</td></tr></tbody></table>
+  </div>
+
+  <!-- Members who signed up for updates -->
+  <div class="card" id="members-card">
+    <div class="slabel">📬 מאגר לקוחות (נרשמו לעדכונים)</div>
+    <p class="lk-p">לקוחות שנרשמו באתר לקבלת עדכונים, עם סימון הסכמה. זה המאגר שמותר לך לשלוח אליו עדכונים.</p>
+    <div class="st-sum" id="mb-sum"></div>
+    <ul class="mb-list" id="mb-list"><li>טוען…</li></ul>
+    <button class="btn bg bfull" type="button" id="mb-export">📥 הורדת המאגר לאקסל</button>
+  </div>
+
   <!-- Order of suppliers and messages on the customer page (new.html) -->
   <div class="card" id="ord-card">
     <div class="slabel">↕️ סדר הספקים וההודעות בדף הלקוחות</div>
@@ -562,6 +579,12 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .ord-list li.moved{background:#FFF6E8}
 .lk-h{margin:1rem 0 .2rem;font-size:1rem}
 .edit-wrap{margin-top:.7rem;display:grid;gap:.4rem}
+.st-sum{font-weight:700;margin:.2rem 0 .6rem}
+.st-tbl{width:100%;border-collapse:collapse;font-size:.9rem}
+.st-tbl th,.st-tbl td{border-bottom:1px solid var(--border);padding:.35rem .4rem;text-align:right}
+.st-tbl th{background:#EEF9F7}
+.mb-list{list-style:none;margin:0 0 .7rem;padding:0;display:grid;gap:.35rem;max-height:340px;overflow:auto}
+.mb-list li{border:1px solid var(--border);border-radius:10px;padding:.4rem .6rem;font-size:.9rem;background:#fff}
 .edit-wrap[hidden]{display:none}
 .edit-wrap iframe{width:100%;height:85vh;border:2px solid var(--border);border-radius:12px;background:#fff}
 .edit-full{font-weight:700;color:#1A3A38}
@@ -669,6 +692,25 @@ $("look-save").addEventListener("click",async()=>{if(lookCheck(LOOK).some(x=>!x.
     await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));lookDirty=false;$("look-msg").textContent="נשמר ✓ הלקוחות כבר רואים את המראה החדש.";render();lookRender()}
   catch(e){$("look-msg").textContent="השמירה לא הצליחה. בדקי את החיבור ונסי שוב.";$("look-save").disabled=false}
 });
+// ---- visits + members ----
+let MEMBERS=[];
+async function statsLoad(){
+  try{const [v,t,m]=await Promise.all([get(ref(db,"visits")),get(ref(db,"tracking")),get(ref(db,"members"))]);
+    const V=v.val()||{},T=t.val()||{},M=m.val()||{};
+    const days=Object.keys(V).sort().reverse().slice(0,14);
+    let tv=0,tl=0;
+    $("st-rows").innerHTML=days.length?days.map(d=>{const ids=Object.keys(V[d]||{}),l=ids.filter(id=>T[id]).length;tv+=ids.length;tl+=l;
+      const [y,mo,dd]=d.split("-");return `<tr><td>${dd}.${mo}</td><td>${ids.length}</td><td>${l}</td></tr>`}).join(""):'<tr><td colspan="3">עוד אין נתונים. הספירה מתחילה מהיום שהאתר החדש עולה.</td></tr>';
+    $("st-sum").textContent=days.length?`ב־${days.length} הימים האחרונים: ${tv} כניסות, ${tl} מהן עם רשימת קניות.`:"";
+    MEMBERS=Object.values(M).filter(x=>x&&x.consent).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    $("mb-sum").textContent=`${MEMBERS.length} לקוחות במאגר`;
+    $("mb-list").innerHTML=MEMBERS.length?MEMBERS.map(x=>`<li><b>${esc(x.name)}</b> · <span dir="ltr">${esc(x.phone)}</span>${x.point?" · "+esc(x.point):""} · <span class="st">${esc(x.date||"")}</span></li>`).join(""):"<li>עוד אין נרשמים.</li>";
+  }catch(e){$("st-rows").innerHTML='<tr><td colspan="3">לא הצלחתי לטעון. נסי לרענן.</td></tr>';$("mb-list").innerHTML="<li>לא הצלחתי לטעון.</li>"}
+}
+$("mb-export").addEventListener("click",()=>{const q=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
+  const csv="\uFEFF"+[["שם","טלפון","נקודה","תאריך הרשמה"],...MEMBERS.map(x=>[x.name,x.phone,x.point,x.date])].map(r=>r.map(q).join(",")).join("\r\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="מאגר-לקוחות.csv";document.body.appendChild(a);a.click();a.remove()});
+statsLoad();
 $("edit-open").addEventListener("click",()=>{const w=$("edit-wrap");if(!w.hidden){w.hidden=true;$("edit-open").textContent="✏️ פתיחת העורך";return}
   const f=$("edit-frame");if(!f.src)f.src="new.html#admin-edit";w.hidden=false;$("edit-open").textContent="סגירת העורך";w.scrollIntoView({behavior:"smooth",block:"start"})});
 load();
