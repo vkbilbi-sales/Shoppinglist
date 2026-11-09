@@ -1388,10 +1388,17 @@ function chips(){
 function initial(n){return n.replace(/^(ה|משק |מחלבת |מעדניית )/,"").trim().charAt(0)}
 const STALL=["var(--heart)","var(--leaf)","var(--sun)","var(--c-cooked)","var(--c-veg)","var(--c-sweet)","var(--c-dairy)","var(--c-bake)","var(--c-meat)","var(--c-pantry)"];
 function renderWk(){const el=$("wk-n");if(!el)return;const n=S.filter(isOpen).length;el.hidden=!n;el.innerHTML=n?`<b>${n}</b> יצרנים מגיעים השבוע`:""}
+// forgiving Hebrew search: ignores final letters, punctuation and the "vowel letters" ו/י/א, so "בורקס", "בוריקס" and "בוריקטס" all find the same supplier
+function srchNorm(t){return String(t||"").toLowerCase().replace(/[֑-ׇ"'׳״\-]/g,"").replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ").replace(/ף/g,"פ").replace(/ץ/g,"צ")}
+function srchSkel(t){let k=srchNorm(t).replace(/[ויא]/g,"");if(k.length>3)k=k.replace(/[התמ]$/,"");return k}
+function srchSub(a,b){let i=0;for(const ch of b){if(ch===a[i])i++;if(i===a.length)return true}return !a.length}
+function srchMatch(s,q){const hay=[s.n,s.d,s.k,s.tags,s.ks,(CATS[s.c]||{}).label].join(" "),H=srchNorm(hay);
+  return srchNorm(q).split(/\s+/).filter(Boolean).every(w=>{if(H.includes(w))return true;const k=srchSkel(w);if(k.length<3)return false;
+    return H.split(/\s+/).some(x=>{const xs=srchSkel(x);return xs.includes(k)||(xs[0]===k[0]&&xs.length<=k.length+2&&srchSub(k,xs))})})}
 function renderGrid(){
   renderWk();
   const q=state.q.trim();
-  let L=S.filter(s=>(state.cat==="all"||s.c===state.cat)&&(!state.open||isOpen(s))&&(!q||(s.n+" "+s.d+" "+s.k).includes(q)));
+  let L=S.filter(s=>(state.cat==="all"||s.c===state.cat)&&(!state.open||isOpen(s))&&(!q||srchMatch(s,q)));
   if(state.view==="favs")L=L.filter(s=>favs.has(s.h));
   L.sort((a,b)=>(isOpen(b)-isOpen(a))||(state.sort==="mine"?S.indexOf(a)-S.indexOf(b):0)||(state.sort==="close"&&isOpen(a)?closeAt(a)-closeAt(b):0)||a.n.localeCompare(b.n,"he"));
   $("grid").innerHTML=L.length?L.map(s=>{const C=CATS[s.c],inL=!!list[s.h];return `
@@ -1415,7 +1422,7 @@ function renderGrid(){
     </div>
   </article>`}).join(""):`<div class="empty">${state.view==="favs"?"עוד לא סימנתם מועדפים. לחצו על הלב בכרטיס של ספק כדי לשמור אותו כאן.":"לא נמצאו ספקים שמתאימים לחיפוש."}</div>`;
   { const g=$("grid"), fr=$("grid-fri"); fr.innerHTML="";
-    g.querySelectorAll("article[data-fri]").forEach(a=>fr.appendChild(a));
+    if(!q)g.querySelectorAll("article[data-fri]").forEach(a=>fr.appendChild(a));
     if(!g.querySelector("article")&&!g.querySelector(".empty"))g.innerHTML='<div class="empty">אין ספקים שמתאימים לחיפוש בחלוקה של יום רביעי.</div>';
     $("fri-sec").hidden=!fr.children.length; }
   $("count").textContent=`${S.filter(s=>!s.f&&isOpen(s)).length} ספקים פתוחים להזמנות לחלוקה של יום ${DAYN[DIST.wd??3]}`;
