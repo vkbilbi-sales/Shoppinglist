@@ -738,6 +738,7 @@ footer .toast b{font-family:inherit;font-size:inherit;color:inherit}
 #cour-fields>#cour-pick{order:0!important}
 .badge.tag{color:var(--cd-ink);border-color:currentColor;background:var(--leaf-soft)}
 .card.closed .badge.tag{color:var(--cd-ink)}
+.actions .btn,.actions .addbtn{white-space:normal!important;text-align:center;line-height:1.25}
 .badge.next{color:var(--ink)!important;border-color:var(--sun)!important;background:var(--warm-bg)}
 .join{padding-block:10px 6px}
 .join-card{background:var(--surface);border:2px solid var(--frame);border-top:6px solid var(--sun);border-radius:20px;padding:20px;display:grid;gap:10px}
@@ -1417,7 +1418,7 @@ function renderGrid(){
       ${s.ks?`<div><dt>כשרות</dt><dd class="ks">${esc(s.ks)}</dd></div>`:""}
     </dl>
     <div class="actions">
-      <a class="btn go" href="${esc(s.url)}" target="_blank" rel="noopener">${isForm(s)?"לטופס הזמנה ←":"לחנות הזמנה ←"}</a>
+      <a class="btn go" href="${esc(s.url)}" target="_blank" rel="noopener">${isForm(s)?"לטופס הזמנה ←":"לחצו כאן לחנות ההזמנות ←"}</a>
       <button type="button" class="icon fav" data-fav="${s.h}" aria-pressed="${favs.has(s.h)}" aria-label="הוספה למועדפים: ${s.n}">${heart}</button>
       <button type="button" class="addbtn" data-add="${s.h}" aria-pressed="${inL}" aria-label="${inL?"הסרה מרשימת הקניות":"הוספה לרשימת הקניות"}: ${s.n}">${inL?"✓ ברשימת הקניות":"+ להוסיף לרשימת הקניות"}</button>
     </div>
@@ -1455,7 +1456,7 @@ function payLine(s){
   if(m)parts.push(`<span><b>תשלום ב${esc(m)}</b></span>`);
   if(s.pl)parts.push(`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו כאן לתשלום ב${esc(m)}: ${esc(s.n)}">לחצו כאן לתשלום ב${esc(m)} ←</a>`);
   else if(!s.p&&!isForm(s))parts.push(`<span>משלמים בחנות, בזמן ההזמנה</span>`);
-  parts.push(`<a class="storelink" href="${esc(s.url)}" target="_blank" rel="noopener">${isForm(s)?"לטופס הזמנה":"לחנות הזמנה"} ←</a>`);
+  parts.push(`<a class="storelink" href="${esc(s.url)}" target="_blank" rel="noopener">${isForm(s)?"לטופס הזמנה":"לחצו כאן לחנות ההזמנות"} ←</a>`);
   return `<div class="ipay">${parts.join("")}</div>`;
 }
 function renderPick(){const sel=$("pick-sup");if(!sel)return;

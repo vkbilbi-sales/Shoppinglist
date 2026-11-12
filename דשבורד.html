@@ -677,7 +677,7 @@ function lookRender(){
   $("tab-list").innerHTML=TORD.map((k,j)=>`<li><span class="grip" aria-hidden="true">☰</span><b>${j+1}.</b><span class="n">${esc((TABS.find(t=>t[0]===k)||[k,k])[1])}</span><button type="button" data-tup="${j}" aria-label="למעלה">↑</button><button type="button" data-tdn="${j}" aria-label="למטה">↓</button></li>`).join("");
   $("lk-presets").innerHTML=PRESETS.map(([n,c],i)=>`<button type="button" data-preset="${i}" aria-pressed="${c.leaf===LOOK.leaf&&c.heart===LOOK.heart&&c.sun===LOOK.sun}"><span class="lk-sw"><i style="background:${c.leaf}"></i><i style="background:${c.heart}"></i><i style="background:${c.sun}"></i></span>${esc(n)}</button>`).join("");
   $("lk-leaf").value=LOOK.leaf;$("lk-heart").value=LOOK.heart;$("lk-sun").value=LOOK.sun;
-  $("lk-prev").innerHTML=`<b style="color:${LOOK.sun};font-size:1.3rem">רכישות כדאיות</b><span style="background:${LOOK.leaf};color:#fff">לחנות הזמנה ←</span><span style="background:${LOOK.heart};color:#fff">לחצו כאן לתשלום</span><span style="background:${LOOK.sun};color:#fff">ליצרנים של השבוע</span>`;
+  $("lk-prev").innerHTML=`<b style="color:${LOOK.sun};font-size:1.3rem">רכישות כדאיות</b><span style="background:${LOOK.leaf};color:#fff">לחצו כאן לחנות ההזמנות ←</span><span style="background:${LOOK.heart};color:#fff">לחצו כאן לתשלום</span><span style="background:${LOOK.sun};color:#fff">ליצרנים של השבוע</span>`;
   const r=lookCheck(LOOK),bad=r.filter(x=>!x.ok);
   $("lk-check").innerHTML=bad.length?bad.map(x=>`<li class="bad">✗ ${esc(x.n)}: ניגודיות ${x.r.toFixed(1)}, צריך לפחות ${x.need}. בחרי גוון כהה יותר.</li>`).join(""):`<li>✓ כל הצבעים עומדים בחוק הנגישות.</li>`;
   $("look-save").disabled=!lookDirty||!!bad.length;
