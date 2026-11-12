@@ -739,6 +739,11 @@ footer .toast b{font-family:inherit;font-size:inherit;color:inherit}
 .badge.tag{color:var(--cd-ink);border-color:currentColor;background:var(--leaf-soft)}
 .card.closed .badge.tag{color:var(--cd-ink)}
 .actions .btn,.actions .addbtn{white-space:normal!important;text-align:center;line-height:1.25}
+/* header parts per tab: logo/title/hills only on "קצת עלינו"; the cart road + banner only on "ספקי השבוע" */
+body[data-tab]:not([data-tab="about"]):not([data-tab="sup"]) header.band{display:none}
+body[data-tab="sup"] header.band .brand-top,body[data-tab="sup"] header.band .hills{display:none}
+body[data-tab="about"] header.band .road-top{display:none}
+body[data-tab="about"] #h1-alt,body:not([data-tab]) #h1-alt{display:none}
 .badge.next{color:var(--ink)!important;border-color:var(--sun)!important;background:var(--warm-bg)}
 .join{padding-block:10px 6px}
 .join-card{background:var(--surface);border:2px solid var(--frame);border-top:6px solid var(--sun);border-radius:20px;padding:20px;display:grid;gap:10px}
@@ -860,6 +865,7 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
 </header>
 
 <main class="wrap" id="main" tabindex="-1">
+<h1 class="sr-only" id="h1-alt">רכישות כדאיות</h1>
   <section class="posts" id="sec-news" hidden aria-labelledby="h-news">
     <div class="gal-head"><h2 id="h-news">הודעות ועדכונים</h2><p>מה חדש ומה חשוב השבוע</p></div>
     <div class="post-grid" id="pg-news"></div>
@@ -1647,7 +1653,7 @@ const TABMAP=[["#sec-news","news"],["#meet","about"],["#about-us","about"],[".st
 TABMAP.forEach(([sel,t])=>document.querySelectorAll(sel).forEach(el=>el.dataset.tab=t));
 let TAB="sup";
 function showTab(t,scroll){
-  if(!document.querySelector(`[data-tabbtn="${t}"]`))t="sup";TAB=t;
+  if(!document.querySelector(`[data-tabbtn="${t}"]`))t="sup";TAB=t;document.body.dataset.tab=t;
   document.querySelectorAll("main [data-tab]").forEach(el=>el.classList.toggle("tab-on",el.dataset.tab===t));
   document.querySelectorAll("[data-tabbtn]").forEach(b=>b.setAttribute("aria-current",b.dataset.tabbtn===t));
   {const ab=document.querySelector(`[data-tabbtn="${t}"]`);const bar=ab.parentElement;bar.scrollLeft=ab.offsetLeft-(bar.clientWidth-ab.offsetWidth)/2}
