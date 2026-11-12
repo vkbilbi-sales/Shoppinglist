@@ -744,6 +744,20 @@ body[data-tab]:not([data-tab="about"]):not([data-tab="sup"]) header.band{display
 body[data-tab="sup"] header.band .brand-top,body[data-tab="sup"] header.band .hills{display:none}
 body[data-tab="about"] header.band .road-top{display:none}
 body[data-tab="about"] #h1-alt,body:not([data-tab]) #h1-alt{display:none}
+/* shopping list: more colour */
+.ml-box{position:relative;overflow:hidden;padding-top:30px!important}
+.ml-box::before{content:"";position:absolute;inset:0 0 auto 0;height:16px;background:repeating-linear-gradient(90deg,var(--b1,var(--leaf)) 0 22px,var(--b2,var(--heart)) 22px 44px);
+  -webkit-mask:radial-gradient(11px 7px at 11px 9px,#000 98%,transparent) 0 0/22px 100% repeat-x,linear-gradient(#000,#000) 0 0/100% 9px no-repeat;mask:radial-gradient(11px 7px at 11px 9px,#000 98%,transparent) 0 0/22px 100% repeat-x,linear-gradient(#000,#000) 0 0/100% 9px no-repeat}
+.ml-box>h3{justify-self:start;display:inline-block;border-radius:999px;padding:5px 16px;background:var(--leaf);color:var(--on-leaf)!important}
+.ml-deliver{--b1:var(--sun);--b2:var(--leaf)}.ml-deliver>h3{background:var(--sun);color:var(--on-sun)!important}
+.ml-self{--b1:var(--heart);--b2:var(--sun)}.ml-self>h3{background:var(--heart);color:var(--on-heart)!important}
+.item{border-inline-start:8px solid var(--cc,var(--sun))!important;background:linear-gradient(90deg,color-mix(in srgb,var(--cc,var(--sun)) 9%,var(--surface)),var(--surface) 70%)!important}
+.item .iname{background:color-mix(in srgb,var(--cc,var(--sun)) 16%,var(--surface));border-radius:10px;padding:4px 12px;justify-self:start;color:var(--ink)}
+.item.got{background:var(--leaf-soft)!important}
+/* couriers tab */
+.cour-card.mine{border:3px solid var(--sun);box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.cour-mine{justify-self:start;background:var(--sun);color:var(--on-sun);font-weight:700;font-size:14px;border-radius:999px;padding:3px 12px}
+.cour-lock{margin:0;background:var(--bg);border:1px dashed var(--frame);border-radius:12px;padding:10px 12px;font-size:15px!important}
 .badge.next{color:var(--ink)!important;border-color:var(--sun)!important;background:var(--warm-bg)}
 .join{padding-block:10px 6px}
 .join-card{background:var(--surface);border:2px solid var(--frame);border-top:6px solid var(--sun);border-radius:20px;padding:20px;display:grid;gap:10px}
@@ -1044,7 +1058,7 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
       </div>
       <div class="contact-side">
         <ul class="contact-rules">
-          <li><b>חוסרים או בעיות</b><span>ממלאים את הטופס עד 2 ימים מיום החלוקה</span></li>
+          <li><b>חוסרים או בעיות</b><span>ממלאים את הטופס ביום החלוקה או עד יום למחרת</span></li>
           <li><b>זמן טיפול</b><span>עד 4 ימי עסקים</span></li>
           <li><b>פירגונים ❤️</b><span>מתי שבא לכם, וכמה שיותר</span></li>
         </ul>
@@ -1476,7 +1490,7 @@ function renderPaySum(){
 }
 function renderList(){
   const hs=Object.keys(list).filter(h=>byH[h]), got=hs.filter(h=>list[h].got).length;
-  $("items").innerHTML=hs.length?hs.map(h=>{const it=list[h];return `<li class="item${it.got?" got":""}">
+  $("items").innerHTML=hs.length?hs.map(h=>{const it=list[h];return `<li class="item${it.got?" got":""}" style="--cc:${STALL[S.indexOf(byH[h])%STALL.length]}">
     <input type="checkbox" id="got-${h}" data-got="${h}" ${it.got?"checked":""} aria-label="נאסף: ${byH[h].n}">
     <label class="iname" for="got-${h}">${byH[h].n}${byH[h].f?' <span class="fri-tag">🚚 שישי, עד הבית</span>':""}</label>
     <button type="button" class="rm" data-rm="${h}" aria-label="הסרה מהרשימה: ${byH[h].n}">×</button>
@@ -1516,9 +1530,13 @@ function renderCouriers(){fillCourierArea();
     :hasAddr?`<p>📍 הכתובת שתישלח: <b>${esc([me.street,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", "))}</b>${me.code?" · קוד כניסה "+esc(me.code):""}. <button class="linkbtn" type="button" data-couraddr>שינוי</button></p>`
     :`<p>📍 חסרה כתובת למשלוח. <button class="btn alt" type="button" data-couraddr>מילוי כתובת</button></p>`;
   const txt=encodeURIComponent(listText(true));
-  $("cour-grid").innerHTML=COURIERS.map(c=>`<article class="cour-card"><div class="cour-top"><span class="cour-ic" aria-hidden="true">🛵</span><div><b>${esc(c.area)}</b><span>${esc(c.name)} · <a class="tel" dir="ltr" href="tel:+972${c.phone.replace(/\D/g,"").slice(1)}">${c.phone}</a></span></div></div>
+  let ci=(me.carea!==""&&me.carea!=null&&COURIERS[+me.carea])?+me.carea:-1;
+  if(ci<0&&me.point)ci=COURIERS.findIndex(c=>c.area.includes(me.point)||me.point.includes(c.area));
+  const mine=ci>=0?COURIERS[ci]:null,ord=COURIERS.map((c,i)=>[c,i]).sort((a,b)=>(b[1]===ci)-(a[1]===ci));
+  $("cour-grid").innerHTML=ord.map(([c,i])=>`<article class="cour-card${i===ci?" mine":""}">${i===ci?'<span class="cour-mine">⭐ השליח של הנקודה שלכם</span>':""}<div class="cour-top"><span class="cour-ic" aria-hidden="true">🛵</span><div><b>${esc(c.area)}</b><span>${esc(c.name)} · <a class="tel" dir="ltr" href="tel:+972${c.phone.replace(/\D/g,"").slice(1)}">${c.phone}</a></span></div></div>
     <p>${esc(c.note)}</p>
-    ${n?`<a class="btn go" target="_blank" rel="noopener" href="https://wa.me/972${c.phone.replace(/\D/g,"").slice(1)}?text=${txt}">שליחת הרשימה ל${esc(c.name)} בוואטסאפ ←</a>`:`<span class="btn ghost" aria-disabled="true">הרשימה עוד ריקה</span>`}</article>`).join("");
+    ${mine&&i!==ci?`<p class="cour-lock">הנקודה שלכם היא <b>${esc(mine.area)}</b>, ולכן שולחים רק ל${esc(mine.name)}. כדי להחליף נקודה: <a href="#mylist">רשימת הקניות</a>.</p>`
+      :n?`<a class="btn go" target="_blank" rel="noopener" href="https://wa.me/972${c.phone.replace(/\D/g,"").slice(1)}?text=${txt}">שליחת הרשימה ל${esc(c.name)} בוואטסאפ ←</a>`:`<span class="btn ghost" aria-disabled="true">הרשימה עוד ריקה</span>`}</article>`).join("");
 }
 document.addEventListener("click",e=>{if(!e.target.closest("[data-couraddr]"))return;me.mode="courier";saveMe();fillMe();updateLinks();
   showTab("list",false);requestAnimationFrame(()=>{$("cour-fields").scrollIntoView({behavior:"smooth",block:"center"});$("f-street").focus()})});
