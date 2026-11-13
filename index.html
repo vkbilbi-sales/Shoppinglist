@@ -776,6 +776,10 @@ body[data-tab="about"] #h1-alt,body:not([data-tab]) #h1-alt{display:none}
 header .road-cap b{color:#FFE08A!important;font-size:clamp(30px,4.4vw,38px)!important;letter-spacing:.01em;text-shadow:0 2px 0 rgba(0,0,0,.28),0 0 1px rgba(0,0,0,.4)!important}
 html,body{color-scheme:only light!important}
 .next h2{color:#FFE08A!important;font-size:24px!important;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+.sup-pic{display:grid;gap:6px;justify-items:start}
+.sup-pic img{width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
+.sup-pic img.wide-pic{width:100%;max-width:260px;height:90px;border-radius:10px}
+.sup-pic input[type=text],.sup-pic input:not([type]){width:100%}
 .badge.next{color:var(--ink)!important;border-color:var(--sun)!important;background:var(--warm-bg)}
 .join{padding-block:10px 6px}
 .join-card{background:var(--surface);border:2px solid var(--frame);border-top:6px solid var(--sun);border-radius:20px;padding:20px;display:grid;gap:10px}
@@ -1451,8 +1455,8 @@ function renderGrid(){
   $("grid").innerHTML=L.length?L.map(s=>{const C=CATS[s.c],inL=!!list[s.h];return `
   <article class="card${isOpen(s)?"":" closed"}"${s.f?" data-fri":""} style="--cc:${STALL[S.indexOf(s)%STALL.length]}">
     <div class="mini-awning" aria-hidden="true"></div>
-    ${/^(https:\/\/|img\/)/.test(s.cov||"")?`<img class="cover" src="${esc(s.cov)}" alt="" loading="lazy">`:""}
-    <div class="top">${/^(https:\/\/|img\/)/.test(s.img||"")?`<img class="mark logo-mark" src="${esc(s.img)}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
+    ${blob(s.cov)?`<img class="cover" src="${esc(blob(s.cov))}" alt="" loading="lazy">`:""}
+    <div class="top">${blob(s.img)?`<img class="mark logo-mark" src="${esc(blob(s.img))}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
       <div><div class="cat">${C.label}</div><h3>${esc(s.n)}</h3>
       <div class="badges">${s.ks==="כשר"?'<span class="badge kosher">✡️ כשר</span>':s.ks&&s.ks!=="לא כשר"?`<span class="badge kosher-home">✡️ ${esc(s.ks)}</span>`:""}${String(s.tags||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="badge tag">${esc(x)}</span>`).join("")}${isOpen(s)?'<span class="badge open">פתוח להזמנות</span>':s.o?'<span class="badge">ההזמנות נסגרו לשבוע הזה</span>':'<span class="badge next">⏳ מגיע בשבוע הבא</span>'}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>
     <p class="desc">${esc(s.d)}</p>
@@ -1763,6 +1767,9 @@ $("join-form").addEventListener("submit",e=>{e.preventDefault();
   if(!(me.name||"").trim())me.name=n;if(!(me.phone||"").trim())me.phone=ph;saveMe();
 });
 applyLook(DATA);
+document.addEventListener("change",async e=>{const t=e.target;if(!t.dataset||t.dataset.supimg===undefined||!draft)return;const f=t.files;if(!f||!f.length)return;
+  const i=+t.dataset.supimg,w=t.dataset.which;await uploadFiles([f[0]],id=>{draft.suppliers[i][w]=id});edSups(i)});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-supimgdel]");if(!b||!draft)return;const i=+b.dataset.supimgdel;draft.suppliers[i][b.dataset.which]="";edSups(i)});
 $("f-name2").addEventListener("input",e=>{me.name=e.target.value;saveMe();updateLinks()});
 renderMedia();renderPoints();computeTimes();weeklyReset();chips();fillMe();renderAll();
 // ---- live data from Firebase ----
@@ -1845,8 +1852,8 @@ function edSups(openIdx){
       <label class="field">קישור לתשלום<input data-i="${i}" data-f="pl" value="${esc(s.pl)}" dir="ltr" placeholder="https://"></label>
       <label class="field">הזמנה חד-פעמית: פתוח עד תאריך<input type="date" data-i="${i}" data-f="ud" value="${esc(s.ud||"")}"></label>
       <label class="field">יחולק ב (למשל: יום רביעי 18.11)<input data-i="${i}" data-f="dd" value="${esc(s.dd||"")}"></label>
-      <label class="field">תמונת לוגו (קישור)<input data-i="${i}" data-f="img" value="${esc(s.img||"")}" dir="ltr" placeholder="https://"></label>
-      <label class="field">תמונת כיסוי (קישור)<input data-i="${i}" data-f="cov" value="${esc(s.cov||"")}" dir="ltr" placeholder="https://"></label>
+      <div class="field sup-pic">תמונת לוגו (עגולה)${blob(s.img)?`<img src="${esc(blob(s.img))}" alt="">`:""}<label class="btn alt upl" for="up-si-${i}">${s.img?"החלפת לוגו":"העלאת לוגו"}<input id="up-si-${i}" type="file" accept="image/*" data-supimg="${i}" data-which="img" hidden></label>${s.img?`<button class="linkbtn" type="button" data-supimgdel="${i}" data-which="img">הסרה</button>`:""}<input data-i="${i}" data-f="img" value="${esc(String(s.img||"").startsWith("fb:")?"":(s.img||""))}" dir="ltr" placeholder="או קישור לתמונה https://" aria-label="קישור לתמונת לוגו"></div>
+      <div class="field sup-pic">תמונת כיסוי (רחבה, בראש הכרטיס)${blob(s.cov)?`<img class="wide-pic" src="${esc(blob(s.cov))}" alt="">`:""}<label class="btn alt upl" for="up-sc-${i}">${s.cov?"החלפת תמונת כיסוי":"העלאת תמונת כיסוי"}<input id="up-sc-${i}" type="file" accept="image/*" data-supimg="${i}" data-which="cov" hidden></label>${s.cov?`<button class="linkbtn" type="button" data-supimgdel="${i}" data-which="cov">הסרה</button>`:""}<input data-i="${i}" data-f="cov" value="${esc(String(s.cov||"").startsWith("fb:")?"":(s.cov||""))}" dir="ltr" placeholder="או קישור לתמונה https://" aria-label="קישור לתמונת כיסוי"></div>
       <label class="field">כשרות<select data-i="${i}" data-f="ks">${opt([["","לא מוצג"],["כשר","כשר"],["הקפדה על כשרות, ללא תעודה","הקפדה על כשרות, ללא תעודה"],["לא כשר","לא כשר"]],s.ks)}</select></label>
       <label class="field">תגיות נוספות (מפרידים בפסיק, למשל: טבעוני, ללא גלוטן)<input data-i="${i}" data-f="tags" value="${esc(s.tags||"")}" placeholder="טבעוני, ללא גלוטן"></label>
       <label class="field">מילות חיפוש<input data-i="${i}" data-f="k" value="${esc(s.k)}"></label>
