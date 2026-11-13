@@ -772,7 +772,7 @@ $("mb-export").addEventListener("click",()=>{const q=v=>'"'+String(v??"").replac
 statsLoad();
 // ---- suppliers this week (switch per supplier, drag to reorder, search, quick add) ----
 let SUPCH=new Set(),SUPADD=new Set(),SUPORD=false,SUPDEL=new Set(),SUPDELASK=null,SUPEDIT=null;
-const SUPFIELDS=["o","nx","n","url","c","cd","ct","d","p","pl","img","cov"];
+const SUPFIELDS=["o","nx","n","url","c","cd","ct","d","p","pl","img","cov","ks","tags"];
 const DAYS=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
 const PICS=new Map();
 function picSrc(v){v=String(v||"");if(/^(https:\/\/|img\/)/.test(v))return v;const m=v.match(/^fb:([A-Za-z0-9_-]+)$/);if(!m)return "";
@@ -809,12 +809,14 @@ function supsRender(){if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.sup
         <label>תיאור<input type="text" data-ef="d" data-ei="${i}" value="${esc(s.d||"")}"></label>
         <label>אופן תשלום (למשל פייבוקס)<input type="text" data-ef="p" data-ei="${i}" value="${esc(s.p||"")}"></label>
         <label>לינק לתשלום<input type="url" dir="ltr" data-ef="pl" data-ei="${i}" value="${esc(s.pl||"")}"></label>
+        <label>כשרות<select data-ef="ks" data-ei="${i}">${[["","לא מוצג"],["כשר","כשר"],["הקפדה על כשרות, ללא תעודה","הקפדה על כשרות, ללא תעודה"],["לא כשר","לא כשר"]].concat(s.ks&&!["","כשר","הקפדה על כשרות, ללא תעודה","לא כשר"].includes(s.ks)?[[s.ks,s.ks]]:[]).map(([v,l])=>`<option value="${esc(v)}"${(s.ks||"")===v?" selected":""}>${esc(l)}</option>`).join("")}</select></label>
+        <label>תגיות (מפרידים בפסיק)<input type="text" data-ef="tags" data-ei="${i}" value="${esc(s.tags||"")}" placeholder="טבעוני, ללא גלוטן"></label>
         <div class="sup-pics">
           <div><span>לוגו</span>${picSrc(s.img)?`<img class="pv-logo" src="${esc(picSrc(s.img))}" alt="">`:`<span class="pv-none">אין</span>`}<label class="nxbtn">${s.img?"החלפה":"העלאת לוגו"}<input type="file" accept="image/*" data-up="img" data-ui="${i}" hidden></label></div>
           <div><span>תמונה (בראש הכרטיס)</span>${picSrc(s.cov)?`<img class="pv-cov" src="${esc(picSrc(s.cov))}" alt="">`:`<span class="pv-none">אין</span>`}<label class="nxbtn">${s.cov?"החלפה":"העלאת תמונת כיסוי"}<input type="file" accept="image/*" data-up="cov" data-ui="${i}" hidden></label></div>
         </div>
         <p class="lk-p" id="up-msg-${i}" aria-live="polite"></p>
-        <p class="lk-p">תגיות וכשרות משנים בעורך המלא.</p></div>`:""}
+        </div>`:""}
     </div>`).join("")
     :`<p class="lk-p">לא נמצא ספק בשם הזה. אפשר להוסיף אותו ב"+ הוספת ספק חדש".</p>`;
   const on=A.filter(s=>s.o).length,nx=A.filter(s=>!s.o&&s.nx).length;
