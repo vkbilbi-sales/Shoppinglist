@@ -124,6 +124,30 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
     </div>
   </div>
 
+  <!-- Suppliers this week: status, search, quick add -->
+  <div class="card" id="sups-card">
+    <div class="slabel">🌱 ספקים השבוע — מי מגיע</div>
+    <p class="lk-p">לכל ספק בוחרים: ✅ מגיע השבוע, ⏳ מגיע בשבוע הבא (מוצג באפור), או 🚫 מוסתר מהלקוחות. בסוף לוחצים "שמירה".</p>
+    <label class="sq-lab" for="sup-q">חיפוש ספק</label>
+    <input id="sup-q" class="sq" type="search" placeholder="כותבים שם ספק…" autocomplete="off">
+    <div class="st-sum" id="sup-count"></div>
+    <ul class="sup-list" id="sup-list"></ul>
+    <details class="sup-add"><summary>+ הוספת ספק חדש</summary>
+      <div class="lk-pick">
+        <label>שם הספק *<input id="na-n" type="text"></label>
+        <label>קישור לחנות או לטופס *<input id="na-url" type="url" dir="ltr" placeholder="https://mypips.app/…"></label>
+        <label>קטגוריה<select id="na-c"><option value="veg">פירות, ירקות ומשקים</option><option value="dairy">ביצים, גבינות ומעדנייה</option><option value="meat">בשר ודגים</option><option value="bake">מאפים ובצקים</option><option value="cooked">אוכל מוכן</option><option value="sweet">מתוקים</option><option value="pantry">מזווה</option><option value="well">טבע, בריאות וטיפוח</option></select></label>
+        <label>פתוח להזמנות עד יום<select id="na-cd"><option value="">לא נקבע</option><option value="0">ראשון</option><option value="1">שני</option><option value="2" selected>שלישי</option><option value="3">רביעי</option><option value="4">חמישי</option><option value="5">שישי</option></select></label>
+        <label>בשעה<input id="na-ct" type="time" value="20:00"></label>
+        <label>תיאור קצר<input id="na-d" type="text"></label>
+      </div>
+      <button class="btn bg bfull" type="button" id="na-add">הוספה לרשימה</button>
+      <p class="lk-p">אחר כך אפשר להשלים פרטים (תמונה, תשלום, תגיות) בעורך.</p>
+    </details>
+    <button class="btn bt bfull" type="button" id="sup-save" disabled>💾 שמירה</button>
+    <div id="sup-msg" style="margin-top:.5rem;font-size:.85rem;color:var(--muted)" aria-live="polite"></div>
+  </div>
+
   <!-- Visits: who just looked vs who made a list -->
   <div class="card" id="visits-card">
     <div class="slabel">👀 כניסות לאתר</div>
@@ -583,6 +607,16 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .lk-h{margin:1rem 0 .2rem;font-size:1rem}
 .edit-wrap{margin-top:.7rem;display:grid;gap:.4rem}
 .st-sum{font-weight:700;margin:.2rem 0 .6rem}
+.sq-lab{font-weight:700;font-size:.9rem}
+.sq{width:100%;border:2px solid var(--border);border-radius:12px;padding:.6rem .8rem;font:inherit;margin:.3rem 0 .5rem;background:#fff}
+.sup-list{list-style:none;margin:0 0 .7rem;padding:0;display:grid;gap:.35rem;max-height:460px;overflow:auto}
+.sup-list li{display:flex;justify-content:space-between;align-items:center;gap:.5rem;border:1px solid var(--border);border-radius:10px;padding:.4rem .6rem;background:#fff}
+.sup-list li.ch{background:#FFF6E8}
+.sup-list .n{font-weight:700;min-width:0}
+.sup-list select{font:inherit;font-size:.85rem;border:1px solid var(--border);border-radius:8px;padding:.25rem .3rem;background:#fff;max-width:55%}
+.sup-add{margin:.4rem 0 .8rem}.sup-add summary{cursor:pointer;font-weight:700;color:#1A3A38}
+.lk-pick input[type=text],.lk-pick input[type=url],.lk-pick select{width:58%;border:1px solid var(--border);border-radius:8px;padding:.35rem .5rem;font:inherit;background:#fff}
+.lk-pick input[type=time]{width:auto;height:auto;padding:.3rem .4rem}
 .st-tbl{width:100%;border-collapse:collapse;font-size:.9rem}
 .st-tbl th,.st-tbl td{border-bottom:1px solid var(--border);padding:.35rem .4rem;text-align:right}
 .st-tbl th{background:#EEF9F7}
@@ -622,7 +656,7 @@ async function load(){
     const live=snap.val();
     DATA=(live&&Array.isArray(live.suppliers)&&(live.ver||0)>=((page&&page.ver)||0))?live:page;
     if(!DATA){$("ord-list").innerHTML='<li>לא הצלחתי לטעון את הדף.</li>';return}
-    DATA.posts=DATA.posts||[];render();lookInit();
+    DATA.posts=DATA.posts||[];render();lookInit();supsRender();
   }catch(e){$("ord-list").innerHTML='<li>שגיאה בטעינה. נסי לרענן.</li>'}
 }
 function items(){
@@ -715,6 +749,36 @@ $("mb-export").addEventListener("click",()=>{const q=v=>'"'+String(v??"").replac
   const csv="\uFEFF"+[["שם","טלפון","נקודה","תאריך הרשמה"],...MEMBERS.map(x=>[x.name,x.phone,x.point,x.date])].map(r=>r.map(q).join(",")).join("\r\n");
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="מאגר-לקוחות.csv";document.body.appendChild(a);a.click();a.remove()});
 statsLoad();
+// ---- suppliers this week ----
+let SUPCH=new Set(),SUPADD=new Set();
+const sNorm=t=>String(t||"").toLowerCase().replace(/[\u0591-\u05C7"'׳״\-]/g,"").replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ").replace(/ף/g,"פ").replace(/ץ/g,"צ");
+const sSkel=t=>sNorm(t).replace(/[ויא\s]/g,"");
+function supMatch(s,q){const b=sNorm(q).trim();if(!b)return true;const hay=[s.n,s.k,s.tags].join(" "),a=sNorm(hay);if(a.includes(b))return true;
+  const k=sSkel(q);if(k.length<3)return false;const sub=(x,y)=>{let i=0;for(const ch of y){if(ch===x[i])i++;if(i===x.length)return true}return false};
+  return a.split(/\s+/).some(w=>{const ws=sSkel(w);return ws.includes(k)||(ws[0]===k[0]&&ws.length<=k.length+2&&sub(k,ws))})}
+function stOf(s){return s.o?"on":s.nx?"next":"off"}
+function supsRender(){const q=$("sup-q").value,A=DATA.suppliers||[];
+  const L=A.map((s,i)=>({s,i})).filter(x=>supMatch(x.s,q));
+  $("sup-list").innerHTML=L.length?L.map(({s,i})=>`<li class="${SUPCH.has(s.h)||SUPADD.has(s.h)?"ch":""}"><span class="n">${esc(s.n||"ספק חדש")}</span><select data-st="${i}" aria-label="סטטוס: ${esc(s.n)}">${[["on","✅ מגיע השבוע"],["next","⏳ שבוע הבא"],["off","🚫 מוסתר"]].map(([v,l])=>`<option value="${v}"${stOf(s)===v?" selected":""}>${l}</option>`).join("")}</select></li>`).join("")
+    :`<li>לא נמצא ספק בשם הזה. אפשר להוסיף אותו ב"+ הוספת ספק חדש".</li>`;
+  $("sup-count").textContent=`${A.filter(s=>s.o).length} מגיעים השבוע · ${A.filter(s=>!s.o&&s.nx).length} בשבוע הבא · ${A.filter(s=>!s.o&&!s.nx).length} מוסתרים`;
+  $("sup-save").disabled=!(SUPCH.size||SUPADD.size)}
+$("sup-q").addEventListener("input",supsRender);
+document.addEventListener("change",e=>{const t=e.target.closest&&e.target.closest("[data-st]");if(!t)return;const s=DATA.suppliers[+t.dataset.st];if(!s)return;
+  s.o=t.value==="on"?1:0;s.nx=t.value==="next"?1:0;SUPCH.add(s.h);$("sup-msg").textContent="יש שינויים שלא נשמרו.";supsRender()});
+$("na-add").addEventListener("click",()=>{const n=$("na-n").value.trim(),url=$("na-url").value.trim();
+  if(!n||!url){$("sup-msg").textContent="חסר: "+[!n&&"שם הספק",!url&&"קישור"].filter(Boolean).join(", ");return}
+  if((DATA.suppliers||[]).some(s=>sNorm(s.n)===sNorm(n))){$("sup-msg").textContent="ספק בשם הזה כבר קיים ברשימה.";$("sup-q").value=n;supsRender();return}
+  const cd=$("na-cd").value,s={h:"s"+Date.now().toString(36),n,c:$("na-c").value,o:1,nx:0,d:$("na-d").value.trim(),k:"",url,cd:cd===""?null:+cd,ct:$("na-ct").value||"",p:"",pl:"",ks:"",tags:"",f:0,img:"",cov:""};
+  DATA.suppliers.unshift(s);SUPADD.add(s.h);["na-n","na-url","na-d"].forEach(id=>$(id).value="");$("sup-q").value="";$("sup-msg").textContent=`${n} נוסף. לא לשכוח ללחוץ "שמירה".`;supsRender()});
+$("sup-save").addEventListener("click",async()=>{$("sup-save").disabled=true;$("sup-msg").textContent="שומרת…";
+  try{const live=(await get(ref(db,"site5"))).val();
+    if(live&&Array.isArray(live.suppliers)&&(live.ver||0)>(DATA.ver||0)){const byh=Object.fromEntries(DATA.suppliers.map(s=>[s.h,s]));
+      live.suppliers.forEach(s=>{if(SUPCH.has(s.h)&&byh[s.h]){s.o=byh[s.h].o;s.nx=byh[s.h].nx}});
+      DATA.suppliers.filter(s=>SUPADD.has(s.h)&&!live.suppliers.some(x=>x.h===s.h)).reverse().forEach(s=>live.suppliers.unshift(s));DATA=live}
+    DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));SUPCH.clear();SUPADD.clear();
+    $("sup-msg").textContent="נשמר ✓ הלקוחות כבר רואים את השינוי.";supsRender();render();lookInit()}
+  catch(e){$("sup-msg").textContent="השמירה לא הצליחה. בדקי את החיבור ונסי שוב.";$("sup-save").disabled=false}});
 // drag & drop ordering (arrows stay for keyboard use)
 function dragMove(from,to){const L=items();if(from===to||!L[from]||!L[to])return;
   const arr=K==="suppliers"?DATA.suppliers:DATA.posts,slots=L.map(x=>x.i),vals=slots.map(i=>arr[i]);
