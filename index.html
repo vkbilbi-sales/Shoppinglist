@@ -783,6 +783,8 @@ html,body{color-scheme:only light!important}
 /* supplier pictures: logo keeps its shape, cover shows the whole picture */
 .logo-mark{border-radius:12px!important;object-fit:contain!important;background:#fff!important;padding:3px!important}
 .card .cover{object-fit:contain!important;background:color-mix(in srgb,var(--cc,var(--leaf)) 10%,#fff)!important}
+.share-site{display:inline-block;margin-top:10px;background:#FFE08A;color:#173436!important;font-weight:800;font-size:16px;border-radius:999px;padding:7px 16px;text-decoration:none;box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.share-site:hover{background:#FFF0BF}
 .badge.next{color:var(--ink)!important;border-color:var(--sun)!important;background:var(--warm-bg)}
 .join{padding-block:10px 6px}
 .join-card{background:var(--surface);border:2px solid var(--frame);border-top:6px solid var(--sun);border-radius:20px;padding:20px;display:grid;gap:10px}
@@ -876,7 +878,7 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
         <g class="wheel" style="transform-origin:58px 136px"><circle cx="58" cy="136" r="26" fill="var(--surface)" stroke="var(--leaf)" stroke-width="6"/><path d="M58 112v48M34 136h48M41 119l34 34M75 119l-34 34" stroke="var(--leaf)" stroke-width="1.5" opacity=".5"/><path d="M58 146c-9-6-14-10-14-15a6 6 0 0 1 14-3a6 6 0 0 1 14 3c0 5-5 9-14 15z" fill="var(--heart)"/></g>
         <g class="wheel" style="transform-origin:162px 136px"><circle cx="162" cy="136" r="26" fill="var(--surface)" stroke="var(--leaf)" stroke-width="6"/><path d="M162 112v48M138 136h48M145 119l34 34M179 119l-34 34" stroke="var(--leaf)" stroke-width="1.5" opacity=".5"/><path d="M162 146c-9-6-14-10-14-15a6 6 0 0 1 14-3a6 6 0 0 1 14 3c0 5-5 9-14 15z" fill="var(--heart)"/></g>
       </svg></div></div>
-        <p class="road-cap"><b>כל שבוע העגלה יוצאת לדרך ומפיצה את הטוב – תוצרת ישירה לכל משפחה.</b> ככל שיותר משפחות מצטרפות לקהילה, כך גדל כוח הקנייה שלנו: היצרנים מוכרים יותר בלי מתווכים, והמחירים טובים יותר לכולם. <span class="spread-cta">אז אל תשכחו גם אתם להפיץ את הטוב לחברים, למשפחה ולכל יקירכם ❤️</span></p>
+        <p class="road-cap"><b>כל שבוע העגלה יוצאת לדרך ומפיצה את הטוב – תוצרת ישירה לכל משפחה.</b> ככל שיותר משפחות מצטרפות לקהילה, כך גדל כוח הקנייה שלנו: היצרנים מוכרים יותר בלי מתווכים, והמחירים טובים יותר לכולם. <span class="spread-cta">אז אל תשכחו גם אתם להפיץ את הטוב לחברים, למשפחה ולכל יקירכם ❤️</span><a class="share-site" data-share-site href="#" target="_blank" rel="noopener">💚 לשתף חבר בוואטסאפ</a></p>
       </div></div>
   <div class="wrap brand-top">
     <div class="brand">
@@ -1217,6 +1219,7 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
       <a href="#mylist">רשימת הקניות שלי</a>
       <a href="#contact">התקשרות עם ורד</a>
       <a href="#join">📬 הצטרפות לעדכונים</a>
+      <a data-share-site href="#" target="_blank" rel="noopener">💚 שיתוף האתר בוואטסאפ</a>
       <a href="#" data-a2hs>📲 לחצו כאן לשמירת האפליקציה במסך הבית</a>
       <a href="https://www.facebook.com/groups/250286642976195/" target="_blank" rel="noopener">קבוצת הפייסבוק</a>
       <a href="https://wa.me/972544462223" target="_blank" rel="noopener">וואטסאפ לורד</a>
@@ -1577,7 +1580,10 @@ function renderSelf(){const m=[];if(!(me.name||"").trim())m.push("שם מלא");
   const n=Object.keys(list).filter(h=>byH[h]).length;if(!n)m.length=0;
   $("self-miss").hidden=!m.length&&!!n;$("self-miss").innerHTML=!n?"קודם מוסיפים ספקים לרשימה.":m.length?`כדי לשלוח את הרשימה, צריך למלא עוד: <b>${m.join(", ")}</b>`:"";
   $("self-send").hidden=!n||!!m.length}
-function updateLinks(){renderCouriers();renderSelf();
+function shareSiteText(){const P=(DATA.points||[]).map(p=>p.n).filter(Boolean);
+  return `היי! 👋 רציתי להמליץ לך על רכישות כדאיות, קהילה שקונה ישירות מחקלאים ויצרנים מקומיים, בלי מתווכים.\nתוצרת טרייה וטעימה, מחירים טובים${P.length?", ונקודות איסוף "+(P.length>1?P.slice(0,-1).map(x=>"ב"+x).join(", ")+" וב"+P[P.length-1]:"ב"+P[0]):""}.\nכדאי לך לנסות! 🛒\nhttps://vkbilbi-sales.github.io/Shoppinglist/`}
+function updateShareSite(){const h="https://wa.me/?text="+encodeURIComponent(shareSiteText());document.querySelectorAll("[data-share-site]").forEach(a=>a.href=h)}
+function updateLinks(){renderCouriers();renderSelf();updateShareSite();
   const txt=encodeURIComponent(listText());
   $("wa-share").href="https://wa.me/?text="+txt;
   const cp=digits(me.cphone);
