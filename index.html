@@ -763,6 +763,12 @@ body[data-tab="about"] #h1-alt,body:not([data-tab]) #h1-alt{display:none}
 .ed-cour{grid-template-columns:1fr 1fr 1fr auto!important}
 .ed-cour .wide{grid-column:1/-1}
 @media (max-width:620px){.ed-cour{grid-template-columns:1fr 1fr auto!important}}
+/* bigger supplier pictures */
+.card .cover{height:210px!important}
+.mark{width:66px!important;height:66px!important;font-size:26px!important}
+@media (max-width:620px){#grid .card .cover,#grid-fri .card .cover{height:124px!important}#grid .mark,#grid-fri .mark{width:46px!important;height:46px!important;font-size:18px!important}}
+/* tabs on a computer: show all of them (wrap) instead of a hidden side-scroll */
+@media (min-width:761px){.tabs-in{flex-wrap:wrap;overflow:visible;justify-content:flex-start}}
 .badge.next{color:var(--ink)!important;border-color:var(--sun)!important;background:var(--warm-bg)}
 .join{padding-block:10px 6px}
 .join-card{background:var(--surface);border:2px solid var(--frame);border-top:6px solid var(--sun);border-radius:20px;padding:20px;display:grid;gap:10px}
