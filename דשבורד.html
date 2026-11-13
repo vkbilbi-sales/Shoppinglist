@@ -627,6 +627,8 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .sup-close{font-weight:400;color:#4A6E6B;font-size:.8rem}
 .sup-row{flex-wrap:wrap}
 .sup-row.off .aitem-name{color:#5F7775}
+.sup-pics{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.3rem}.sup-pics>div{display:grid;gap:.3rem;justify-items:start;font-size:.85rem;font-weight:700}
+.pv-logo{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #C9D6D4}.pv-cov{width:100%;height:64px;object-fit:cover;border-radius:8px}.pv-none{font-weight:400;color:#5F7775}
 .sup-edit{flex:1 1 100%;margin:.5rem 0 .3rem;padding:.6rem;border:1px dashed #C9D6D4;border-radius:10px;background:#FAFDFC}
 .sup-tools{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin:.2rem 0 .4rem}.sup-tools .lk-p{margin:0;font-weight:700}
 .delbtn{font:inherit;font-size:.85rem;border:1px solid #E5C9C9;background:#fff;border-radius:20px;padding:.15rem .5rem;cursor:pointer;white-space:nowrap}
@@ -768,8 +770,17 @@ $("mb-export").addEventListener("click",()=>{const q=v=>'"'+String(v??"").replac
 statsLoad();
 // ---- suppliers this week (switch per supplier, drag to reorder, search, quick add) ----
 let SUPCH=new Set(),SUPADD=new Set(),SUPORD=false,SUPDEL=new Set(),SUPDELASK=null,SUPEDIT=null;
-const SUPFIELDS=["o","nx","n","url","c","cd","ct","d","p","pl"];
+const SUPFIELDS=["o","nx","n","url","c","cd","ct","d","p","pl","img","cov"];
 const DAYS=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+const PICS=new Map();
+function picSrc(v){v=String(v||"");if(/^(https:\/\/|img\/)/.test(v))return v;const m=v.match(/^fb:([A-Za-z0-9_-]+)$/);if(!m)return "";
+  if(PICS.has(m[1]))return PICS.get(m[1])||"";PICS.set(m[1],"");get(ref(db,"img5/"+m[1])).then(sn=>{PICS.set(m[1],sn.val()||"");if(SUPEDIT)supsRender()}).catch(()=>{});return ""}
+async function dShrink(file){try{const bmp=await createImageBitmap(file);const k=Math.min(1,1100/Math.max(bmp.width,bmp.height));
+  const c=document.createElement("canvas");c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
+  return await new Promise(r=>c.toBlob(b=>r(b||file),"image/jpeg",0.8))}catch(e){return file}}
+async function dUpload(file){const b=await dShrink(file);if(b.size>450000)throw new Error("big");
+  const url=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b)});
+  const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);await set(ref(db,"img5/"+id),url);PICS.set(id,url);return "fb:"+id}
 function closeKey(s){if(s.cd===null||s.cd===undefined||s.cd==="")return 1e9;const t=String(s.ct||"23:59").split(":");return (+s.cd)*1440+(+t[0]||0)*60+(+t[1]||0)}
 function autoSort(){const A=DATA.suppliers;if(!DATA.manualOrder)A.sort((a,b)=>closeKey(a)-closeKey(b));const g=s=>s.o?0:s.nx?1:2;A.sort((a,b)=>g(a)-g(b))}
 const sNorm=t=>String(t||"").toLowerCase().replace(/[֑-ׇ"'׳״\-]/g,"").replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ").replace(/ף/g,"פ").replace(/ץ/g,"צ");
@@ -796,7 +807,12 @@ function supsRender(){if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.sup
         <label>תיאור<input type="text" data-ef="d" data-ei="${i}" value="${esc(s.d||"")}"></label>
         <label>אופן תשלום (למשל פייבוקס)<input type="text" data-ef="p" data-ei="${i}" value="${esc(s.p||"")}"></label>
         <label>לינק לתשלום<input type="url" dir="ltr" data-ef="pl" data-ei="${i}" value="${esc(s.pl||"")}"></label>
-        <p class="lk-p">תמונה, תגיות וכשרות משנים בעורך המלא.</p></div>`:""}
+        <div class="sup-pics">
+          <div><span>לוגו (עגול)</span>${picSrc(s.img)?`<img class="pv-logo" src="${esc(picSrc(s.img))}" alt="">`:`<span class="pv-none">אין</span>`}<label class="nxbtn">${s.img?"החלפה":"העלאת לוגו"}<input type="file" accept="image/*" data-up="img" data-ui="${i}" hidden></label></div>
+          <div><span>תמונת כיסוי (רחבה)</span>${picSrc(s.cov)?`<img class="pv-cov" src="${esc(picSrc(s.cov))}" alt="">`:`<span class="pv-none">אין</span>`}<label class="nxbtn">${s.cov?"החלפה":"העלאת תמונת כיסוי"}<input type="file" accept="image/*" data-up="cov" data-ui="${i}" hidden></label></div>
+        </div>
+        <p class="lk-p" id="up-msg-${i}" aria-live="polite"></p>
+        <p class="lk-p">תגיות וכשרות משנים בעורך המלא.</p></div>`:""}
     </div>`).join("")
     :`<p class="lk-p">לא נמצא ספק בשם הזה. אפשר להוסיף אותו ב"+ הוספת ספק חדש".</p>`;
   const on=A.filter(s=>s.o).length,nx=A.filter(s=>!s.o&&s.nx).length;
@@ -806,6 +822,10 @@ $("sup-q").addEventListener("input",supsRender);
 $("sup-auto").addEventListener("click",()=>{DATA.manualOrder=false;SUPORD=true;supsRender();render()});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-edit]");if(!b)return;const s=DATA.suppliers[+b.dataset.edit];if(!s)return;
   SUPEDIT=SUPEDIT===s.h?null:s.h;supsRender();const f=document.querySelector(`[data-ei="${b.dataset.edit}"][data-ef="n"]`);if(f)f.focus();else{const a=document.querySelector(`[data-edit="${b.dataset.edit}"]`);if(a)a.focus()}});
+document.addEventListener("change",async e=>{const t=e.target;if(!t.dataset||!t.dataset.up)return;const s=DATA.suppliers[+t.dataset.ui];const f=t.files&&t.files[0];if(!s||!f)return;
+  const msg=document.getElementById("up-msg-"+t.dataset.ui);if(msg)msg.textContent="מעלה תמונה…";
+  try{s[t.dataset.up]=await dUpload(f);SUPCH.add(s.h);supsRender();const m2=document.getElementById("up-msg-"+t.dataset.ui);if(m2)m2.textContent='התמונה הועלתה ✓ לא לשכוח ללחוץ "שמירה".'}
+  catch(err){if(msg)msg.textContent=err&&err.message==="big"?"התמונה גדולה מדי. נסי תמונה קטנה יותר.":"ההעלאה לא הצליחה. נסי שוב, או תמונה אחרת (JPG או PNG)."}});
 document.addEventListener("input",e=>{const t=e.target.closest&&e.target.closest("[data-ef]");if(!t)return;const s=DATA.suppliers[+t.dataset.ei];if(!s)return;const f=t.dataset.ef;
   s[f]=f==="cd"?(t.value===""?null:+t.value):t.value;SUPCH.add(s.h);supDirty();
   const nm=t.closest(".sup-row")&&t.closest(".sup-row").querySelector(".aitem-name");if(nm&&f==="n")nm.firstChild.textContent=t.value});
@@ -844,7 +864,7 @@ if(window.Sortable){
   Sortable.create($("tab-list"),{handle:".grip",forceFallback:true,fallbackTolerance:3,animation:150,ghostClass:"sort-ghost",dragClass:"sort-drag",onEnd:e=>{if(e.oldIndex===e.newIndex)return;const [k]=TORD.splice(e.oldIndex,1);TORD.splice(e.newIndex,0,k);lookDirty=true;$("look-msg").textContent="יש שינויים שלא נשמרו.";lookRender()}});
 }
 $("edit-open").addEventListener("click",()=>{const w=$("edit-wrap");if(!w.hidden){w.hidden=true;$("edit-open").textContent="✏️ פתיחת העורך";return}
-  const f=$("edit-frame");if(!f.src)f.src="index.html#admin-edit";w.hidden=false;$("edit-open").textContent="סגירת העורך";w.scrollIntoView({behavior:"smooth",block:"start"})});
+  const f=$("edit-frame");f.src="about:blank";setTimeout(()=>{f.src="index.html?t="+Date.now()+"#admin-edit"},30);w.hidden=false;$("edit-open").textContent="סגירת העורך";w.scrollIntoView({behavior:"smooth",block:"start"})});
 load();
 </script>
 </body>
