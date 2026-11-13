@@ -128,7 +128,8 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
   <!-- Suppliers this week: status, search, quick add -->
   <div class="card" id="sups-card">
     <div class="slabel">🌱 ספקים השבוע — מי מגיע</div>
-    <p class="lk-p">מדליקים את המתג לכל ספק שמגיע השבוע. ספק שלא מגיע מוסתר מהלקוחות, ואם הוא מגיע בשבוע הבא לוחצים "⏳ שבוע הבא" והוא יוצג באפור. גוררים ב־⠿ כדי לשנות סדר. בסוף לוחצים "שמירה".</p>
+    <p class="lk-p">מדליקים את המתג לכל ספק שמגיע השבוע. ספק שלא מגיע מוסתר מהלקוחות, ואם הוא מגיע בשבוע הבא לוחצים "⏳ שבוע הבא" והוא יוצג באפור. הרשימה מסודרת אוטומטית לפי שעת הסגירה, מהמוקדמת למאוחרת. אם גוררים ב־⠿, נשמר הסדר שלך. ספק שהפסקת לעבוד איתו מוחקים ב־🗑. בסוף לוחצים "שמירה".</p>
+    <div class="sup-tools"><span id="sup-mode" class="lk-p"></span><button type="button" class="nxbtn" id="sup-auto">↺ סידור לפי שעת סגירה</button></div>
     <label class="sq-lab" for="sup-q">חיפוש ספק</label>
     <input id="sup-q" class="sq" type="search" placeholder="כותבים שם ספק…" autocomplete="off">
     <div class="st-sum" id="sup-count"></div>
@@ -623,6 +624,10 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 .nxbtn{font:inherit;font-size:.75rem;font-weight:700;border:1px solid #C9D6D4;background:#fff;color:#4A6E6B;border-radius:20px;padding:.2rem .6rem;cursor:pointer;white-space:nowrap}
 .nxbtn.on{background:#FFF1DC;border-color:#A35F0C;color:#7A4708}
+.sup-close{font-weight:400;color:#4A6E6B;font-size:.8rem}
+.sup-tools{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin:.2rem 0 .4rem}.sup-tools .lk-p{margin:0;font-weight:700}
+.delbtn{font:inherit;font-size:.85rem;border:1px solid #E5C9C9;background:#fff;border-radius:20px;padding:.15rem .5rem;cursor:pointer;white-space:nowrap}
+.delbtn.ask{background:#A11B22;border-color:#A11B22;color:#fff;font-weight:700}
 .sup-add{margin:.4rem 0 .8rem}.sup-add summary{cursor:pointer;font-weight:700;color:#1A3A38}
 .lk-pick input[type=text],.lk-pick input[type=url],.lk-pick select{width:58%;border:1px solid var(--border);border-radius:8px;padding:.35rem .5rem;font:inherit;background:#fff}
 .lk-pick input[type=time]{width:auto;height:auto;padding:.3rem .4rem}
@@ -759,32 +764,40 @@ $("mb-export").addEventListener("click",()=>{const q=v=>'"'+String(v??"").replac
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="מאגר-לקוחות.csv";document.body.appendChild(a);a.click();a.remove()});
 statsLoad();
 // ---- suppliers this week (switch per supplier, drag to reorder, search, quick add) ----
-let SUPCH=new Set(),SUPADD=new Set(),SUPORD=false;
+let SUPCH=new Set(),SUPADD=new Set(),SUPORD=false,SUPDEL=new Set(),SUPDELASK=null;
+const DAYS=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+function closeKey(s){if(s.cd===null||s.cd===undefined||s.cd==="")return 1e9;const t=String(s.ct||"23:59").split(":");return (+s.cd)*1440+(+t[0]||0)*60+(+t[1]||0)}
+function autoSort(){if(!DATA.manualOrder)DATA.suppliers.sort((a,b)=>closeKey(a)-closeKey(b))}
 const sNorm=t=>String(t||"").toLowerCase().replace(/[֑-ׇ"'׳״\-]/g,"").replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ").replace(/ף/g,"פ").replace(/ץ/g,"צ");
 const sSkel=t=>sNorm(t).replace(/[ויא\s]/g,"");
 function supMatch(s,q){const b=sNorm(q).trim();if(!b)return true;const hay=[s.n,s.k,s.tags].join(" "),a=sNorm(hay);if(a.includes(b))return true;
   const k=sSkel(q);if(k.length<3)return false;const sub=(x,y)=>{let i=0;for(const ch of y){if(ch===x[i])i++;if(i===x.length)return true}return false};
   return a.split(/\s+/).some(w=>{const ws=sSkel(w);return ws.includes(k)||(ws[0]===k[0]&&ws.length<=k.length+2&&sub(k,ws))})}
-function supDirty(){$("sup-save").disabled=!(SUPCH.size||SUPADD.size||SUPORD);$("sup-msg").textContent=(SUPCH.size||SUPADD.size||SUPORD)?"יש שינויים שלא נשמרו.":$("sup-msg").textContent}
-function supsRender(){const q=$("sup-q").value,A=DATA.suppliers||[];
+function supDirty(){const d=SUPCH.size||SUPADD.size||SUPORD||SUPDEL.size;$("sup-save").disabled=!d;if(d)$("sup-msg").textContent="יש שינויים שלא נשמרו.";$("sup-mode").textContent=DATA.manualOrder?"סדר ידני (שלך)":"מסודר לפי שעת סגירה";$("sup-auto").hidden=!DATA.manualOrder}
+function supsRender(){autoSort();const q=$("sup-q").value,A=DATA.suppliers||[];
   const L=A.map((s,i)=>({s,i})).filter(x=>supMatch(x.s,q));
   $("sup-list").innerHTML=L.length?L.map(({s,i})=>`<div class="aitem sup-row${SUPCH.has(s.h)||SUPADD.has(s.h)?" ch":""}" data-i="${i}">
       <span class="drag-handle grip" aria-hidden="true" title="גרירה לשינוי סדר">⠿</span>
       <label class="sw5"><input type="checkbox" data-on="${i}"${s.o?" checked":""}><span class="sw5-t" aria-hidden="true"></span><span class="sr">מגיע השבוע: ${esc(s.n)}</span></label>
-      <span class="aitem-name">${esc(s.n||"ספק חדש")}</span>
+      <span class="aitem-name">${esc(s.n||"ספק חדש")}<small class="sup-close">${s.cd!==null&&s.cd!==undefined&&s.cd!==""?" · נסגר "+DAYS[+s.cd]+(s.ct?" "+esc(s.ct):""):""}</small></span>
       ${s.o?'<span class="atag on">מגיע</span>':`<button type="button" class="nxbtn${s.nx?" on":""}" data-nx="${i}" aria-pressed="${s.nx?"true":"false"}">⏳ שבוע הבא</button>`}
+      <button type="button" class="delbtn${SUPDELASK===s.h?" ask":""}" data-del="${i}" aria-label="מחיקת ${esc(s.n)}">${SUPDELASK===s.h?"למחוק? לחצי שוב":"🗑"}</button>
     </div>`).join("")
     :`<p class="lk-p">לא נמצא ספק בשם הזה. אפשר להוסיף אותו ב"+ הוספת ספק חדש".</p>`;
   const on=A.filter(s=>s.o).length,nx=A.filter(s=>!s.o&&s.nx).length;
   $("sup-count").textContent=`${on} מגיעים השבוע מתוך ${A.length}`+(nx?` · ${nx} בשבוע הבא`:"");
   $("sup-list").classList.toggle("searching",!!q.trim());supDirty()}
 $("sup-q").addEventListener("input",supsRender);
+$("sup-auto").addEventListener("click",()=>{DATA.manualOrder=false;SUPORD=true;supsRender();render()});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-del]");if(!b)return;const s=DATA.suppliers[+b.dataset.del];if(!s)return;
+  if(SUPDELASK!==s.h){SUPDELASK=s.h;supsRender();const a=document.querySelector(`[data-del="${b.dataset.del}"]`);if(a)a.focus();return}
+  SUPDELASK=null;DATA.suppliers.splice(+b.dataset.del,1);if(SUPADD.has(s.h))SUPADD.delete(s.h);else SUPDEL.add(s.h);$("sup-msg").textContent=`${s.n} נמחק מהרשימה. לא לשכוח ללחוץ "שמירה".`;supsRender();render()});
 document.addEventListener("change",e=>{const t=e.target.closest&&e.target.closest("[data-on]");if(!t)return;const s=DATA.suppliers[+t.dataset.on];if(!s)return;
   s.o=t.checked?1:0;if(s.o)s.nx=0;SUPCH.add(s.h);supsRender();const again=document.querySelector(`[data-on="${t.dataset.on}"]`);if(again)again.focus()});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-nx]");if(!b)return;const s=DATA.suppliers[+b.dataset.nx];if(!s)return;
   s.nx=s.nx?0:1;SUPCH.add(s.h);supsRender();const again=document.querySelector(`[data-nx="${b.dataset.nx}"]`);if(again)again.focus()});
 if(window.Sortable)Sortable.create($("sup-list"),{handle:".grip",forceFallback:true,fallbackTolerance:3,animation:150,ghostClass:"sort-ghost",dragClass:"sort-drag",
-  filter:".searching *",onEnd:e=>{if(e.oldIndex===e.newIndex||$("sup-q").value.trim())return supsRender();const A=DATA.suppliers;const [it]=A.splice(e.oldIndex,1);A.splice(e.newIndex,0,it);SUPORD=true;supsRender();render()}});
+  filter:".searching *",onEnd:e=>{if(e.oldIndex===e.newIndex||$("sup-q").value.trim())return supsRender();const A=DATA.suppliers;const [it]=A.splice(e.oldIndex,1);A.splice(e.newIndex,0,it);DATA.manualOrder=true;SUPORD=true;supsRender();render()}});
 $("na-add").addEventListener("click",()=>{const n=$("na-n").value.trim(),url=$("na-url").value.trim();
   if(!n||!url){$("sup-msg").textContent="חסר: "+[!n&&"שם הספק",!url&&"קישור"].filter(Boolean).join(", ");return}
   if((DATA.suppliers||[]).some(s=>sNorm(s.n)===sNorm(n))){$("sup-msg").textContent="ספק בשם הזה כבר קיים ברשימה.";$("sup-q").value=n;supsRender();return}
@@ -795,16 +808,17 @@ $("sup-save").addEventListener("click",async()=>{$("sup-save").disabled=true;$("
     if(live&&Array.isArray(live.suppliers)&&(live.ver||0)>(DATA.ver||0)){const byh=Object.fromEntries(DATA.suppliers.map(s=>[s.h,s]));
       live.suppliers.forEach(s=>{if(SUPCH.has(s.h)&&byh[s.h]){s.o=byh[s.h].o;s.nx=byh[s.h].nx}});
       DATA.suppliers.filter(s=>SUPADD.has(s.h)&&!live.suppliers.some(x=>x.h===s.h)).reverse().forEach(s=>live.suppliers.unshift(s));
-      if(SUPORD){const pos=new Map(DATA.suppliers.map((s,i)=>[s.h,i]));live.suppliers.sort((a,b)=>(pos.has(a.h)?pos.get(a.h):1e9)-(pos.has(b.h)?pos.get(b.h):1e9))}
+      live.suppliers=live.suppliers.filter(s=>!SUPDEL.has(s.h));
+      if(SUPORD){live.manualOrder=!!DATA.manualOrder;const pos=new Map(DATA.suppliers.map((s,i)=>[s.h,i]));live.suppliers.sort((a,b)=>(pos.has(a.h)?pos.get(a.h):1e9)-(pos.has(b.h)?pos.get(b.h):1e9))}
       DATA=live}
-    DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));SUPCH.clear();SUPADD.clear();SUPORD=false;
+    DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));SUPCH.clear();SUPADD.clear();SUPORD=false;SUPDEL.clear();
     supsRender();$("sup-msg").textContent="נשמר ✓ הלקוחות כבר רואים את השינוי.";render();lookInit()}
   catch(e){$("sup-msg").textContent="השמירה לא הצליחה. בדקי את החיבור ונסי שוב.";$("sup-save").disabled=false}});
 // drag & drop ordering (arrows stay for keyboard use)
 function dragMove(from,to){const L=items();if(from===to||!L[from]||!L[to])return;
   const arr=K==="suppliers"?DATA.suppliers:DATA.posts,slots=L.map(x=>x.i),vals=slots.map(i=>arr[i]);
   const [it]=vals.splice(from,1);vals.splice(to,0,it);slots.forEach((i,j)=>{arr[i]=vals[j]});
-  moved.add(K+":"+L[from].n);dirty=true;$("ord-msg").textContent="יש שינויים שלא נשמרו.";render()}
+  if(K==="suppliers")DATA.manualOrder=true;moved.add(K+":"+L[from].n);dirty=true;$("ord-msg").textContent="יש שינויים שלא נשמרו.";render()}
 if(window.Sortable){
   Sortable.create($("ord-list"),{handle:".grip",forceFallback:true,fallbackTolerance:3,animation:150,ghostClass:"sort-ghost",dragClass:"sort-drag",onEnd:e=>dragMove(e.oldIndex,e.newIndex)});
   Sortable.create($("tab-list"),{handle:".grip",forceFallback:true,fallbackTolerance:3,animation:150,ghostClass:"sort-ghost",dragClass:"sort-drag",onEnd:e=>{if(e.oldIndex===e.newIndex)return;const [k]=TORD.splice(e.oldIndex,1);TORD.splice(e.newIndex,0,k);lookDirty=true;$("look-msg").textContent="יש שינויים שלא נשמרו.";lookRender()}});
