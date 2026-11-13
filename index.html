@@ -1582,7 +1582,7 @@ function renderSelf(){const m=[];if(!(me.name||"").trim())m.push("שם מלא");
   $("self-send").hidden=!n||!!m.length}
 function shareSiteText(){const P=(DATA.points||[]).map(p=>p.n).filter(Boolean);
   const pts=P.length>1?P.slice(0,-1).map(x=>"ב"+x).join(", ")+" וב"+P[P.length-1]:P.length?"ב"+P[0]:"";
-  return `היי! 👋\nרציתי להמליץ לך על *רכישות כדאיות* 🛒💚\nקהילה שקונה *תוצרת ישירה* וטרייה מחקלאים ויצרנים מקומיים, במחירים כדאיים.\n\n🍓 טרי וטעים, ישר מהמשק\n🧀 גבינות, מאפים, דגים ואוכל ביתי\n🤝 תומכים בעסקים קטנים ומקומיים${pts?"\n📍 נקודות איסוף "+pts:""}\n\nכדאי לך לנסות! 😍\nhttps://vkbilbi-sales.github.io/Shoppinglist/`}
+  return `היי! 👋\nרציתי להמליץ לך על *רכישות כדאיות* 🛒💚\nקהילה שקונה *תוצרת ישירה* וטרייה מחקלאים ויצרנים מקומיים, במחירים כדאיים.\n\n🍓 טרי וטעים, ישר מהמשק\n🧀 גבינות, בשר, דגים, ביצים, אגוזים, אוכל ביתי ועוד\n🇮🇱 תומכים בחקלאות ובעסקים קטנים בישראל${pts?"\n📍 נקודות איסוף "+pts:""}\n\nכדאי לך לנסות! 😍\nhttps://vkbilbi-sales.github.io/Shoppinglist/`}
 function updateShareSite(){const h="https://api.whatsapp.com/send?text="+encodeURIComponent(shareSiteText());document.querySelectorAll("[data-share-site]").forEach(a=>a.href=h)}
 function updateLinks(){renderCouriers();renderSelf();updateShareSite();
   const txt=encodeURIComponent(listText());
