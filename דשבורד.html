@@ -127,11 +127,11 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
   <!-- Suppliers this week: status, search, quick add -->
   <div class="card" id="sups-card">
     <div class="slabel">🌱 ספקים השבוע — מי מגיע</div>
-    <p class="lk-p">לכל ספק בוחרים: ✅ מגיע השבוע, ⏳ מגיע בשבוע הבא (מוצג באפור), או 🚫 מוסתר מהלקוחות. בסוף לוחצים "שמירה".</p>
+    <p class="lk-p">מדליקים את המתג לכל ספק שמגיע השבוע. ספק שלא מגיע מוסתר מהלקוחות, ואם הוא מגיע בשבוע הבא לוחצים "⏳ שבוע הבא" והוא יוצג באפור. גוררים ב־⠿ כדי לשנות סדר. בסוף לוחצים "שמירה".</p>
     <label class="sq-lab" for="sup-q">חיפוש ספק</label>
     <input id="sup-q" class="sq" type="search" placeholder="כותבים שם ספק…" autocomplete="off">
     <div class="st-sum" id="sup-count"></div>
-    <ul class="sup-list" id="sup-list"></ul>
+    <div class="sup-list" id="sup-list"></div>
     <details class="sup-add"><summary>+ הוספת ספק חדש</summary>
       <div class="lk-pick">
         <label>שם הספק *<input id="na-n" type="text"></label>
@@ -609,11 +609,19 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .st-sum{font-weight:700;margin:.2rem 0 .6rem}
 .sq-lab{font-weight:700;font-size:.9rem}
 .sq{width:100%;border:2px solid var(--border);border-radius:12px;padding:.6rem .8rem;font:inherit;margin:.3rem 0 .5rem;background:#fff}
-.sup-list{list-style:none;margin:0 0 .7rem;padding:0;display:grid;gap:.35rem;max-height:460px;overflow:auto}
-.sup-list li{display:flex;justify-content:space-between;align-items:center;gap:.5rem;border:1px solid var(--border);border-radius:10px;padding:.4rem .6rem;background:#fff}
-.sup-list li.ch{background:#FFF6E8}
-.sup-list .n{font-weight:700;min-width:0}
-.sup-list select{font:inherit;font-size:.85rem;border:1px solid var(--border);border-radius:8px;padding:.25rem .3rem;background:#fff;max-width:55%}
+.sup-list{margin:0 0 .7rem;max-height:520px;overflow:auto}
+.sup-row.ch{background:#FFF6E8;border-radius:8px}
+.sup-list.searching .grip{visibility:hidden}
+.sw5{position:relative;display:inline-flex;align-items:center;cursor:pointer;flex:none}
+.sw5 input{position:absolute;opacity:0;width:44px;height:24px;margin:0;cursor:pointer}
+.sw5-t{width:44px;height:24px;background:#B9C7C5;border-radius:12px;position:relative;transition:background .2s}
+.sw5-t::after{content:"";width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;right:2px;transition:right .2s;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.sw5 input:checked+.sw5-t{background:var(--green)}
+.sw5 input:checked+.sw5-t::after{right:22px}
+.sw5 input:focus-visible+.sw5-t{outline:3px solid #A35F0C;outline-offset:2px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.nxbtn{font:inherit;font-size:.75rem;font-weight:700;border:1px solid #C9D6D4;background:#fff;color:#4A6E6B;border-radius:20px;padding:.2rem .6rem;cursor:pointer;white-space:nowrap}
+.nxbtn.on{background:#FFF1DC;border-color:#A35F0C;color:#7A4708}
 .sup-add{margin:.4rem 0 .8rem}.sup-add summary{cursor:pointer;font-weight:700;color:#1A3A38}
 .lk-pick input[type=text],.lk-pick input[type=url],.lk-pick select{width:58%;border:1px solid var(--border);border-radius:8px;padding:.35rem .5rem;font:inherit;background:#fff}
 .lk-pick input[type=time]{width:auto;height:auto;padding:.3rem .4rem}
@@ -749,35 +757,47 @@ $("mb-export").addEventListener("click",()=>{const q=v=>'"'+String(v??"").replac
   const csv="\uFEFF"+[["שם","טלפון","נקודה","תאריך הרשמה"],...MEMBERS.map(x=>[x.name,x.phone,x.point,x.date])].map(r=>r.map(q).join(",")).join("\r\n");
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="מאגר-לקוחות.csv";document.body.appendChild(a);a.click();a.remove()});
 statsLoad();
-// ---- suppliers this week ----
-let SUPCH=new Set(),SUPADD=new Set();
-const sNorm=t=>String(t||"").toLowerCase().replace(/[\u0591-\u05C7"'׳״\-]/g,"").replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ").replace(/ף/g,"פ").replace(/ץ/g,"צ");
+// ---- suppliers this week (switch per supplier, drag to reorder, search, quick add) ----
+let SUPCH=new Set(),SUPADD=new Set(),SUPORD=false;
+const sNorm=t=>String(t||"").toLowerCase().replace(/[֑-ׇ"'׳״\-]/g,"").replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ").replace(/ף/g,"פ").replace(/ץ/g,"צ");
 const sSkel=t=>sNorm(t).replace(/[ויא\s]/g,"");
 function supMatch(s,q){const b=sNorm(q).trim();if(!b)return true;const hay=[s.n,s.k,s.tags].join(" "),a=sNorm(hay);if(a.includes(b))return true;
   const k=sSkel(q);if(k.length<3)return false;const sub=(x,y)=>{let i=0;for(const ch of y){if(ch===x[i])i++;if(i===x.length)return true}return false};
   return a.split(/\s+/).some(w=>{const ws=sSkel(w);return ws.includes(k)||(ws[0]===k[0]&&ws.length<=k.length+2&&sub(k,ws))})}
-function stOf(s){return s.o?"on":s.nx?"next":"off"}
+function supDirty(){$("sup-save").disabled=!(SUPCH.size||SUPADD.size||SUPORD);$("sup-msg").textContent=(SUPCH.size||SUPADD.size||SUPORD)?"יש שינויים שלא נשמרו.":$("sup-msg").textContent}
 function supsRender(){const q=$("sup-q").value,A=DATA.suppliers||[];
   const L=A.map((s,i)=>({s,i})).filter(x=>supMatch(x.s,q));
-  $("sup-list").innerHTML=L.length?L.map(({s,i})=>`<li class="${SUPCH.has(s.h)||SUPADD.has(s.h)?"ch":""}"><span class="n">${esc(s.n||"ספק חדש")}</span><select data-st="${i}" aria-label="סטטוס: ${esc(s.n)}">${[["on","✅ מגיע השבוע"],["next","⏳ שבוע הבא"],["off","🚫 מוסתר"]].map(([v,l])=>`<option value="${v}"${stOf(s)===v?" selected":""}>${l}</option>`).join("")}</select></li>`).join("")
-    :`<li>לא נמצא ספק בשם הזה. אפשר להוסיף אותו ב"+ הוספת ספק חדש".</li>`;
-  $("sup-count").textContent=`${A.filter(s=>s.o).length} מגיעים השבוע · ${A.filter(s=>!s.o&&s.nx).length} בשבוע הבא · ${A.filter(s=>!s.o&&!s.nx).length} מוסתרים`;
-  $("sup-save").disabled=!(SUPCH.size||SUPADD.size)}
+  $("sup-list").innerHTML=L.length?L.map(({s,i})=>`<div class="aitem sup-row${SUPCH.has(s.h)||SUPADD.has(s.h)?" ch":""}" data-i="${i}">
+      <span class="drag-handle grip" aria-hidden="true" title="גרירה לשינוי סדר">⠿</span>
+      <label class="sw5"><input type="checkbox" data-on="${i}"${s.o?" checked":""}><span class="sw5-t" aria-hidden="true"></span><span class="sr">מגיע השבוע: ${esc(s.n)}</span></label>
+      <span class="aitem-name">${esc(s.n||"ספק חדש")}</span>
+      ${s.o?'<span class="atag on">מגיע</span>':`<button type="button" class="nxbtn${s.nx?" on":""}" data-nx="${i}" aria-pressed="${s.nx?"true":"false"}">⏳ שבוע הבא</button>`}
+    </div>`).join("")
+    :`<p class="lk-p">לא נמצא ספק בשם הזה. אפשר להוסיף אותו ב"+ הוספת ספק חדש".</p>`;
+  const on=A.filter(s=>s.o).length,nx=A.filter(s=>!s.o&&s.nx).length;
+  $("sup-count").textContent=`${on} מגיעים השבוע מתוך ${A.length}`+(nx?` · ${nx} בשבוע הבא`:"");
+  $("sup-list").classList.toggle("searching",!!q.trim());supDirty()}
 $("sup-q").addEventListener("input",supsRender);
-document.addEventListener("change",e=>{const t=e.target.closest&&e.target.closest("[data-st]");if(!t)return;const s=DATA.suppliers[+t.dataset.st];if(!s)return;
-  s.o=t.value==="on"?1:0;s.nx=t.value==="next"?1:0;SUPCH.add(s.h);$("sup-msg").textContent="יש שינויים שלא נשמרו.";supsRender()});
+document.addEventListener("change",e=>{const t=e.target.closest&&e.target.closest("[data-on]");if(!t)return;const s=DATA.suppliers[+t.dataset.on];if(!s)return;
+  s.o=t.checked?1:0;if(s.o)s.nx=0;SUPCH.add(s.h);supsRender();const again=document.querySelector(`[data-on="${t.dataset.on}"]`);if(again)again.focus()});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-nx]");if(!b)return;const s=DATA.suppliers[+b.dataset.nx];if(!s)return;
+  s.nx=s.nx?0:1;SUPCH.add(s.h);supsRender();const again=document.querySelector(`[data-nx="${b.dataset.nx}"]`);if(again)again.focus()});
+if(window.Sortable)Sortable.create($("sup-list"),{handle:".grip",forceFallback:true,fallbackTolerance:3,animation:150,ghostClass:"sort-ghost",dragClass:"sort-drag",
+  filter:".searching *",onEnd:e=>{if(e.oldIndex===e.newIndex||$("sup-q").value.trim())return supsRender();const A=DATA.suppliers;const [it]=A.splice(e.oldIndex,1);A.splice(e.newIndex,0,it);SUPORD=true;supsRender();render()}});
 $("na-add").addEventListener("click",()=>{const n=$("na-n").value.trim(),url=$("na-url").value.trim();
   if(!n||!url){$("sup-msg").textContent="חסר: "+[!n&&"שם הספק",!url&&"קישור"].filter(Boolean).join(", ");return}
   if((DATA.suppliers||[]).some(s=>sNorm(s.n)===sNorm(n))){$("sup-msg").textContent="ספק בשם הזה כבר קיים ברשימה.";$("sup-q").value=n;supsRender();return}
   const cd=$("na-cd").value,s={h:"s"+Date.now().toString(36),n,c:$("na-c").value,o:1,nx:0,d:$("na-d").value.trim(),k:"",url,cd:cd===""?null:+cd,ct:$("na-ct").value||"",p:"",pl:"",ks:"",tags:"",f:0,img:"",cov:""};
-  DATA.suppliers.unshift(s);SUPADD.add(s.h);["na-n","na-url","na-d"].forEach(id=>$(id).value="");$("sup-q").value="";$("sup-msg").textContent=`${n} נוסף. לא לשכוח ללחוץ "שמירה".`;supsRender()});
+  DATA.suppliers.unshift(s);SUPADD.add(s.h);["na-n","na-url","na-d"].forEach(id=>$(id).value="");$("sup-q").value="";supsRender();$("sup-msg").textContent=`${n} נוסף. לא לשכוח ללחוץ "שמירה".`});
 $("sup-save").addEventListener("click",async()=>{$("sup-save").disabled=true;$("sup-msg").textContent="שומרת…";
   try{const live=(await get(ref(db,"site5"))).val();
     if(live&&Array.isArray(live.suppliers)&&(live.ver||0)>(DATA.ver||0)){const byh=Object.fromEntries(DATA.suppliers.map(s=>[s.h,s]));
       live.suppliers.forEach(s=>{if(SUPCH.has(s.h)&&byh[s.h]){s.o=byh[s.h].o;s.nx=byh[s.h].nx}});
-      DATA.suppliers.filter(s=>SUPADD.has(s.h)&&!live.suppliers.some(x=>x.h===s.h)).reverse().forEach(s=>live.suppliers.unshift(s));DATA=live}
-    DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));SUPCH.clear();SUPADD.clear();
-    $("sup-msg").textContent="נשמר ✓ הלקוחות כבר רואים את השינוי.";supsRender();render();lookInit()}
+      DATA.suppliers.filter(s=>SUPADD.has(s.h)&&!live.suppliers.some(x=>x.h===s.h)).reverse().forEach(s=>live.suppliers.unshift(s));
+      if(SUPORD){const pos=new Map(DATA.suppliers.map((s,i)=>[s.h,i]));live.suppliers.sort((a,b)=>(pos.has(a.h)?pos.get(a.h):1e9)-(pos.has(b.h)?pos.get(b.h):1e9))}
+      DATA=live}
+    DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));SUPCH.clear();SUPADD.clear();SUPORD=false;
+    supsRender();$("sup-msg").textContent="נשמר ✓ הלקוחות כבר רואים את השינוי.";render();lookInit()}
   catch(e){$("sup-msg").textContent="השמירה לא הצליחה. בדקי את החיבור ונסי שוב.";$("sup-save").disabled=false}});
 // drag & drop ordering (arrows stay for keyboard use)
 function dragMove(from,to){const L=items();if(from===to||!L[from]||!L[to])return;
