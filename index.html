@@ -1557,7 +1557,7 @@ function fillCourierArea(){
   const n=Object.keys(list).filter(h=>byH[h]).length,miss=meMissing();
   box.innerHTML=!n?`<p class="hint">כדי לשלוח לשליח, קודם מוסיפים ספקים לרשימה.</p>`
     :miss.length?`<p class="cour-miss">כדי לשלוח לשליח, צריך למלא עוד: <b>${miss.join(", ")}</b></p>`
-    :`<a class="btn wa-go" id="cour-send" target="_blank" rel="noopener" href="https://wa.me/972${ph}?text=${encodeURIComponent(listText(true))}">שליחת הרשימה ל${esc(c.name)} בוואטסאפ ←</a><p class="hint">נפתח וואטסאפ של ${esc(c.name)} (<span dir="ltr">${c.phone}</span>) עם הודעה מוכנה: הרשימה וכל הפרטים שלכם. נשאר רק ללחוץ "שליחה".</p>`;
+    :`<a class="btn wa-go" id="cour-send" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=972${ph}&text=${encodeURIComponent(listText(true))}">שליחת הרשימה ל${esc(c.name)} בוואטסאפ ←</a><p class="hint">נפתח וואטסאפ של ${esc(c.name)} (<span dir="ltr">${c.phone}</span>) עם הודעה מוכנה: הרשימה וכל הפרטים שלכם. נשאר רק ללחוץ "שליחה".</p>`;
 }
 function renderCouriers(){fillCourierArea();
   if(!$("cour-grid"))return;
@@ -1572,7 +1572,7 @@ function renderCouriers(){fillCourierArea();
   $("cour-grid").innerHTML=ord.map(([c,i])=>`<article class="cour-card${i===ci?" mine":""}">${i===ci?'<span class="cour-mine">⭐ השליח של הנקודה שלכם</span>':""}<div class="cour-top"><span class="cour-ic" aria-hidden="true">🛵</span><div><b>${esc(c.area)}</b><span>${esc(c.name)} · <a class="tel" dir="ltr" href="tel:+972${c.phone.replace(/\D/g,"").slice(1)}">${c.phone}</a></span></div></div>
     <p>${esc(c.note)}</p>
     ${mine&&i!==ci?`<p class="cour-lock">הנקודה שלכם היא <b>${esc(mine.area)}</b>, ולכן שולחים רק ל${esc(mine.name)}. כדי להחליף נקודה: <a href="#mylist">רשימת הקניות</a>.</p>`
-      :n?`<a class="btn go" target="_blank" rel="noopener" href="https://wa.me/972${c.phone.replace(/\D/g,"").slice(1)}?text=${txt}">שליחת הרשימה ל${esc(c.name)} בוואטסאפ ←</a>`:`<span class="btn ghost" aria-disabled="true">הרשימה עוד ריקה</span>`}</article>`).join("");
+      :n?`<a class="btn go" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=972${c.phone.replace(/\D/g,"").slice(1)}&text=${txt}">שליחת הרשימה ל${esc(c.name)} בוואטסאפ ←</a>`:`<span class="btn ghost" aria-disabled="true">הרשימה עוד ריקה</span>`}</article>`).join("");
 }
 document.addEventListener("click",e=>{if(!e.target.closest("[data-couraddr]"))return;me.mode="courier";saveMe();fillMe();updateLinks();
   showTab("list",false);requestAnimationFrame(()=>{$("cour-fields").scrollIntoView({behavior:"smooth",block:"center"});$("f-street").focus()})});
@@ -1581,16 +1581,17 @@ function renderSelf(){const m=[];if(!(me.name||"").trim())m.push("שם מלא");
   $("self-miss").hidden=!m.length&&!!n;$("self-miss").innerHTML=!n?"קודם מוסיפים ספקים לרשימה.":m.length?`כדי לשלוח את הרשימה, צריך למלא עוד: <b>${m.join(", ")}</b>`:"";
   $("self-send").hidden=!n||!!m.length}
 function shareSiteText(){const P=(DATA.points||[]).map(p=>p.n).filter(Boolean);
-  return `היי! 👋 רציתי להמליץ לך על רכישות כדאיות, קהילה שקונה ישירות מחקלאים ויצרנים מקומיים, בלי מתווכים.\nתוצרת טרייה וטעימה, מחירים טובים${P.length?", ונקודות איסוף "+(P.length>1?P.slice(0,-1).map(x=>"ב"+x).join(", ")+" וב"+P[P.length-1]:"ב"+P[0]):""}.\nכדאי לך לנסות! 🛒\nhttps://vkbilbi-sales.github.io/Shoppinglist/`}
-function updateShareSite(){const h="https://wa.me/?text="+encodeURIComponent(shareSiteText());document.querySelectorAll("[data-share-site]").forEach(a=>a.href=h)}
+  const pts=P.length>1?P.slice(0,-1).map(x=>"ב"+x).join(", ")+" וב"+P[P.length-1]:P.length?"ב"+P[0]:"";
+  return `היי! 👋\nרציתי להמליץ לך על *רכישות כדאיות* 🛒💚\nקהילה שקונה ישירות מחקלאים ויצרנים מקומיים, בלי מתווכים.\n\n🍓 תוצרת טרייה וטעימה, ישר מהמשק\n🧀 גבינות, מאפים, דגים ואוכל ביתי\n💰 מחירים טובים לכולם${pts?"\n📍 נקודות איסוף "+pts:""}\n\nכדאי לך לנסות! 😍\nhttps://vkbilbi-sales.github.io/Shoppinglist/`}
+function updateShareSite(){const h="https://api.whatsapp.com/send?text="+encodeURIComponent(shareSiteText());document.querySelectorAll("[data-share-site]").forEach(a=>a.href=h)}
 function updateLinks(){renderCouriers();renderSelf();updateShareSite();
   const txt=encodeURIComponent(listText());
-  $("wa-share").href="https://wa.me/?text="+txt;
+  $("wa-share").href="https://api.whatsapp.com/send?text="+txt;
   const cp=digits(me.cphone);
   $("wa-cour").hidden=!(me.mode==="courier"&&cp.length>=11);
-  $("wa-cour").href=`https://wa.me/${cp}?text=${txt}`;
+  $("wa-cour").href=`https://api.whatsapp.com/send?phone=${cp}&text=${txt}`;
   const sm=`🛒 ${me.name?"הרשימה של "+me.name:"רשימת הקניות שלנו"} ברכישות כדאיות.\nאפשר לפתוח, להוסיף ולסמן מה נאסף:\n${shareLink()}`;
-  $("share-wa").href="https://wa.me/?text="+encodeURIComponent(sm);
+  $("share-wa").href="https://api.whatsapp.com/send?text="+encodeURIComponent(sm);
 }
 function fillMe(){
   const put=(id,v)=>{const el=$(id);if(el&&document.activeElement!==el)el.value=v||""};
