@@ -777,9 +777,12 @@ header .road-cap b{color:#FFE08A!important;font-size:clamp(30px,4.4vw,38px)!impo
 html,body{color-scheme:only light!important}
 .next h2{color:#FFE08A!important;font-size:24px!important;text-shadow:0 1px 0 rgba(0,0,0,.25)}
 .sup-pic{display:grid;gap:6px;justify-items:start}
-.sup-pic img{width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--line)}
-.sup-pic img.wide-pic{width:100%;max-width:260px;height:90px;border-radius:10px}
+.sup-pic img{width:72px;height:72px;border-radius:10px;object-fit:contain;background:#fff;border:2px solid var(--line)}
+.sup-pic img.wide-pic{width:auto;max-width:260px;height:110px;border-radius:10px}
 .sup-pic input[type=text],.sup-pic input:not([type]){width:100%}
+/* supplier pictures: logo keeps its shape, cover shows the whole picture */
+.logo-mark{border-radius:12px!important;object-fit:contain!important;background:#fff!important;padding:3px!important}
+.card .cover{object-fit:contain!important;background:color-mix(in srgb,var(--cc,var(--leaf)) 10%,#fff)!important}
 .badge.next{color:var(--ink)!important;border-color:var(--sun)!important;background:var(--warm-bg)}
 .join{padding-block:10px 6px}
 .join-card{background:var(--surface);border:2px solid var(--frame);border-top:6px solid var(--sun);border-radius:20px;padding:20px;display:grid;gap:10px}
@@ -1852,8 +1855,8 @@ function edSups(openIdx){
       <label class="field">קישור לתשלום<input data-i="${i}" data-f="pl" value="${esc(s.pl)}" dir="ltr" placeholder="https://"></label>
       <label class="field">הזמנה חד-פעמית: פתוח עד תאריך<input type="date" data-i="${i}" data-f="ud" value="${esc(s.ud||"")}"></label>
       <label class="field">יחולק ב (למשל: יום רביעי 18.11)<input data-i="${i}" data-f="dd" value="${esc(s.dd||"")}"></label>
-      <div class="field sup-pic">תמונת לוגו (עגולה)${blob(s.img)?`<img src="${esc(blob(s.img))}" alt="">`:""}<label class="btn alt upl" for="up-si-${i}">${s.img?"החלפת לוגו":"העלאת לוגו"}<input id="up-si-${i}" type="file" accept="image/*" data-supimg="${i}" data-which="img" hidden></label>${s.img?`<button class="linkbtn" type="button" data-supimgdel="${i}" data-which="img">הסרה</button>`:""}<input data-i="${i}" data-f="img" value="${esc(String(s.img||"").startsWith("fb:")?"":(s.img||""))}" dir="ltr" placeholder="או קישור לתמונה https://" aria-label="קישור לתמונת לוגו"></div>
-      <div class="field sup-pic">תמונת כיסוי (רחבה, בראש הכרטיס)${blob(s.cov)?`<img class="wide-pic" src="${esc(blob(s.cov))}" alt="">`:""}<label class="btn alt upl" for="up-sc-${i}">${s.cov?"החלפת תמונת כיסוי":"העלאת תמונת כיסוי"}<input id="up-sc-${i}" type="file" accept="image/*" data-supimg="${i}" data-which="cov" hidden></label>${s.cov?`<button class="linkbtn" type="button" data-supimgdel="${i}" data-which="cov">הסרה</button>`:""}<input data-i="${i}" data-f="cov" value="${esc(String(s.cov||"").startsWith("fb:")?"":(s.cov||""))}" dir="ltr" placeholder="או קישור לתמונה https://" aria-label="קישור לתמונת כיסוי"></div>
+      <div class="field sup-pic">לוגו${blob(s.img)?`<img src="${esc(blob(s.img))}" alt="">`:""}<label class="btn alt upl" for="up-si-${i}">${s.img?"החלפת לוגו":"העלאת לוגו"}<input id="up-si-${i}" type="file" accept="image/*" data-supimg="${i}" data-which="img" hidden></label>${s.img?`<button class="linkbtn" type="button" data-supimgdel="${i}" data-which="img">הסרה</button>`:""}<input data-i="${i}" data-f="img" value="${esc(String(s.img||"").startsWith("fb:")?"":(s.img||""))}" dir="ltr" placeholder="או קישור לתמונה https://" aria-label="קישור לתמונת לוגו"></div>
+      <div class="field sup-pic">תמונה (בראש הכרטיס)${blob(s.cov)?`<img class="wide-pic" src="${esc(blob(s.cov))}" alt="">`:""}<label class="btn alt upl" for="up-sc-${i}">${s.cov?"החלפת תמונת כיסוי":"העלאת תמונת כיסוי"}<input id="up-sc-${i}" type="file" accept="image/*" data-supimg="${i}" data-which="cov" hidden></label>${s.cov?`<button class="linkbtn" type="button" data-supimgdel="${i}" data-which="cov">הסרה</button>`:""}<input data-i="${i}" data-f="cov" value="${esc(String(s.cov||"").startsWith("fb:")?"":(s.cov||""))}" dir="ltr" placeholder="או קישור לתמונה https://" aria-label="קישור לתמונת כיסוי"></div>
       <label class="field">כשרות<select data-i="${i}" data-f="ks">${opt([["","לא מוצג"],["כשר","כשר"],["הקפדה על כשרות, ללא תעודה","הקפדה על כשרות, ללא תעודה"],["לא כשר","לא כשר"]],s.ks)}</select></label>
       <label class="field">תגיות נוספות (מפרידים בפסיק, למשל: טבעוני, ללא גלוטן)<input data-i="${i}" data-f="tags" value="${esc(s.tags||"")}" placeholder="טבעוני, ללא גלוטן"></label>
       <label class="field">מילות חיפוש<input data-i="${i}" data-f="k" value="${esc(s.k)}"></label>
@@ -1955,8 +1958,10 @@ function edBind(){
   $("ed-save").addEventListener("click",async()=>{
     draft.collabs=(draft.collabs||[]).filter(c=>(c.n||"").trim());
     draft.posts=(draft.posts||[]).filter(p=>(p.t||"").trim()||(p.b||"").trim()||p.img).map(({_open,...p})=>p);
-    const bad=draft.suppliers.find(s=>!s.n.trim()||!/^https?:\/\//.test(s.url||""));
-    if(bad){$("ed-msg").textContent=`חסר שם או קישור תקין (שמתחיל ב-https) אצל "${bad.n||"ספק חדש"}"`;return}
+    draft.suppliers.forEach(s=>{const u=String(s.url||"").trim();if(u&&!/^https?:\/\//.test(u)&&/^[\w.-]+\.[a-z]{2,}/i.test(u))s.url="https://"+u;else s.url=u});
+    const bi=draft.suppliers.findIndex(s=>!String(s.n||"").trim()||!/^https?:\/\//.test(s.url||""));
+    if(bi>=0){const bad=draft.suppliers[bi];$("ed-msg").textContent=`לא נשמר: חסר ${String(bad.n||"").trim()?"קישור לחנות או לטופס":"שם"} אצל "${bad.n||"ספק חדש"}". פתחתי אותו למטה.`;
+      edSups(bi);const d=document.querySelectorAll("#ed-sups details.ed-sup")[bi];if(d){d.scrollIntoView({behavior:"smooth",block:"center"});const f=d.querySelector(String(bad.n||"").trim()?'[data-f="url"]':'[data-f="n"]');if(f)setTimeout(()=>f.focus(),300)}return}
     $("ed-save").disabled=true;$("ed-msg").textContent="שומרת…";
     try{if(DATA.theme)draft.theme=DATA.theme;if(DATA.tabOrder)draft.tabOrder=DATA.tabOrder;draft.ver=Date.now();await set(ref(db,SITE),JSON.parse(JSON.stringify(draft)));APPROVED.forEach(id=>set(ref(db,SUBS+"/"+id),null));APPROVED=[];$("ed-msg").textContent="נשמר ✓ הלקוחות כבר רואים את השינוי.";$("ed-save").disabled=false;setTimeout(edClose,900)}
     catch(err){$("ed-msg").textContent="השמירה לא הצליחה. בדקי את החיבור ונסי שוב.";$("ed-save").disabled=false}

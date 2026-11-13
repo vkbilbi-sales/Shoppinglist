@@ -146,7 +146,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
       <button class="btn bg bfull" type="button" id="na-add">הוספה לרשימה</button>
       <p class="lk-p">אחר כך אפשר להשלים פרטים (תמונה, תשלום, תגיות) בעורך.</p>
     </details>
-    <button class="btn bt bfull" type="button" id="sup-save" disabled>💾 שמירה</button>
+    <div class="sup-savebar" id="sup-savebar"><button class="btn bt bfull" type="button" id="sup-save" disabled>💾 שמירה</button></div>
     <div id="sup-msg" style="margin-top:.5rem;font-size:.85rem;color:var(--muted)" aria-live="polite"></div>
   </div>
 
@@ -627,8 +627,10 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .sup-close{font-weight:400;color:#4A6E6B;font-size:.8rem}
 .sup-row{flex-wrap:wrap}
 .sup-row.off .aitem-name{color:#5F7775}
+.sup-savebar.dirty{position:sticky;bottom:0;z-index:5;background:#fff;padding:.5rem 0;box-shadow:0 -6px 12px rgba(0,0,0,.08)}
+.sup-savebar.dirty #sup-save{background:#A35F0C}
 .sup-pics{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.3rem}.sup-pics>div{display:grid;gap:.3rem;justify-items:start;font-size:.85rem;font-weight:700}
-.pv-logo{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #C9D6D4}.pv-cov{width:100%;height:64px;object-fit:cover;border-radius:8px}.pv-none{font-weight:400;color:#5F7775}
+.pv-logo{width:64px;height:64px;border-radius:8px;object-fit:contain;background:#fff;border:2px solid #C9D6D4}.pv-cov{max-width:100%;height:80px;object-fit:contain;border-radius:8px}.pv-none{font-weight:400;color:#5F7775}
 .sup-edit{flex:1 1 100%;margin:.5rem 0 .3rem;padding:.6rem;border:1px dashed #C9D6D4;border-radius:10px;background:#FAFDFC}
 .sup-tools{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin:.2rem 0 .4rem}.sup-tools .lk-p{margin:0;font-weight:700}
 .delbtn{font:inherit;font-size:.85rem;border:1px solid #E5C9C9;background:#fff;border-radius:20px;padding:.15rem .5rem;cursor:pointer;white-space:nowrap}
@@ -788,7 +790,7 @@ const sSkel=t=>sNorm(t).replace(/[ויא\s]/g,"");
 function supMatch(s,q){const b=sNorm(q).trim();if(!b)return true;const hay=[s.n,s.k,s.tags].join(" "),a=sNorm(hay);if(a.includes(b))return true;
   const k=sSkel(q);if(k.length<3)return false;const sub=(x,y)=>{let i=0;for(const ch of y){if(ch===x[i])i++;if(i===x.length)return true}return false};
   return a.split(/\s+/).some(w=>{const ws=sSkel(w);return ws.includes(k)||(ws[0]===k[0]&&ws.length<=k.length+2&&sub(k,ws))})}
-function supDirty(){const d=SUPCH.size||SUPADD.size||SUPORD||SUPDEL.size;$("sup-save").disabled=!d;if(d)$("sup-msg").textContent="יש שינויים שלא נשמרו.";$("sup-mode").textContent=DATA.manualOrder?"סדר ידני (שלך)":"מסודר לפי שעת סגירה";$("sup-auto").hidden=!DATA.manualOrder}
+function supDirty(){const d=SUPCH.size||SUPADD.size||SUPORD||SUPDEL.size;$("sup-save").disabled=!d;$("sup-savebar").classList.toggle("dirty",!!d);if(d)$("sup-msg").textContent="יש שינויים שלא נשמרו.";$("sup-mode").textContent=DATA.manualOrder?"סדר ידני (שלך)":"מסודר לפי שעת סגירה";$("sup-auto").hidden=!DATA.manualOrder}
 function supsRender(){if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.suppliers||[];
   const L=A.map((s,i)=>({s,i})).filter(x=>supMatch(x.s,q));
   $("sup-list").innerHTML=L.length?L.map(({s,i})=>`<div class="aitem sup-row${SUPCH.has(s.h)||SUPADD.has(s.h)?" ch":""}${!s.o?" off":""}" data-i="${i}" data-h="${s.h}">
@@ -808,8 +810,8 @@ function supsRender(){if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.sup
         <label>אופן תשלום (למשל פייבוקס)<input type="text" data-ef="p" data-ei="${i}" value="${esc(s.p||"")}"></label>
         <label>לינק לתשלום<input type="url" dir="ltr" data-ef="pl" data-ei="${i}" value="${esc(s.pl||"")}"></label>
         <div class="sup-pics">
-          <div><span>לוגו (עגול)</span>${picSrc(s.img)?`<img class="pv-logo" src="${esc(picSrc(s.img))}" alt="">`:`<span class="pv-none">אין</span>`}<label class="nxbtn">${s.img?"החלפה":"העלאת לוגו"}<input type="file" accept="image/*" data-up="img" data-ui="${i}" hidden></label></div>
-          <div><span>תמונת כיסוי (רחבה)</span>${picSrc(s.cov)?`<img class="pv-cov" src="${esc(picSrc(s.cov))}" alt="">`:`<span class="pv-none">אין</span>`}<label class="nxbtn">${s.cov?"החלפה":"העלאת תמונת כיסוי"}<input type="file" accept="image/*" data-up="cov" data-ui="${i}" hidden></label></div>
+          <div><span>לוגו</span>${picSrc(s.img)?`<img class="pv-logo" src="${esc(picSrc(s.img))}" alt="">`:`<span class="pv-none">אין</span>`}<label class="nxbtn">${s.img?"החלפה":"העלאת לוגו"}<input type="file" accept="image/*" data-up="img" data-ui="${i}" hidden></label></div>
+          <div><span>תמונה (בראש הכרטיס)</span>${picSrc(s.cov)?`<img class="pv-cov" src="${esc(picSrc(s.cov))}" alt="">`:`<span class="pv-none">אין</span>`}<label class="nxbtn">${s.cov?"החלפה":"העלאת תמונת כיסוי"}<input type="file" accept="image/*" data-up="cov" data-ui="${i}" hidden></label></div>
         </div>
         <p class="lk-p" id="up-msg-${i}" aria-live="polite"></p>
         <p class="lk-p">תגיות וכשרות משנים בעורך המלא.</p></div>`:""}
@@ -827,7 +829,7 @@ document.addEventListener("change",async e=>{const t=e.target;if(!t.dataset||!t.
   try{s[t.dataset.up]=await dUpload(f);SUPCH.add(s.h);supsRender();const m2=document.getElementById("up-msg-"+t.dataset.ui);if(m2)m2.textContent='התמונה הועלתה ✓ לא לשכוח ללחוץ "שמירה".'}
   catch(err){if(msg)msg.textContent=err&&err.message==="big"?"התמונה גדולה מדי. נסי תמונה קטנה יותר.":"ההעלאה לא הצליחה. נסי שוב, או תמונה אחרת (JPG או PNG)."}});
 document.addEventListener("input",e=>{const t=e.target.closest&&e.target.closest("[data-ef]");if(!t)return;const s=DATA.suppliers[+t.dataset.ei];if(!s)return;const f=t.dataset.ef;
-  s[f]=f==="cd"?(t.value===""?null:+t.value):t.value;SUPCH.add(s.h);supDirty();
+  s[f]=f==="cd"?(t.value===""?null:+t.value):t.value;if((f==="url"||f==="pl")&&s[f]&&!/^https?:\/\//.test(s[f])&&/^[\w.-]+\.[a-z]{2,}/i.test(s[f]))s[f]="https://"+s[f];SUPCH.add(s.h);supDirty();
   const nm=t.closest(".sup-row")&&t.closest(".sup-row").querySelector(".aitem-name");if(nm&&f==="n")nm.firstChild.textContent=t.value});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-del]");if(!b)return;const s=DATA.suppliers[+b.dataset.del];if(!s)return;
   if(SUPDELASK!==s.h){SUPDELASK=s.h;supsRender();const a=document.querySelector(`[data-del="${b.dataset.del}"]`);if(a)a.focus();return}
@@ -838,7 +840,7 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
   s.nx=s.nx?0:1;SUPCH.add(s.h);supsRender();const row=document.querySelector(`.sup-row[data-h="${s.h}"]`);if(row){const a=row.querySelector("[data-nx]");if(a)a.focus()}});
 if(window.Sortable)Sortable.create($("sup-list"),{handle:".grip",forceFallback:true,fallbackTolerance:3,animation:150,ghostClass:"sort-ghost",dragClass:"sort-drag",
   filter:".searching *",onEnd:e=>{if(e.oldIndex===e.newIndex||$("sup-q").value.trim())return supsRender();const A=DATA.suppliers;const [it]=A.splice(e.oldIndex,1);A.splice(e.newIndex,0,it);DATA.manualOrder=true;SUPORD=true;supsRender();render()}});
-$("na-add").addEventListener("click",()=>{const n=$("na-n").value.trim(),url=$("na-url").value.trim();
+$("na-add").addEventListener("click",()=>{const n=$("na-n").value.trim();let url=$("na-url").value.trim();if(url&&!/^https?:\/\//.test(url))url="https://"+url;
   if(!n||!url){$("sup-msg").textContent="חסר: "+[!n&&"שם הספק",!url&&"קישור"].filter(Boolean).join(", ");return}
   if((DATA.suppliers||[]).some(s=>sNorm(s.n)===sNorm(n))){$("sup-msg").textContent="ספק בשם הזה כבר קיים ברשימה.";$("sup-q").value=n;supsRender();return}
   const cd=$("na-cd").value,s={h:"s"+Date.now().toString(36),n,c:$("na-c").value,o:1,nx:0,d:$("na-d").value.trim(),k:"",url,cd:cd===""?null:+cd,ct:$("na-ct").value||"",p:"",pl:"",ks:"",tags:"",f:0,img:"",cov:""};
@@ -853,7 +855,7 @@ $("sup-save").addEventListener("click",async()=>{$("sup-save").disabled=true;$("
       DATA=live}
     DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));SUPCH.clear();SUPADD.clear();SUPORD=false;SUPDEL.clear();
     supsRender();$("sup-msg").textContent="נשמר ✓ הלקוחות כבר רואים את השינוי.";render();lookInit()}
-  catch(e){$("sup-msg").textContent="השמירה לא הצליחה. בדקי את החיבור ונסי שוב.";$("sup-save").disabled=false}});
+  catch(e){$("sup-msg").textContent="השמירה לא הצליחה ("+(e&&e.message?e.message:"שגיאה")+"). בדקי את החיבור ונסי שוב.";$("sup-save").disabled=false}});
 // drag & drop ordering (arrows stay for keyboard use)
 function dragMove(from,to){const L=items();if(from===to||!L[from]||!L[to])return;
   const arr=K==="suppliers"?DATA.suppliers:DATA.posts,slots=L.map(x=>x.i),vals=slots.map(i=>arr[i]);
