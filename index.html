@@ -1774,9 +1774,7 @@ document.addEventListener("click",e=>{
 });
 {const id=location.hash.slice(1),el=id&&document.getElementById(id),host=el&&el.closest("[data-tab]");
  showTab(host?host.dataset.tab:(SHARED?"list":"sup"),false);if(host)setTimeout(()=>el.scrollIntoView(),50);
- /* plain visit: open straight at the supplier list */
- else if(!SHARED&&!/admin/.test(location.hash)){let user=false;["wheel","touchstart","keydown","mousedown"].forEach(ev=>window.addEventListener(ev,()=>{user=true},{once:true,passive:true}));const go=()=>{if(user||TAB!=="sup")return;const nav=$("tabs"),m=$("suppliers");if(m)window.scrollTo({top:m.getBoundingClientRect().top+window.scrollY-(nav?nav.offsetHeight:0)-6})};
-   setTimeout(go,60);window.addEventListener("load",()=>setTimeout(go,30),{once:true})}}
+}
 // ---------- accessibility helpers ----------
 function keepFocus(fn){return function(...a){const el=document.activeElement;let sel=null;
   if(el&&el!==document.body){if(el.id)sel="#"+CSS.escape(el.id);else{const ds=Object.entries(el.dataset||{});if(ds.length)sel=el.tagName.toLowerCase()+ds.map(([k,v])=>`[data-${k.replace(/[A-Z]/g,m=>"-"+m.toLowerCase())}="${CSS.escape(v)}"]`).join("")}}
