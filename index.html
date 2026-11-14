@@ -867,6 +867,9 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
 .toast a{display:inline-block;margin-inline-start:6px;background:var(--bg);color:var(--ink)!important;border-radius:999px;padding:2px 10px;text-decoration:none}
 
 .paylink.spare{background:#5B3F99!important;color:#fff!important;margin-top:4px}
+
+/* badges that wrap to several lines keep rounded-rectangle shape so text is not clipped */
+.badge{border-radius:12px!important;max-width:100%;line-height:1.35;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
