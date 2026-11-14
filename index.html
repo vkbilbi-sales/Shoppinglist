@@ -782,8 +782,8 @@ html,body{color-scheme:only light!important}
 .sup-pic img.wide-pic{width:auto;max-width:260px;height:110px;border-radius:10px}
 .sup-pic input[type=text],.sup-pic input:not([type]){width:100%}
 /* supplier pictures: logo keeps its shape, cover shows the whole picture */
-.logo-mark{border-radius:12px!important;object-fit:contain!important;background:#fff!important;padding:3px!important}
-.card .cover{object-fit:contain!important;background:color-mix(in srgb,var(--cc,var(--leaf)) 10%,#fff)!important}
+.logo-mark{border-radius:12px!important;object-fit:cover!important;background:#fff!important;padding:0!important}
+.card .cover{object-fit:cover!important;background:color-mix(in srgb,var(--cc,var(--leaf)) 10%,#fff)!important}
 .share-site{display:inline-block;margin-top:10px;background:#FFE08A;color:#173436!important;font-weight:800;font-size:16px;border-radius:999px;padding:7px 16px;text-decoration:none;box-shadow:0 2px 0 rgba(0,0,0,.2)}
 .share-site:hover{background:#FFF0BF}
 .badge.next{color:var(--ink)!important;border-color:var(--sun)!important;background:var(--warm-bg)}
@@ -1755,7 +1755,10 @@ document.addEventListener("click",e=>{
   if(host){e.preventDefault();showTab(host.dataset.tab,false);requestAnimationFrame(()=>el.scrollIntoView({behavior:"smooth",block:"start"}))}
 });
 {const id=location.hash.slice(1),el=id&&document.getElementById(id),host=el&&el.closest("[data-tab]");
- showTab(host?host.dataset.tab:(SHARED?"list":"sup"),false);if(host)setTimeout(()=>el.scrollIntoView(),50)}
+ showTab(host?host.dataset.tab:(SHARED?"list":"sup"),false);if(host)setTimeout(()=>el.scrollIntoView(),50);
+ /* plain visit: open straight at the supplier list */
+ else if(!SHARED&&!/admin/.test(location.hash)){let user=false;["wheel","touchstart","keydown","mousedown"].forEach(ev=>window.addEventListener(ev,()=>{user=true},{once:true,passive:true}));const go=()=>{if(user||TAB!=="sup")return;const nav=$("tabs"),m=$("suppliers");if(m)window.scrollTo({top:m.getBoundingClientRect().top+window.scrollY-(nav?nav.offsetHeight:0)-6})};
+   setTimeout(go,60);window.addEventListener("load",()=>setTimeout(go,30),{once:true})}}
 // ---------- accessibility helpers ----------
 function keepFocus(fn){return function(...a){const el=document.activeElement;let sel=null;
   if(el&&el!==document.body){if(el.id)sel="#"+CSS.escape(el.id);else{const ds=Object.entries(el.dataset||{});if(ds.length)sel=el.tagName.toLowerCase()+ds.map(([k,v])=>`[data-${k.replace(/[A-Z]/g,m=>"-"+m.toLowerCase())}="${CSS.escape(v)}"]`).join("")}}
