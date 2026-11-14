@@ -78,6 +78,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
 .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--teal-dark);color:#fff;padding:.6rem 1.3rem;border-radius:50px;font-size:.88rem;font-weight:700;opacity:0;pointer-events:none;transition:all .3s;z-index:999;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 @media(max-width:480px){.g2{grid-template-columns:1fr;}.hdr h1{font-size:1.2rem;}}
+.ks-wrap{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}.ks-wrap select,.ks-wrap input{width:100%;box-sizing:border-box}.ks-wrap input[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -772,6 +773,14 @@ $("mb-export").addEventListener("click",()=>{const q=v=>'"'+String(v??"").replac
 statsLoad();
 // ---- suppliers this week (switch per supplier, drag to reorder, search, quick add) ----
 let SUPCH=new Set(),SUPADD=new Set(),SUPORD=false,SUPDEL=new Set(),SUPDELASK=null,SUPEDIT=null;
+/* kosher: preset list + free text */
+const KS_PRE=[["","לא מוצג"],["כשר","כשר (עם תעודה) ✡️"],["הקפדה על כשרות, ללא תעודה","הקפדה על כשרות, ללא תעודה"],["לא כשר","לא כשר (לא מוצג)"]];
+function ksField(val,attrs){val=val||"";const pre=KS_PRE.some(([v])=>v===val),e=x=>String(x).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+  return `<span class="ks-wrap"><select class="ks-sel" aria-label="כשרות">${KS_PRE.map(([v,l])=>`<option value="${e(v)}"${pre&&v===val?" selected":""}>${e(l)}</option>`).join("")}<option value="__c"${pre?"":" selected"}>✏️ כתיבה חופשית…</option></select>
+  <input class="ks-txt" type="text" ${attrs} value="${pre?e(val):e(val)}" ${pre?"hidden":""} aria-label="נוסח הכשרות שיופיע ללקוחות" placeholder="למשל: בשר ללא חזיר, לא מנוקר ולא מומלח"></span>`}
+document.addEventListener("change",ev=>{const sel=ev.target.closest&&ev.target.closest(".ks-sel");if(!sel)return;const t=sel.parentNode.querySelector(".ks-txt");
+  if(sel.value==="__c"){t.hidden=false;if(KS_PRE.some(([v])=>v===t.value))t.value="";t.dispatchEvent(new Event("input",{bubbles:true}));t.focus()}
+  else{t.hidden=true;t.value=sel.value;t.dispatchEvent(new Event("input",{bubbles:true}))}});
 const SUPFIELDS=["o","nx","n","url","c","cd","ct","d","p","pl","img","cov","ks","tags"];
 const DAYS=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
 const PICS=new Map();
@@ -809,7 +818,7 @@ function supsRender(){if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.sup
         <label>תיאור<input type="text" data-ef="d" data-ei="${i}" value="${esc(s.d||"")}"></label>
         <label>אופן תשלום (למשל פייבוקס)<input type="text" data-ef="p" data-ei="${i}" value="${esc(s.p||"")}"></label>
         <label>לינק לתשלום<input type="url" dir="ltr" data-ef="pl" data-ei="${i}" value="${esc(s.pl||"")}"></label>
-        <label>כשרות<select data-ef="ks" data-ei="${i}">${[["","לא מוצג"],["כשר","כשר (עם תעודה)"],["הקפדה על כשרות, ללא תעודה","הקפדה על כשרות, ללא תעודה"],["ללא תעודת כשרות","ללא תעודת כשרות"],["לא כשר","לא כשר"]].concat(s.ks&&!["","כשר","הקפדה על כשרות, ללא תעודה","ללא תעודת כשרות","לא כשר"].includes(s.ks)?[[s.ks,s.ks]]:[]).map(([v,l])=>`<option value="${esc(v)}"${(s.ks||"")===v?" selected":""}>${esc(l)}</option>`).join("")}</select></label>
+        <label>כשרות${ksField(s.ks,`data-ef="ks" data-ei="${i}"`)}</label>
         <label>תגיות (מפרידים בפסיק)<input type="text" data-ef="tags" data-ei="${i}" value="${esc(s.tags||"")}" placeholder="טבעוני, ללא גלוטן"></label>
         <div class="sup-pics">
           <div><span>לוגו</span>${picSrc(s.img)?`<img class="pv-logo" src="${esc(picSrc(s.img))}" alt="">`:`<span class="pv-none">אין</span>`}<label class="nxbtn">${s.img?"החלפה":"העלאת לוגו"}<input type="file" accept="image/*" data-up="img" data-ui="${i}" hidden></label></div>
