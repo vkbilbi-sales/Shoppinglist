@@ -1529,9 +1529,9 @@ function listText(fc){
 }
 function shareLink(){return location.origin+location.pathname+"?u="+encodeURIComponent(CID)}
 function digits(p){let d=String(p||"").replace(/\D/g,"");if(d.startsWith("0"))d="972"+d.slice(1);return d}
-/* spare-items paybox: shown only on distribution day (00:00 until noon the next day, Israel time) */
+/* spare-items paybox: shown only on distribution day (from 00:00 until the end of the second day after, Israel time) */
 function sparesOpen(){if(/admin/.test(location.hash))return true;if(!DIST)return false;const now=Date.now(),d0=ilDate(DIST.y,DIST.mo,DIST.d,0,0);
-  return [d0,d0-7*864e5].some(t=>now>=t&&now<t+36*36e5)}
+  return [d0,d0-7*864e5].some(t=>now>=t&&now<t+72*36e5)}
 function spareLink(s){if(!s.spl||!sparesOpen())return "";let u=String(s.spl).trim();if(!/^https?:\/\//i.test(u))u="https://"+u;
   return `<a class="paylink spare" href="${esc(u)}" target="_blank" rel="noopener" aria-label="תשלום על ספיירים בפייבוקס: ${esc(s.n)}">💳 תשלום על ספיירים בפייבוקס ←</a>`}
 let SPO=null;setInterval(()=>{const o=sparesOpen();if(SPO!==null&&o!==SPO){try{renderAll()}catch(e){}}SPO=o},60000);
@@ -1902,7 +1902,7 @@ function edSups(openIdx){
       <label class="field">בשעה<input type="time" data-i="${i}" data-f="ct" value="${esc(s.ct)}"></label>
       <label class="field">אופן תשלום<input data-i="${i}" data-f="p" value="${esc(s.p)}" list="ed-pay" placeholder="פייבוקס"></label>
       <label class="field">קישור לתשלום<input data-i="${i}" data-f="pl" value="${esc(s.pl)}" dir="ltr" placeholder="https://"></label>
-      <label class="field">לינק פייבוקס לספיירים (מוצג ללקוחות רק ביום החלוקה)<input data-i="${i}" data-f="spl" value="${esc(s.spl||"")}" dir="ltr" placeholder="https://"></label>
+      <label class="field">לינק פייבוקס לספיירים (מוצג ללקוחות מיום החלוקה ועד סוף יומיים אחריו)<input data-i="${i}" data-f="spl" value="${esc(s.spl||"")}" dir="ltr" placeholder="https://"></label>
       <label class="field">הזמנה חד-פעמית: פתוח עד תאריך<input type="date" data-i="${i}" data-f="ud" value="${esc(s.ud||"")}"></label>
       <label class="field">יחולק ב (למשל: יום רביעי 18.11)<input data-i="${i}" data-f="dd" value="${esc(s.dd||"")}"></label>
       <div class="field sup-pic">לוגו${blob(s.img)?`<img src="${esc(blob(s.img))}" alt="">`:""}<label class="btn alt upl" for="up-si-${i}">${s.img?"החלפת לוגו":"העלאת לוגו"}<input id="up-si-${i}" type="file" accept="image/*" data-supimg="${i}" data-which="img" hidden></label>${s.img?`<button class="linkbtn" type="button" data-supimgdel="${i}" data-which="img">הסרה</button>`:""}<input data-i="${i}" data-f="img" value="${esc(String(s.img||"").startsWith("fb:")?"":(s.img||""))}" dir="ltr" placeholder="או קישור לתמונה https://" aria-label="קישור לתמונת לוגו"></div>
