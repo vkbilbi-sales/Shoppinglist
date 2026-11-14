@@ -781,7 +781,7 @@ function ksField(val,attrs){val=val||"";const pre=KS_PRE.some(([v])=>v===val),e=
 document.addEventListener("change",ev=>{const sel=ev.target.closest&&ev.target.closest(".ks-sel");if(!sel)return;const t=sel.parentNode.querySelector(".ks-txt");
   if(sel.value==="__c"){t.hidden=false;if(KS_PRE.some(([v])=>v===t.value))t.value="";t.dispatchEvent(new Event("input",{bubbles:true}));t.focus()}
   else{t.hidden=true;t.value=sel.value;t.dispatchEvent(new Event("input",{bubbles:true}))}});
-const SUPFIELDS=["o","nx","n","url","c","cd","ct","d","p","pl","img","cov","ks","ksd","tags"];
+const SUPFIELDS=["o","nx","n","url","c","cd","ct","d","p","pl","img","cov","ks","ksd","tags","spl"];
 const DAYS=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
 const PICS=new Map();
 function picSrc(v){v=String(v||"");if(/^(https:\/\/|img\/)/.test(v))return v;const m=v.match(/^fb:([A-Za-z0-9_-]+)$/);if(!m)return "";
@@ -818,6 +818,7 @@ function supsRender(){if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.sup
         <label>תיאור<input type="text" data-ef="d" data-ei="${i}" value="${esc(s.d||"")}"></label>
         <label>אופן תשלום (למשל פייבוקס)<input type="text" data-ef="p" data-ei="${i}" value="${esc(s.p||"")}"></label>
         <label>לינק לתשלום<input type="url" dir="ltr" data-ef="pl" data-ei="${i}" value="${esc(s.pl||"")}"></label>
+        <label>לינק פייבוקס לספיירים (מוצג ללקוחות רק ביום החלוקה)<input type="url" dir="ltr" data-ef="spl" data-ei="${i}" value="${esc(s.spl||"")}" placeholder="https://"></label>
         <label>כשרות${ksField(s.ks,`data-ef="ks" data-ei="${i}"`)}</label>
         <label>פירוט כשרות (נפתח בלחיצה על תווית הכשרות)<textarea data-ef="ksd" data-ei="${i}" rows="4" placeholder="למשל: בקר וטלה: שחיטה כשרה, לא מנוקר ולא מוכשר. עוף והודו: כשרים ומוכשרים.">${esc(s.ksd||"")}</textarea></label>
         <label>תגיות (מפרידים בפסיק)<input type="text" data-ef="tags" data-ei="${i}" value="${esc(s.tags||"")}" placeholder="טבעוני, ללא גלוטן"></label>

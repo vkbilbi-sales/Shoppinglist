@@ -861,6 +861,8 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
 @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.14)}70%{transform:scale(.97)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:no-preference){[data-tabbtn="list"].bump{animation:bump .6s ease 2}}
 .toast a{display:inline-block;margin-inline-start:6px;background:var(--bg);color:var(--ink)!important;border-radius:999px;padding:2px 10px;text-decoration:none}
+
+.paylink.spare{background:#5B3F99!important;color:#fff!important;margin-top:4px}
 </style>
 </head>
 <body>
@@ -1491,7 +1493,7 @@ function renderGrid(){
     ${s.more?`<details class="more"><summary>מידע נוסף</summary><p>${esc(s.more).replace(/\n/g,"<br>")}</p></details>`:""}
     <dl class="rows">
       ${closeAt(s)?`<div><dt>פתוח עד</dt><dd>${closeLabel(s)}<br><span class="cd" data-cd="${s.h}"></span></dd></div>`:""}
-      ${payMethod(s)?`<div class="payrow"><dt class="sr-only">תשלום</dt><dd><span class="pm">תשלום ב${esc(payMethod(s))}</span>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו כאן לתשלום ב${esc(payMethod(s))}: ${esc(s.n)}">לחצו כאן לתשלום ב${esc(payMethod(s))} ←</a>`:!s.p?`<span class="pm-note">משלמים בחנות, בזמן ההזמנה</span>`:""}</dd></div>`:""}
+      ${payMethod(s)?`<div class="payrow"><dt class="sr-only">תשלום</dt><dd><span class="pm">תשלום ב${esc(payMethod(s))}</span>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו כאן לתשלום ב${esc(payMethod(s))}: ${esc(s.n)}">לחצו כאן לתשלום ב${esc(payMethod(s))} ←</a>`:!s.p?`<span class="pm-note">משלמים בחנות, בזמן ההזמנה</span>`:""}${spareLink(s)}</dd></div>`:(spareLink(s)?`<div class="payrow"><dd>${spareLink(s)}</dd></div>`:"")}
       ${s.ks?`<div><dt>כשרות</dt><dd class="ks">${esc(s.ks)}</dd></div>`:""}
     </dl>
     <div class="actions">
@@ -1527,12 +1529,19 @@ function listText(fc){
 }
 function shareLink(){return location.origin+location.pathname+"?u="+encodeURIComponent(CID)}
 function digits(p){let d=String(p||"").replace(/\D/g,"");if(d.startsWith("0"))d="972"+d.slice(1);return d}
+/* spare-items paybox: shown only on distribution day (00:00 until noon the next day, Israel time) */
+function sparesOpen(){if(/admin/.test(location.hash))return true;if(!DIST)return false;const now=Date.now(),d0=ilDate(DIST.y,DIST.mo,DIST.d,0,0);
+  return [d0,d0-7*864e5].some(t=>now>=t&&now<t+36*36e5)}
+function spareLink(s){if(!s.spl||!sparesOpen())return "";let u=String(s.spl).trim();if(!/^https?:\/\//i.test(u))u="https://"+u;
+  return `<a class="paylink spare" href="${esc(u)}" target="_blank" rel="noopener" aria-label="תשלום על ספיירים בפייבוקס: ${esc(s.n)}">💳 תשלום על ספיירים בפייבוקס ←</a>`}
+let SPO=null;setInterval(()=>{const o=sparesOpen();if(SPO!==null&&o!==SPO){try{renderAll()}catch(e){}}SPO=o},60000);
 function payMethod(s){return s.p||(isForm(s)?"":"כרטיס אשראי")}
 function payLine(s){
   const parts=[],m=payMethod(s);
   if(m)parts.push(`<span><b>תשלום ב${esc(m)}</b></span>`);
   if(s.pl)parts.push(`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו כאן לתשלום ב${esc(m)}: ${esc(s.n)}">לחצו כאן לתשלום ב${esc(m)} ←</a>`);
   else if(!s.p&&!isForm(s))parts.push(`<span>משלמים בחנות, בזמן ההזמנה</span>`);
+  if(spareLink(s))parts.push(spareLink(s));
   parts.push(`<a class="storelink" href="${esc(s.url)}" target="_blank" rel="noopener">${isForm(s)?"לטופס הזמנה":"לחצו כאן לחנות ההזמנות"} ←</a>`);
   return `<div class="ipay">${parts.join("")}</div>`;
 }
@@ -1893,6 +1902,7 @@ function edSups(openIdx){
       <label class="field">בשעה<input type="time" data-i="${i}" data-f="ct" value="${esc(s.ct)}"></label>
       <label class="field">אופן תשלום<input data-i="${i}" data-f="p" value="${esc(s.p)}" list="ed-pay" placeholder="פייבוקס"></label>
       <label class="field">קישור לתשלום<input data-i="${i}" data-f="pl" value="${esc(s.pl)}" dir="ltr" placeholder="https://"></label>
+      <label class="field">לינק פייבוקס לספיירים (מוצג ללקוחות רק ביום החלוקה)<input data-i="${i}" data-f="spl" value="${esc(s.spl||"")}" dir="ltr" placeholder="https://"></label>
       <label class="field">הזמנה חד-פעמית: פתוח עד תאריך<input type="date" data-i="${i}" data-f="ud" value="${esc(s.ud||"")}"></label>
       <label class="field">יחולק ב (למשל: יום רביעי 18.11)<input data-i="${i}" data-f="dd" value="${esc(s.dd||"")}"></label>
       <div class="field sup-pic">לוגו${blob(s.img)?`<img src="${esc(blob(s.img))}" alt="">`:""}<label class="btn alt upl" for="up-si-${i}">${s.img?"החלפת לוגו":"העלאת לוגו"}<input id="up-si-${i}" type="file" accept="image/*" data-supimg="${i}" data-which="img" hidden></label>${s.img?`<button class="linkbtn" type="button" data-supimgdel="${i}" data-which="img">הסרה</button>`:""}<input data-i="${i}" data-f="img" value="${esc(String(s.img||"").startsWith("fb:")?"":(s.img||""))}" dir="ltr" placeholder="או קישור לתמונה https://" aria-label="קישור לתמונת לוגו"></div>
