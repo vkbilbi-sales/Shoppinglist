@@ -809,7 +809,7 @@ function supsRender(){if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.sup
         <label>תיאור<input type="text" data-ef="d" data-ei="${i}" value="${esc(s.d||"")}"></label>
         <label>אופן תשלום (למשל פייבוקס)<input type="text" data-ef="p" data-ei="${i}" value="${esc(s.p||"")}"></label>
         <label>לינק לתשלום<input type="url" dir="ltr" data-ef="pl" data-ei="${i}" value="${esc(s.pl||"")}"></label>
-        <label>כשרות<select data-ef="ks" data-ei="${i}">${[["","לא מוצג"],["כשר","כשר"],["הקפדה על כשרות, ללא תעודה","הקפדה על כשרות, ללא תעודה"],["לא כשר","לא כשר"]].concat(s.ks&&!["","כשר","הקפדה על כשרות, ללא תעודה","לא כשר"].includes(s.ks)?[[s.ks,s.ks]]:[]).map(([v,l])=>`<option value="${esc(v)}"${(s.ks||"")===v?" selected":""}>${esc(l)}</option>`).join("")}</select></label>
+        <label>כשרות<select data-ef="ks" data-ei="${i}">${[["","לא מוצג"],["כשר","כשר (עם תעודה)"],["הקפדה על כשרות, ללא תעודה","הקפדה על כשרות, ללא תעודה"],["ללא תעודת כשרות","ללא תעודת כשרות"],["לא כשר","לא כשר"]].concat(s.ks&&!["","כשר","הקפדה על כשרות, ללא תעודה","ללא תעודת כשרות","לא כשר"].includes(s.ks)?[[s.ks,s.ks]]:[]).map(([v,l])=>`<option value="${esc(v)}"${(s.ks||"")===v?" selected":""}>${esc(l)}</option>`).join("")}</select></label>
         <label>תגיות (מפרידים בפסיק)<input type="text" data-ef="tags" data-ei="${i}" value="${esc(s.tags||"")}" placeholder="טבעוני, ללא גלוטן"></label>
         <div class="sup-pics">
           <div><span>לוגו</span>${picSrc(s.img)?`<img class="pv-logo" src="${esc(picSrc(s.img))}" alt="">`:`<span class="pv-none">אין</span>`}<label class="nxbtn">${s.img?"החלפה":"העלאת לוגו"}<input type="file" accept="image/*" data-up="img" data-ui="${i}" hidden></label></div>
