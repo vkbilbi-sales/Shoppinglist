@@ -889,6 +889,8 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
 
 /* badges that wrap to several lines keep rounded-rectangle shape so text is not clipped */
 .badge{border-radius:12px!important;max-width:100%;line-height:1.35;overflow-wrap:anywhere}
+
+.wk-line{margin:0;font-size:15.5px;line-height:1.45;color:var(--ink);background:var(--leaf-soft);border-radius:10px;padding:6px 10px}.wk-line b{color:var(--leaf-deep)}
 </style>
 </head>
 <body>
@@ -1530,7 +1532,7 @@ function renderGrid(){
     <div class="top">${blob(s.img)?`<img class="mark logo-mark" src="${esc(blob(s.img))}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
       <div><div class="cat">${C.label}</div><h3>${esc(s.n)}</h3>
       <div class="badges">${ksBadge(s)}${String(s.tags||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="badge tag">${esc(x)}</span>`).join("")}${isOpen(s)?'<span class="badge open">פתוח להזמנות</span>':s.o?'<span class="badge">ההזמנות נסגרו לשבוע הזה</span>':'<span class="badge next">⏳ מגיע בשבוע הבא</span>'}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>${s.ksd?`<div class="ksd-panel" id="ksd-${esc(s.h)}" hidden><b>כשרות</b><p>${esc(s.ksd).replace(/\n/g,"<br>")}</p></div>`:""}
-    <p class="desc">${esc(s.d)}</p>
+    <p class="desc">${esc(s.d)}</p>${WEEKLY[s.h]?`<p class="wk-line"><b>🛒 השבוע בחנות:</b> ${esc(WEEKLY[s.h])}</p>`:""}
     ${s.more?`<details class="more"><summary>מידע נוסף</summary><p>${esc(s.more).replace(/\n/g,"<br>")}</p></details>`:""}
     <dl class="rows">
       ${closeAt(s)?`<div><dt>פתוח עד</dt><dd>${closeLabel(s)}<br><span class="cd" data-cd="${s.h}"></span></dd></div>`:""}
@@ -1701,6 +1703,8 @@ function renderMeSum(){
     :`<p>📍 <b>איסוף עצמי</b> מ${esc(me.point)}</p>`)+`<p class="hint">הפרטים שמורים ויישארו כך גם בשבועות הבאים.</p><button class="btn ghost" type="button" id="me-change">שינוי פרטים</button>`;
 }
 function renderAll(){renderGrid();renderList()}
+/* weekly "this week in the store" lines, refreshed automatically from the suppliers' stores */
+let WEEKLY={};fetch("weekly.json?t="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():null).then(j=>{if(j&&j.items&&typeof j.items==="object"){WEEKLY=j.items;try{renderAll()}catch(e){}}}).catch(()=>{});
 
 document.addEventListener("click",e=>{
   const c=e.target.closest("[data-cat]");if(c){state.cat=c.dataset.cat;chips();renderGrid();return}
