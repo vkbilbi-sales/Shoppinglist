@@ -399,7 +399,8 @@ footer b{font-family:var(--hand);font-weight:700;color:var(--sun);font-size:30px
 .paysum li{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
 
 .fri-sec{border-top:3px dashed var(--sun);margin-top:6px}
-.fri-sec .section-head h2{color:var(--sun)}
+.fri-sec .section-head h2,#sup-h{color:var(--sun)}
+#sup-when{display:block;font-size:.58em;line-height:1.3;margin-top:4px}#sup-when:empty{display:none}
 .fri-sec .section-head p{margin:0;color:var(--muted);max-width:60ch}
 .fri-tag{display:inline-block;font-size:12px;font-weight:700;color:var(--sun);border:1px solid var(--sun);border-radius:999px;padding:0 8px;margin-inline-start:6px;vertical-align:middle}
 
@@ -1131,7 +1132,7 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
     </div>
   </section>
   <div class="section-head" id="suppliers">
-    <h2>הספקים שלנו</h2>
+    <h2 id="sup-h">הספקים שלנו<span id="sup-when"></span></h2>
     <p id="count"></p>
   </div>
 
@@ -1433,6 +1434,8 @@ function computeTimes(){
   if(sp){const y=+sp[1],mo=+sp[2]-1,d=+sp[3],end=ilDate(y,mo,d,21,0),wdS=new Date(Date.UTC(y,mo,d)).getUTCDay();
     if(end>now&&end<=now+14*864e5&&ilDate(y,mo,d,21,0)<=ilDate(DIST.y,DIST.mo,DIST.d,21,0)+7*864e5)DIST={y,mo,d,wd:wdS,special:true}}
   {const el=$("dist-day");if(el)el.textContent="יום "+DAYN[DIST.wd]}
+  {const w=$("sup-when");if(w){const dd0=new Date(Date.UTC(DIST.y,DIST.mo,DIST.d)),tp=ilParts(now),today=new Date(Date.UTC(tp.y,tp.mo,tp.d)).getTime()===dd0.getTime();
+    w.textContent="חלוקה "+(today?"היום, יום ":"ביום ")+DAYN[DIST.wd]+(today?"":" הקרוב")+", "+dd0.getUTCDate()+"."+(dd0.getUTCMonth()+1)}}
   const dd=new Date(Date.UTC(DIST.y,DIST.mo,DIST.d));
   $("dist-date").textContent=`${dd.getUTCDate()}.${dd.getUTCMonth()+1}`;
 }
