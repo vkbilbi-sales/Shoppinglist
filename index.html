@@ -752,6 +752,8 @@ body[data-tab="about"] #h1-alt,body:not([data-tab]) #h1-alt{display:none}
 .ml-box::before{content:"";position:absolute;inset:0 0 auto 0;height:16px;background:repeating-linear-gradient(90deg,var(--b1,var(--leaf)) 0 22px,var(--b2,var(--heart)) 22px 44px);
   -webkit-mask:radial-gradient(11px 7px at 11px 9px,#000 98%,transparent) 0 0/22px 100% repeat-x,linear-gradient(#000,#000) 0 0/100% 9px no-repeat;mask:radial-gradient(11px 7px at 11px 9px,#000 98%,transparent) 0 0/22px 100% repeat-x,linear-gradient(#000,#000) 0 0/100% 9px no-repeat}
 .ml-box>h3{justify-self:start;display:inline-block;border-radius:999px;padding:5px 16px;background:var(--leaf);color:var(--on-leaf)!important}
+.couriers .ml-deliver{margin-bottom:16px}
+.ml-cnote{background:var(--leaf-soft);border-radius:14px;padding:12px 14px;margin:0;font-weight:600}.ml-cnote[hidden]{display:none}
 .ml-deliver{--b1:var(--sun);--b2:var(--leaf)}.ml-deliver>h3{background:var(--sun);color:var(--on-sun)!important}
 .ml-self{--b1:var(--heart);--b2:var(--sun)}.ml-self>h3{background:var(--heart);color:var(--on-heart)!important}
 .item{border-inline-start:8px solid var(--cc,var(--sun))!important;background:linear-gradient(90deg,color-mix(in srgb,var(--cc,var(--sun)) 9%,var(--surface)),var(--surface) 70%)!important}
@@ -1161,29 +1163,7 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
   <section class="couriers" id="couriers" aria-labelledby="cour-h">
     <div class="section-head"><h2 id="cour-h">שליחים עד הבית 🛵</h2>
       <p>השליח אוסף את ההזמנות שלכם מכל הספקים ומביא עד פתח הבית. שולחים לו את רשימת הקניות בלחיצה, עם הכתובת והקישור לרשימה המשותפת.</p></div>
-    <div class="cour-addr" id="cour-addr"></div>
-    <div class="cour-grid" id="cour-grid"></div>
-  </section>
-  <section class="mylist" id="mylist" aria-labelledby="ml-h">
-    <div class="ml-head">
-      <div><span class="ml-kicker">רשימת הקניות שלי</span><h2 id="ml-h">בחרו לכם מי עולה לעגלת הקניות 🛒</h2><p>הרשימה נשמרת אצלנו ומתעדכנת בכל טלפון שפותח אותה. אפשר לשתף אותה עם בן או בת הזוג, או עם מי שאוסף, וכל סימון מתעדכן אצל כולם.</p><p class="syncline busy" id="sync"><i></i><span id="sync-t">מתחבר…</span></p></div>
-      <div class="progress" id="progress"></div>
-    </div>
-    <div class="ml-flow">
-      <div class="ml-box ml-items">
-        <h3>🛒 הספקים ברשימה שלי</h3>
-        <p class="hint">כל ספק שלוחצים עליו "להוסיף לרשימת הקניות" מופיע כאן אוטומטית. רושמים ליד כל ספק מה הזמנתם, ובזמן האיסוף מסמנים מה נאסף.</p>
-        <ul class="items" id="items"></ul>
-        <div class="pick-sup"><label class="field" for="pick-sup">הוספת ספק נוסף<select id="pick-sup"></select></label></div>
-        <div class="paysum" id="paysum" hidden><h4>תשלום לספקים ברשימה</h4><ul id="paysum-l"></ul></div>
-        <div class="ml-actions ml-small">
-          <button class="btn alt" id="copy" type="button">העתקת הרשימה</button>
-          <button class="btn ghost" id="reset" type="button">איפוס הרשימה</button>
-        </div>
-        <p class="hint" id="ml-msg" aria-live="polite"></p>
-      </div>
-
-      <div class="ml-box ml-deliver">
+    <div class="ml-box ml-deliver">
         <h3>🛵 משלוח עד הבית עם שליח</h3>
         <p class="cour-lead">השליח אוסף עבורכם את ההזמנות מכל היצרנים, ומביא אותן עד פתח הבית. <span class="price">40 ₪ למשלוח, משלמים לשליח.</span></p>
         <button class="btn go cour-open" id="cour-open" type="button" aria-expanded="false" aria-controls="cour-fields">שליחת רשימת הקניות לשליח ←</button>
@@ -1208,7 +1188,29 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
           <button class="linkbtn cour-close" id="cour-close" type="button">לא צריך שליח, אוספים בעצמנו</button>
         </div>
       </div>
+    <div class="cour-addr" id="cour-addr"></div>
+    <div class="cour-grid" id="cour-grid"></div>
+  </section>
+  <section class="mylist" id="mylist" aria-labelledby="ml-h">
+    <div class="ml-head">
+      <div><span class="ml-kicker">רשימת הקניות שלי</span><h2 id="ml-h">בחרו לכם מי עולה לעגלת הקניות 🛒</h2><p>הרשימה נשמרת אצלנו ומתעדכנת בכל טלפון שפותח אותה. אפשר לשתף אותה עם בן או בת הזוג, או עם מי שאוסף, וכל סימון מתעדכן אצל כולם.</p><p class="syncline busy" id="sync"><i></i><span id="sync-t">מתחבר…</span></p></div>
+      <div class="progress" id="progress"></div>
+    </div>
+    <div class="ml-flow">
+      <div class="ml-box ml-items">
+        <h3>🛒 הספקים ברשימה שלי</h3>
+        <p class="hint">כל ספק שלוחצים עליו "להוסיף לרשימת הקניות" מופיע כאן אוטומטית. רושמים ליד כל ספק מה הזמנתם, ובזמן האיסוף מסמנים מה נאסף.</p>
+        <ul class="items" id="items"></ul>
+        <div class="pick-sup"><label class="field" for="pick-sup">הוספת ספק נוסף<select id="pick-sup"></select></label></div>
+        <div class="paysum" id="paysum" hidden><h4>תשלום לספקים ברשימה</h4><ul id="paysum-l"></ul></div>
+        <div class="ml-actions ml-small">
+          <button class="btn alt" id="copy" type="button">העתקת הרשימה</button>
+          <button class="btn ghost" id="reset" type="button">איפוס הרשימה</button>
+        </div>
+        <p class="hint" id="ml-msg" aria-live="polite"></p>
+      </div>
 
+      <p class="ml-cnote" id="ml-cnote" hidden>🛵 בחרתם משלוח עד הבית עם שליח. הפרטים ושליחת הרשימה לשליח נמצאים בלשונית <a href="#couriers">שליחים</a>.</p>
       <div class="ml-box ml-self" id="pick-fields">
         <h3>📍 איסוף עצמי, או מישהו שאוסף בשבילי</h3>
         <p class="hint">שדות עם <b>*</b> הם חובה.</p>
@@ -1602,11 +1604,11 @@ function renderCouriers(){fillCourierArea();
   const mine=ci>=0?COURIERS[ci]:null,ord=COURIERS.map((c,i)=>[c,i]).sort((a,b)=>(b[1]===ci)-(a[1]===ci));
   $("cour-grid").innerHTML=ord.map(([c,i])=>`<article class="cour-card${i===ci?" mine":""}">${i===ci?'<span class="cour-mine">⭐ השליח של הנקודה שלכם</span>':""}<div class="cour-top"><span class="cour-ic" aria-hidden="true">🛵</span><div><b>${esc(c.area)}</b><span>${esc(c.name)} · <a class="tel" dir="ltr" href="tel:+972${c.phone.replace(/\D/g,"").slice(1)}">${c.phone}</a></span></div></div>
     <p>${esc(c.note)}</p>
-    ${mine&&i!==ci?`<p class="cour-lock">הנקודה שלכם היא <b>${esc(mine.area)}</b>, ולכן שולחים רק ל${esc(mine.name)}. כדי להחליף נקודה: <a href="#mylist">רשימת הקניות</a>.</p>`
+    ${mine&&i!==ci?`<p class="cour-lock">הנקודה שלכם היא <b>${esc(mine.area)}</b>, ולכן שולחים רק ל${esc(mine.name)}. <button class="linkbtn" type="button" data-couraddr>החלפת נקודה</button></p>`
       :n?`<a class="btn go" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=972${c.phone.replace(/\D/g,"").slice(1)}&text=${txt}">שליחת הרשימה ל${esc(c.name)} בוואטסאפ ←</a>`:`<span class="btn ghost" aria-disabled="true">הרשימה עוד ריקה</span>`}</article>`).join("");
 }
 document.addEventListener("click",e=>{if(!e.target.closest("[data-couraddr]"))return;me.mode="courier";saveMe();fillMe();updateLinks();
-  showTab("list",false);requestAnimationFrame(()=>{$("cour-fields").scrollIntoView({behavior:"smooth",block:"center"});$("f-street").focus()})});
+  showTab("couriers",false);requestAnimationFrame(()=>{$("cour-fields").scrollIntoView({behavior:"smooth",block:"center"});$("f-street").focus()})});
 function renderSelf(){const m=[];if(!(me.name||"").trim())m.push("שם מלא");if(!me.point)m.push("נקודת החלוקה");
   const n=Object.keys(list).filter(h=>byH[h]).length;if(!n)m.length=0;
   $("self-miss").hidden=!m.length&&!!n;$("self-miss").innerHTML=!n?"קודם מוסיפים ספקים לרשימה.":m.length?`כדי לשלוח את הרשימה, צריך למלא עוד: <b>${m.join(", ")}</b>`:"";
@@ -1628,7 +1630,7 @@ function fillMe(){
   const put=(id,v)=>{const el=$(id);if(el&&document.activeElement!==el)el.value=v||""};
   put("f-name",me.name);put("f-name2",me.name);put("f-phone",me.phone);$("cour-open").setAttribute("aria-expanded",me.mode==="courier");$("cour-open").hidden=me.mode==="courier";
   $("f-point").value=me.point||"";["street","apt","floor","code","cnote","cphone"].forEach(k=>put("f-"+k,me[k]));
-  $("pick-fields").hidden=me.mode==="courier";$("cour-fields").hidden=me.mode!=="courier";
+  $("pick-fields").hidden=me.mode==="courier";{const cn=$("ml-cnote");if(cn)cn.hidden=me.mode!=="courier"}$("cour-fields").hidden=me.mode!=="courier";
   renderMeSum();
 }
 let EDITING=false;
