@@ -792,7 +792,7 @@ async function dShrink(file){try{const bmp=await createImageBitmap(file);const k
 async function dUpload(file){const b=await dShrink(file);if(b.size>450000)throw new Error("big");
   const url=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b)});
   const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);await set(ref(db,"img5/"+id),url);PICS.set(id,url);return "fb:"+id}
-function closeKey(s){if(s.cd===null||s.cd===undefined||s.cd==="")return 1e9;const t=String(s.ct||"23:59").split(":");return (+s.cd)*1440+(+t[0]||0)*60+(+t[1]||0)}
+function closeKey(s){if(s.cd===null||s.cd===undefined||s.cd==="")return 1e9;const t=String(s.ct||"23:59").split(":");return (((+s.cd)-4+7)%7)*1440+(+t[0]||0)*60+(+t[1]||0)}
 function autoSort(){const A=DATA.suppliers;if(!DATA.manualOrder)A.sort((a,b)=>closeKey(a)-closeKey(b));const g=s=>s.o?0:s.nx?1:2;A.sort((a,b)=>g(a)-g(b))}
 const sNorm=t=>String(t||"").toLowerCase().replace(/[֑-ׇ"'׳״\-]/g,"").replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ").replace(/ף/g,"פ").replace(/ץ/g,"צ");
 const sSkel=t=>sNorm(t).replace(/[ויא\s]/g,"");
