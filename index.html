@@ -850,6 +850,17 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
 .a11y-body h3{font-size:17px;margin:14px 0 4px}
 .a11y-body ul{margin:4px 0;padding-inline-start:20px}
 .a11y-body a{text-decoration:underline}
+
+/* add-to-list: own color + feedback on the list tab */
+.addbtn{background:#F1EAFB!important;border:2px solid #5B3F99!important;color:#4A2F85!important}
+.addbtn:hover{background:#E4D8F7!important}
+.addbtn[aria-pressed="true"]{background:#5B3F99!important;border-color:#5B3F99!important;color:#fff!important}
+#tab-n{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#5B3F99;color:#fff;font-size:13px;line-height:1;margin-inline-start:4px}
+#tab-n[hidden]{display:none}
+[data-tabbtn="list"].bump{box-shadow:0 0 0 3px #5B3F99}
+@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.14)}70%{transform:scale(.97)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:no-preference){[data-tabbtn="list"].bump{animation:bump .6s ease 2}}
+.toast a{display:inline-block;margin-inline-start:6px;background:var(--bg);color:var(--ink)!important;border-radius:999px;padding:2px 10px;text-decoration:none}
 </style>
 </head>
 <body>
@@ -1629,7 +1640,7 @@ function weeklyReset(){if(!DIST||!fbReady)return;const now=Date.now(),cur=wkKey(
     delete list[h];ch=rm=true}
   if(ch){saveList();if(rm){renderAll();$("ml-msg").textContent="הרשימה של השבוע שעבר התאפסה אוטומטית. הפרטים שלכם נשמרו."}}}
 let toastT=null;
-function toast(n){const t=$("toast");t.innerHTML=`✓ <b>${esc(n)}</b> נוסף לרשימת הקניות · <a href="#mylist">לרשימה ←</a>`;clearTimeout(toastT);toastT=setTimeout(()=>{t.innerHTML=""},4500)}
+function toast(n){const t=$("toast");t.innerHTML=`✓ <b>${esc(n)}</b> נוסף ללשונית "רשימת הקניות" <a href="#mylist">לרשימה ←</a>`;{const tb=document.querySelector('[data-tabbtn="list"]');if(tb){tb.classList.remove("bump");void tb.offsetWidth;tb.classList.add("bump");setTimeout(()=>tb.classList.remove("bump"),2500)}};clearTimeout(toastT);toastT=setTimeout(()=>{t.innerHTML=""},4500)}
 function meDone(){return me.mode==="courier"&&!!((me.name||"").trim()&&(me.phone||"").trim()&&(me.street||"").trim()&&me.carea!==""&&me.carea!=null)}
 function meMissing(){const m=[];if(!(me.name||"").trim())m.push("שם מלא");if(!(me.phone||"").trim())m.push("טלפון");if(me.mode==="courier"){if(!(me.street||"").trim())m.push("רחוב ומספר");if(me.carea===""||me.carea==null)m.push("נקודת האיסוף");}else if(!me.point)m.push("נקודת חלוקה");return m}
 function renderMeSum(){
