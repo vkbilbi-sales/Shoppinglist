@@ -143,6 +143,9 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         <label>פתוח להזמנות עד יום<select id="na-cd"><option value="">לא נקבע</option><option value="0">ראשון</option><option value="1">שני</option><option value="2" selected>שלישי</option><option value="3">רביעי</option><option value="4">חמישי</option><option value="5">שישי</option></select></label>
         <label>בשעה<input id="na-ct" type="time" value="20:00"></label>
         <label>תיאור קצר<input id="na-d" type="text"></label>
+        <div class="na-pics"><div><span>לוגו</span><span id="na-img-pv" class="pv-none">אין</span><label class="nxbtn">העלאת לוגו<input type="file" accept="image/*" id="na-img" hidden></label></div>
+          <div><span>תמונה (בראש הכרטיס)</span><span id="na-cov-pv" class="pv-none">אין</span><label class="nxbtn">העלאת תמונה<input type="file" accept="image/*" id="na-cov" hidden></label></div>
+          <p class="lk-p" id="na-up-msg" aria-live="polite"></p></div>
         <label>אופן תשלום<select id="na-p"><option value="">כרטיס אשראי בחנות</option><option value="פייבוקס" selected>פייבוקס</option><option value="ביט">ביט</option><option value="העברה בנקאית">העברה בנקאית</option><option value="מזומן">מזומן</option></select></label>
         <label>לינק לתשלום (פייבוקס)<input id="na-pl" type="url" dir="ltr" placeholder="https://links.payboxapp.com/…"></label>
         <label>פייבוקס לספיירים<input id="na-spl" type="url" dir="ltr" placeholder="https://"></label>
@@ -150,7 +153,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         <label>פירוט כשרות (נפתח בלחיצה על תווית הכשרות)<textarea id="na-ksd" rows="3"></textarea></label>
       </div>
       <button class="btn bg bfull" type="button" id="na-add">הוספה לרשימה</button>
-      <p class="lk-p">אחר כך אפשר להשלים פרטים (תמונה, תשלום, תגיות) בעורך.</p>
+      <p class="lk-p">אחר כך אפשר להשלים עוד פרטים (תגיות, מידע נוסף) ב-✏️ שליד הספק.</p>
     </details>
     <div class="sup-savebar" id="sup-savebar"><button class="btn bt bfull" type="button" id="sup-save" disabled>💾 שמירה</button></div>
     <div id="sup-msg" style="margin-top:.5rem;font-size:.85rem;color:var(--muted)" aria-live="polite"></div>
@@ -642,7 +645,8 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .delbtn{font:inherit;font-size:.85rem;border:1px solid #E5C9C9;background:#fff;border-radius:20px;padding:.15rem .5rem;cursor:pointer;white-space:nowrap}
 .delbtn.ask{background:#A11B22;border-color:#A11B22;color:#fff;font-weight:700}
 .sup-add{margin:.4rem 0 .8rem}.sup-add summary{cursor:pointer;font-weight:700;color:#1A3A38}
-.lk-pick .ks-wrap{width:58%;flex:none}
+.lk-pick .ks-wrap{width:58%;flex:none}.lk-pick .ks-wrap select,.lk-pick .ks-wrap input{width:100%!important}
+.na-pics{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;width:100%}.na-pics>div{display:flex;flex-direction:column;gap:6px;align-items:flex-start}.na-pics>div>span:first-child{font-size:.85rem;color:var(--muted)}.na-pics .lk-p{width:100%;margin:0}
 .lk-pick textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:.35rem .5rem;font:inherit;background:#fff;box-sizing:border-box}
 .lk-pick input[type=text],.lk-pick input[type=url],.lk-pick select{width:58%;border:1px solid var(--border);border-radius:8px;padding:.35rem .5rem;font:inherit;background:#fff}
 .lk-pick input[type=time]{width:auto;height:auto;padding:.3rem .4rem}
@@ -861,12 +865,16 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
 if(window.Sortable)Sortable.create($("sup-list"),{handle:".grip",forceFallback:true,fallbackTolerance:3,animation:150,ghostClass:"sort-ghost",dragClass:"sort-drag",
   filter:".searching *",onEnd:e=>{if(e.oldIndex===e.newIndex||$("sup-q").value.trim())return supsRender();const A=DATA.suppliers;const [it]=A.splice(e.oldIndex,1);A.splice(e.newIndex,0,it);DATA.manualOrder=true;SUPORD=true;supsRender();render()}});
 function naUrl(u){u=(u||"").trim();return u&&!/^https?:\/\//i.test(u)?"https://"+u:u}
+const NA_PIC={img:"",cov:""};
+function naPv(k){const el=$("na-"+k+"-pv");if(!el)return;const src=picSrc(NA_PIC[k]);el.outerHTML=src?`<img id="na-${k}-pv" class="${k==="img"?"pv-logo":"pv-cov"}" src="${esc(src)}" alt="">`:`<span id="na-${k}-pv" class="pv-none">אין</span>`}
+["img","cov"].forEach(k=>$("na-"+k).addEventListener("change",async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;$("na-up-msg").textContent="מעלה תמונה…";
+  try{NA_PIC[k]=await dUpload(f);naPv(k);$("na-up-msg").textContent="התמונה הועלתה ✓"}catch(err){$("na-up-msg").textContent=err&&err.message==="big"?"התמונה גדולה מדי. נסי תמונה קטנה יותר.":"ההעלאה לא הצליחה. נסי שוב, או תמונה אחרת (JPG או PNG)."}e.target.value=""}));
 function naKs(){const w=$("na-ks-w");if(w)w.innerHTML=ksField("",'id="na-ks"')}naKs();
 $("na-add").addEventListener("click",()=>{const n=$("na-n").value.trim();let url=$("na-url").value.trim();if(url&&!/^https?:\/\//.test(url))url="https://"+url;
   if(!n||!url){$("sup-msg").textContent="חסר: "+[!n&&"שם הספק",!url&&"קישור"].filter(Boolean).join(", ");return}
   if((DATA.suppliers||[]).some(s=>sNorm(s.n)===sNorm(n))){$("sup-msg").textContent="ספק בשם הזה כבר קיים ברשימה.";$("sup-q").value=n;supsRender();return}
-  const cd=$("na-cd").value,s={h:"s"+Date.now().toString(36),n,c:$("na-c").value,o:1,nx:0,d:$("na-d").value.trim(),k:"",url,cd:cd===""?null:+cd,ct:$("na-ct").value||"",p:$("na-p").value,pl:naUrl($("na-pl").value),spl:naUrl($("na-spl").value),ks:($("na-ks").value||"").trim(),ksd:($("na-ksd").value||"").trim(),tags:"",f:0,img:"",cov:""};
-  DATA.suppliers.unshift(s);SUPADD.add(s.h);["na-n","na-url","na-d","na-ksd","na-pl","na-spl"].forEach(id=>$(id).value="");naKs();$("sup-q").value="";supsRender();$("sup-msg").textContent=`${n} נוסף. לא לשכוח ללחוץ "שמירה".`});
+  const cd=$("na-cd").value,s={h:"s"+Date.now().toString(36),n,c:$("na-c").value,o:1,nx:0,d:$("na-d").value.trim(),k:"",url,cd:cd===""?null:+cd,ct:$("na-ct").value||"",p:$("na-p").value,pl:naUrl($("na-pl").value),spl:naUrl($("na-spl").value),ks:($("na-ks").value||"").trim(),ksd:($("na-ksd").value||"").trim(),tags:"",f:0,img:NA_PIC.img,cov:NA_PIC.cov};
+  DATA.suppliers.unshift(s);SUPADD.add(s.h);["na-n","na-url","na-d","na-ksd","na-pl","na-spl"].forEach(id=>$(id).value="");naKs();NA_PIC.img=NA_PIC.cov="";naPv("img");naPv("cov");$("na-up-msg").textContent="";$("sup-q").value="";supsRender();$("sup-msg").textContent=`${n} נוסף. לא לשכוח ללחוץ "שמירה".`});
 $("sup-save").addEventListener("click",async()=>{$("sup-save").disabled=true;$("sup-msg").textContent="שומרת…";
   try{const live=(await get(ref(db,"site5"))).val();
     if(live&&Array.isArray(live.suppliers)&&(live.ver||0)>(DATA.ver||0)){const byh=Object.fromEntries(DATA.suppliers.map(s=>[s.h,s]));
