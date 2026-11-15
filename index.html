@@ -1015,6 +1015,8 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
 .card .mini-awning{background:repeating-linear-gradient(90deg,var(--aw,var(--cc)) 0 22px,color-mix(in srgb,var(--aw,var(--cc)) 28%,var(--surface)) 22px 44px)!important}
 /* clearer frame for the top search bar */
 .gs-box{border:2.5px solid var(--leaf-deep)!important;box-shadow:0 2px 8px rgba(18,111,116,.18)!important;background:#fff!important}
+
+.wk-btn .wk-n{font-size:19px!important}
 </style>
 </head>
 <body>
@@ -1231,7 +1233,7 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
         <h2>החלוקה הקרובה</h2>
         <div id="dist-pts" class="pts"></div>
       </div>
-      <a class="btn btn-light wk-btn" href="#suppliers"><span>ליצרנים שמגיעים השבוע לחצו כאן ↓</span><span class="wk-n" id="wk-n" hidden></span></a>
+      <a class="btn btn-light wk-btn" href="#suppliers"><span class="wk-n" id="wk-n" hidden></span></a>
     </div>
     <a class="counter list-count" id="btn-ord" href="#mylist"><b id="n-ord">0</b><span>🛒 ברשימת הקניות שלי</span></a>
     <button type="button" id="btn-favs" hidden><b id="n-favs">0</b></button>
@@ -1641,7 +1643,7 @@ function chips(){
 function initial(n){return n.replace(/^(ה|משק |מחלבת |מעדניית )/,"").trim().charAt(0)}
 const AWN={"var(--sun)":"#F28C28","var(--c-bake)":"#F7A23B","var(--c-pantry)":"#F28C28"};
 const STALL=["var(--heart)","var(--leaf)","var(--sun)","var(--c-cooked)","var(--c-veg)","var(--c-sweet)","var(--c-dairy)","var(--c-bake)","var(--c-meat)","var(--c-pantry)"];
-function renderWk(){const el=$("wk-n");if(!el)return;const n=S.filter(isOpen).length;el.hidden=!n;el.innerHTML=n?`<b>${n}</b> יצרנים מגיעים השבוע`:""}
+function renderWk(){const el=$("wk-n");if(!el)return;const n=S.filter(s=>s.o).length;el.hidden=!n;el.innerHTML=n?`<b>${n}</b> ספקים מגיעים השבוע`:"";const b=el.closest(".wk-btn");if(b)b.hidden=!n}
 // forgiving Hebrew search: ignores final letters, punctuation and the "vowel letters" ו/י/א, so "בורקס", "בוריקס" and "בוריקטס" all find the same supplier
 function srchNorm(t){return String(t||"").toLowerCase().replace(/[֑-ׇ"'׳״\-]/g,"").replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ").replace(/ף/g,"פ").replace(/ץ/g,"צ")}
 function srchSkel(t){let k=srchNorm(t).replace(/[ויא]/g,"");if(k.length>3)k=k.replace(/[התמ]$/,"");return k}
