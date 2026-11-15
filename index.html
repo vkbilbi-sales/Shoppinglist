@@ -1010,6 +1010,11 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
 #cour-pick{background:var(--leaf-soft)!important;border:0!important}
 
 .card .desc-i{color:var(--ink)!important}
+
+/* supplier awnings: orange instead of brown */
+.card .mini-awning{background:repeating-linear-gradient(90deg,var(--aw,var(--cc)) 0 22px,color-mix(in srgb,var(--aw,var(--cc)) 28%,var(--surface)) 22px 44px)!important}
+/* clearer frame for the top search bar */
+.gs-box{border:2.5px solid var(--leaf-deep)!important;box-shadow:0 2px 8px rgba(18,111,116,.18)!important;background:#fff!important}
 </style>
 </head>
 <body>
@@ -1634,6 +1639,7 @@ function chips(){
   $("chips").innerHTML=all.map(([k,l,c])=>`<button type="button" class="chip" data-cat="${k}" aria-pressed="${state.cat===k}" ${c?`style="--dot:var(${c})"`:""}>${c?"<i></i>":""}${l}</button>`).join("");
 }
 function initial(n){return n.replace(/^(ה|משק |מחלבת |מעדניית )/,"").trim().charAt(0)}
+const AWN={"var(--sun)":"#F28C28","var(--c-bake)":"#F7A23B","var(--c-pantry)":"#F28C28"};
 const STALL=["var(--heart)","var(--leaf)","var(--sun)","var(--c-cooked)","var(--c-veg)","var(--c-sweet)","var(--c-dairy)","var(--c-bake)","var(--c-meat)","var(--c-pantry)"];
 function renderWk(){const el=$("wk-n");if(!el)return;const n=S.filter(isOpen).length;el.hidden=!n;el.innerHTML=n?`<b>${n}</b> יצרנים מגיעים השבוע`:""}
 // forgiving Hebrew search: ignores final letters, punctuation and the "vowel letters" ו/י/א, so "בורקס", "בוריקס" and "בוריקטס" all find the same supplier
@@ -1650,7 +1656,7 @@ function renderGrid(){
   if(state.view==="favs")L=L.filter(s=>favs.has(s.h));
   L.sort((a,b)=>(isOpen(b)-isOpen(a))||(state.sort==="mine"?S.indexOf(a)-S.indexOf(b):0)||(state.sort==="close"&&isOpen(a)?closeAt(a)-closeAt(b):0)||a.n.localeCompare(b.n,"he"));
   $("grid").innerHTML=L.length?L.map(s=>{const C=CATS[s.c],inL=!!list[s.h];return `
-  <article class="card${isOpen(s)?"":" closed"}"${s.f?" data-fri":""} style="--cc:${STALL[S.indexOf(s)%STALL.length]}">
+  <article class="card${isOpen(s)?"":" closed"}"${s.f?" data-fri":""} style="--cc:${STALL[S.indexOf(s)%STALL.length]};--aw:${AWN[STALL[S.indexOf(s)%STALL.length]]||STALL[S.indexOf(s)%STALL.length]}">
     <div class="mini-awning" aria-hidden="true"></div>
     ${blob(s.cov)?`<img class="cover" src="${esc(blob(s.cov))}" alt="" loading="lazy">`:""}
     <div class="top">${blob(s.img)?`<img class="mark logo-mark" src="${esc(blob(s.img))}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
