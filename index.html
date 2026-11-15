@@ -948,51 +948,34 @@ header .road-cap b,.road-cap b{font-size:25px!important;line-height:1.3!importan
 .card .desc-i{margin-top:2px!important}
 #grid .card .actions .btn.go,#grid-fri .card .actions .btn.go,.card .actions .btn.go{font-size:15px!important;padding:8px 10px!important;min-height:0!important;height:auto!important}
 #grid .card .addbtn,#grid-fri .card .addbtn,.card .addbtn{white-space:normal!important;text-align:center}
+
 .badges .badge.kosher,.badges .badge.kosher-home,.badges .badge.kosher-none{color:#1E3A8A!important}
-
-/* ---- courier wizard (like the video) ---- */
-#cour-fields{display:grid;gap:12px}
-#cour-fields #me-sum{display:none!important}
-#cour-fields #me-edit{display:grid!important;gap:10px}
-.cw-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:13px;font-weight:700;color:var(--muted)}
-.cw-bar[hidden]{display:none}
-.cw-bar span{border-top:5px solid var(--line);padding-top:4px;text-align:center;border-radius:2px}
-.cw-bar span.on{border-color:var(--leaf-deep);color:var(--leaf-deep)}
-.cw-count{margin:0;font-size:13px;color:var(--muted)}
-.cw-step{display:grid;gap:10px}
-.cw-step[hidden]{display:none!important}
-.cw-step h4{margin:0;font-size:21px;font-weight:800;color:var(--ink)}
-.cw-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.cw-nav .btn{flex:1 1 auto;justify-content:center}
-.cw-next{justify-content:center;width:100%}
-.cour-who{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:10px}
-.cw-pt{display:grid;gap:2px}.cw-pt span{font-size:14px;color:var(--muted)}
-.cw-cr{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;border-top:1px dashed var(--line);padding-top:10px}
-.cw-price{margin-inline-start:auto;font-size:20px;color:var(--leaf-deep)}
-.cour-phone{display:inline-block;font-size:20px;font-weight:800;color:var(--leaf-deep);text-decoration:none;letter-spacing:.02em;font-variant-numeric:tabular-nums}
-.cour-phone.big{font-size:28px;color:var(--ink)}
-.cour-top .cour-phone{font-size:19px;margin-top:2px}
-.cour-top div{display:grid}
-#cour-pick{background:none!important;border:0!important;padding:0!important;display:grid;gap:10px}
-.cs-box{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:10px 14px}
-.cs-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px}
-.cs-h small{color:var(--muted)}
-.cs-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
-.cs-list li{font-weight:600}.cs-list li span{color:#137A3A}.cs-list small{color:var(--muted);font-weight:400}
-.cs-box p{margin:0;line-height:1.55}.cs-box small{color:var(--muted)}
-.cs-pay{background:#FFF6E0;border:2px solid var(--sun);border-radius:14px;padding:12px 14px;display:grid;gap:4px;justify-items:start}
-.cs-pay small{color:var(--muted)}
-.cw-done{justify-items:center;text-align:center;padding:10px 0}
-.cw-ok{width:64px;height:64px;border-radius:50%;background:#DDF3E5;color:#137A3A;display:grid;place-items:center;font-size:34px;font-weight:800}
-.cw-done p{margin:0;max-width:40ch}
-.cw-done .btn{width:100%;justify-content:center}
-
 #grid .card,#grid-fri .card{display:flex!important;flex-direction:column}
 #grid .card .rows,#grid-fri .card .rows{flex:none}
 #grid .card .desc-i,#grid-fri .card .desc-i{align-self:flex-start}
 #grid .card .actions,#grid-fri .card .actions{margin-top:auto}
 #grid .card .addbtn,#grid-fri .card .addbtn{align-self:center;justify-self:center;flex:none!important;margin-inline:auto!important}
 #grid .card .actions,#grid-fri .card .actions{justify-content:center}
+
+
+/* ---- couriers: city tiles ---- */
+.ct-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:6px 0 14px}
+@media (min-width:900px){.ct-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.ct-grid.one{grid-template-columns:minmax(0,1fr)!important}
+.ct-tile{background:var(--surface);border:1.5px solid var(--line);border-top:5px solid var(--sun);border-radius:18px;padding:14px 12px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;position:relative}
+.ct-tile.on{border-color:var(--leaf);border-top-color:var(--leaf);box-shadow:0 4px 14px rgba(18,111,116,.12)}
+.ct-ic{font-size:30px;width:54px;height:54px;border-radius:50%;background:var(--bg);display:grid;place-items:center}
+.ct-tile h3{margin:0;font-size:20px;font-weight:800;color:var(--leaf-deep);line-height:1.2}
+.ct-who{margin:0;font-size:15px}
+.ct-phone{white-space:nowrap;font-size:17px;font-weight:800;color:var(--ink);text-decoration:none;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.ct-phone.big{font-size:26px}
+.ct-grid.one .ct-phone{font-size:22px}
+.ct-note{margin:0;font-size:13.5px;color:var(--muted);line-height:1.4}
+.ct-tile .btn{margin-top:auto;width:100%;justify-content:center;font-size:15px;white-space:normal}
+.ct-mine{font-weight:700;color:#8A5300}
+#ct-form[hidden]{display:none!important}
+#ct-form #cour-open,#ct-form label[for="f-carea"],#ct-form #cour-who,#couriers #cour-addr,#couriers #cour-grid{display:none!important}
+.ct-pay{background:#FFF6E0;border:2px solid var(--sun);border-radius:14px;padding:12px 14px;display:grid;gap:4px;justify-items:start;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -1303,46 +1286,29 @@ header .road-cap b,.road-cap b{font-size:25px!important;line-height:1.3!importan
   <section class="couriers" id="couriers" aria-labelledby="cour-h">
     <div class="section-head"><h2 id="cour-h">שליחים עד הבית 🛵</h2>
       <p>השליח אוסף את ההזמנות שלכם מכל הספקים ומביא עד פתח הבית. שולחים לו את רשימת הקניות בלחיצה, עם הכתובת והקישור לרשימה המשותפת.</p></div>
-    <div class="ml-box ml-deliver">
+    <div class="ct-grid" id="ct-grid"></div>
+    <div class="ml-box ml-deliver" id="ct-form" hidden>
         <h3>🛵 משלוח עד הבית עם שליח</h3>
-        <p class="cour-lead">השליח אוסף עבורכם את ההזמנות מכל היצרנים, ומביא אותן עד פתח הבית. <span class="price">40 ₪ למשלוח, משלמים לשליח בביט.</span></p>
+        <p class="cour-lead">השליח אוסף עבורכם את ההזמנות מכל היצרנים, ומביא אותן עד פתח הבית. <span class="price">40 ₪ למשלוח, משלמים לשליח.</span></p>
         <button class="btn go cour-open" id="cour-open" type="button" aria-expanded="false" aria-controls="cour-fields">שליחת רשימת הקניות לשליח ←</button>
         <div id="cour-fields" hidden>
-          <div class="cw-bar" aria-hidden="true"><span data-s="1">איסוף</span><span data-s="2">פרטים</span><span data-s="3">שליחה ותשלום</span></div>
-          <p class="cw-count" id="cw-count" aria-live="polite">שלב 1 מתוך 3</p>
-          <div class="cw-step" data-step="1">
-            <h4>מאיזו נקודת איסוף?</h4>
-            <p class="hint">השליח של הנקודה יאסוף את ההזמנות שלכם מכל הספקים ויביא אותן עד הבית.</p>
-            <label class="field" for="f-carea">נקודת האיסוף *<select id="f-carea" required aria-required="true"></select></label>
+          <div class="me-sum" id="me-sum" hidden></div>
+          <div id="me-edit">
+            <p class="hint">שדות עם <b>*</b> הם חובה. ממלאים פעם אחת, והפרטים נשמרים גם לשבועות הבאים.</p>
+            <label class="field" for="f-carea">נקודת האיסוף שלכם *<select id="f-carea" required aria-required="true"></select></label>
             <div class="cour-who" id="cour-who" hidden></div>
-            <p class="cour-miss" id="cw-miss1" hidden>בחרו נקודת איסוף כדי להמשיך.</p>
-            <button class="btn go cw-next" type="button" data-cgo="2">המשך לפרטים</button>
-          </div>
-          <div class="cw-step" data-step="2" hidden>
-            <h4>לאן להביא?</h4>
-            <div class="me-sum" id="me-sum" hidden></div>
-            <div id="me-edit">
-              <p class="hint">שדות עם <b>*</b> הם חובה. הפרטים נשמרים גם לשבועות הבאים.</p>
-              <label class="field" for="f-name">שם מלא *<input id="f-name" type="text" autocomplete="name" required aria-required="true"></label>
-              <label class="field" for="f-phone">טלפון *<input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05X-XXXXXXX" required aria-required="true"></label>
-              <label class="field" for="f-street">רחוב, מספר בית ועיר *<input id="f-street" type="text" autocomplete="street-address" required aria-required="true"></label>
-              <div class="two">
-                <label class="field" for="f-apt">דירה<input id="f-apt" type="text"></label>
-                <label class="field" for="f-floor">קומה<input id="f-floor" type="text"></label>
-              </div>
-              <label class="field" for="f-code">קוד כניסה<input id="f-code" type="text"></label>
-              <label class="field" for="f-cnote">הערות לשליח<input id="f-cnote" type="text" placeholder="למשל: להשאיר ליד הדלת"></label>
-              <input id="f-cphone" type="hidden">
+            <label class="field" for="f-name">שם מלא *<input id="f-name" type="text" autocomplete="name" required aria-required="true"></label>
+            <label class="field" for="f-phone">טלפון *<input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05X-XXXXXXX" required aria-required="true"></label>
+            <label class="field" for="f-street">רחוב ומספר בית *<input id="f-street" type="text" autocomplete="street-address" required aria-required="true"></label>
+            <div class="two">
+              <label class="field" for="f-apt">דירה<input id="f-apt" type="text"></label>
+              <label class="field" for="f-floor">קומה<input id="f-floor" type="text"></label>
             </div>
-            <p class="cour-miss" id="cw-miss2" hidden></p>
-            <div class="cw-nav"><button class="linkbtn" type="button" data-cgo="1">→ חזרה</button><button class="btn go cw-next" type="button" data-cgo="3">המשך לסיכום</button></div>
+            <label class="field" for="f-code">קוד כניסה<input id="f-code" type="text"></label>
+            <label class="field" for="f-cnote">הערות לשליח<input id="f-cnote" type="text"></label>
+            <input id="f-cphone" type="hidden">
           </div>
-          <div class="cw-step" data-step="3" hidden>
-            <h4>שליחה לשליח ותשלום</h4>
-            <div class="cour-pick" id="cour-pick" hidden></div>
-            <div class="cw-nav"><button class="linkbtn" type="button" data-cgo="2">→ חזרה</button></div>
-          </div>
-          <div class="cw-step cw-done" data-step="4" id="cw-done" hidden></div>
+          <div class="cour-pick" id="cour-pick" hidden></div>
           <button class="linkbtn cour-close" id="cour-close" type="button">לא צריך שליח, אוספים בעצמנו</button>
         </div>
       </div>
@@ -1607,6 +1573,7 @@ function closeAt(s){
 }
 function isOpen(s){const t=closeAt(s);return !!t&&t>Date.now()}
 function closeLabel(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ${p.d}.${p.mo+1} בשעה ${f}`}
+function closeShort(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ב-${f}`}
 function cdText(t){let ms=t-Date.now();if(ms<=0)return["ההזמנות נסגרו","over"];const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),sec=s%60;const pad=n=>String(n).padStart(2,"0");
   if(d>0)return[`נשארו ${d===1?"יום":d+" ימים"} ו-${h} שעות להזמנה`,""];return[`נשארו ${pad(h)}:${pad(m)}:${pad(sec)} להזמנה`,ms<3*3600e3?"soon":""]}
 function tick(){let flip=false;document.querySelectorAll("[data-cd]").forEach(el=>{const s=byH[el.dataset.cd],t=closeAt(s);const[tx,c]=cdText(t);el.textContent=tx;el.className="cd "+c;if(c==="over"&&!el.closest(".card").classList.contains("closed"))flip=true});if(flip)renderGrid()}
@@ -1654,7 +1621,7 @@ function renderGrid(){
     ${blob(s.cov)?`<img class="cover" src="${esc(blob(s.cov))}" alt="" loading="lazy">`:""}
     <div class="top">${blob(s.img)?`<img class="mark logo-mark" src="${esc(blob(s.img))}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
       <div><div class="cat">${C.label}</div><h3>${esc(s.n)}</h3>
-      ${isOpen(s)?`<p class="c-status st-open"><i aria-hidden="true"></i>${closeAt(s)?"פתוח עד "+closeLabel(s):"פתוח להזמנה"}</p>`:s.o?'<p class="c-status st-closed"><i aria-hidden="true"></i>ההזמנות נסגרו לשבוע הזה</p>':'<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>'}
+      ${isOpen(s)?`<p class="c-status st-open"><i aria-hidden="true"></i>${closeAt(s)?"פתוח להזמנות עד "+closeShort(s):"פתוח להזמנות"}</p>`:s.o?'<p class="c-status st-closed"><i aria-hidden="true"></i>ההזמנות נסגרו לשבוע הזה</p>':'<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>'}
       <div class="badges">${ksBadge(s)}${String(s.tags||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="badge tag">${esc(x)}</span>`).join("")}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>${s.ksd?`<div class="ksd-panel" id="ksd-${esc(s.h)}" hidden><b>כשרות</b><p>${esc(s.ksd).replace(/\n/g,"<br>")}</p></div>`:""}
     <dl class="rows">
       ${closeAt(s)?`<div class="cdrow"><dt class="sr-only">זמן שנשאר להזמנה</dt><dd><span class="cd" data-cd="${s.h}"></span></dd></div>`:""}
@@ -1749,20 +1716,23 @@ function fillCourierArea(){
   if(document.activeElement!==sel)sel.innerHTML='<option value="">-- בחרו נקודת איסוף --</option>'+COURIERS.map((c,i)=>`<option value="${i}"${String(me.carea)===String(i)?" selected":""}>${esc(c.area)}</option>`).join("");
   const c=COURIERS[+me.carea],who=$("cour-who"),box=$("cour-pick"),has=me.carea!==""&&me.carea!=null&&!!c;
   const ph=has?c.phone.replace(/\D/g,"").slice(1):"";
-  who.hidden=!has;if(has){const pt=(DATA.points||[]).find(p=>p.n&&(c.area.includes(p.n)||p.n.includes(c.area)));
-    who.innerHTML=`<div class="cw-pt"><b>📍 ${esc(c.area)}</b>${pt?`<span>${[pt.t,pt.a].filter(Boolean).map(esc).join(" · ")}</span>`:""}</div><div class="cw-cr"><span>🛵 השליח: <b>${esc(c.name)}</b></span><a class="cour-phone" dir="ltr" href="tel:+972${ph}">${esc(c.phone)}</a><b class="cw-price">40 ₪</b></div>`}
+  who.hidden=!has;if(has)who.innerHTML=`🛵 השליח של ${esc(c.area)}: <b>${esc(c.name)}</b> · <a class="tel" dir="ltr" href="tel:+972${ph}">${c.phone}</a>`;
   if(me.mode!=="courier"){box.hidden=true;return}
   box.hidden=false;
   const n=Object.keys(list).filter(h=>byH[h]).length,miss=meMissing();
   box.innerHTML=!n?`<p class="hint">כדי לשלוח לשליח, קודם מוסיפים ספקים לרשימה.</p>`
     :miss.length?`<p class="cour-miss">כדי לשלוח לשליח, צריך למלא עוד: <b>${miss.join(", ")}</b></p>`
-    :(()=>{const H=Object.keys(list).filter(h=>byH[h]),addr=[me.street,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", ");
-      return `<div class="cs-box"><div class="cs-h"><b>רשימת הקניות שלי</b><small>${H.length} ספקים</small></div><ul class="cs-list">${H.map(h=>`<li><span aria-hidden="true">✓</span> ${esc(byH[h].n)}${list[h].note?` <small>· ${esc(list[h].note)}</small>`:""}</li>`).join("")}</ul></div>
-      <div class="cs-box"><div class="cs-h"><b>משלוח אל</b><button class="linkbtn" type="button" data-cgo="2">עריכה</button></div><p>${esc(me.name)} · <span dir="ltr">${esc(me.phone)}</span><br>${esc(addr)}${me.code?" · קוד "+esc(me.code):""}${me.cnote?`<br>${esc(me.cnote)}`:""}<br><small>נקודת ${esc(c.area)} · השליח ${esc(c.name)}</small></p></div>
-      <div class="cs-pay"><b>תשלום דמי המשלוח: 40 ₪ בביט</b><span>מעבירים בביט ל${esc(c.name)}, למספר:</span><a class="cour-phone big" dir="ltr" href="tel:+972${ph}">${esc(c.phone)}</a><button class="linkbtn" type="button" data-copy="${esc(c.phone)}">העתקת המספר</button><small>את המוצרים עצמם משלמים לכל ספק בנפרד, בחנות שלו.</small></div>
-      <a class="btn wa-go" id="cour-send" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=972${ph}&text=${encodeURIComponent(listText(true))}">שליחת הרשימה ל${esc(c.name)} בוואטסאפ</a><p class="hint">נפתח וואטסאפ של ${esc(c.name)} עם הודעה מוכנה: הרשימה וכל הפרטים שלכם. נשאר רק ללחוץ "שליחה".</p>`})();
+    :`<div class="ct-pay"><b>💳 תשלום למשלוח: 40 ₪ בביט</b><span>מעבירים בביט ל${esc(c.name)}, למספר:</span><a class="ct-phone big" dir="ltr" href="tel:+972${ph}">${esc(c.phone)}</a><button class="linkbtn" type="button" data-copy="${esc(c.phone)}">העתקת המספר</button></div><a class="btn wa-go" id="cour-send" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=972${ph}&text=${encodeURIComponent(listText(true))}">שליחת רשימת הקניות ל${esc(c.name)} בוואטסאפ ←</a><p class="hint">נפתח וואטסאפ של ${esc(c.name)} (<span dir="ltr">${c.phone}</span>) עם הודעה מוכנה: הרשימה וכל הפרטים שלכם. נשאר רק ללחוץ "שליחה".</p>`;
 }
-function renderCouriers(){fillCourierArea();
+function renderCourTiles(){const g=$("ct-grid");if(!g)return;
+  const ci=(me.mode==="courier"&&me.carea!==""&&me.carea!=null&&COURIERS[+me.carea])?+me.carea:-1;
+  g.innerHTML=COURIERS.map((c,i)=>ci>=0&&i!==ci?"":`<article class="ct-tile${i===ci?" on":""}"><span class="ct-ic" aria-hidden="true">🛵</span><h3>${esc(c.area)}</h3><p class="ct-who">השליח: <b>${esc(c.name)}</b></p><a class="ct-phone" dir="ltr" href="tel:+972${c.phone.replace(/\D/g,"").slice(1)}">📞 ${esc(c.phone)}</a>${c.note?`<p class="ct-note">${esc(c.note)}</p>`:""}${i===ci?`<span class="ct-mine">⭐ הנקודה שלכם</span><button class="linkbtn" type="button" data-ctreset>החלפת נקודה</button>`:`<button class="btn go" type="button" data-ctile="${i}" aria-label="משלוח עד הבית ב${esc(c.area)} עם ${esc(c.name)}">בחירה ←</button>`}</article>`).join("");
+  g.classList.toggle("one",ci>=0);const f=$("ct-form");if(f)f.hidden=ci<0}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ctile]");if(!b)return;const i=+b.dataset.ctile,c=COURIERS[i];if(!c)return;
+  me.mode="courier";me.carea=String(i);me.cphone=c.phone;saveMe();fillMe();updateLinks();renderCouriers();requestAnimationFrame(()=>{const f=$("ct-form");if(f)f.scrollIntoView({behavior:"smooth",block:"start"})})});
+document.addEventListener("click",e=>{if(!(e.target.closest&&e.target.closest("[data-ctreset]")))return;me.carea="";me.cphone="";saveMe();fillMe();updateLinks();renderCouriers();const g=$("ct-grid");if(g)g.scrollIntoView({behavior:"smooth",block:"start"})});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-copy]");if(!b)return;const v=b.dataset.copy;const done=()=>{const t=b.textContent;b.textContent="המספר הועתק ✓";setTimeout(()=>b.textContent=t,2000)};try{navigator.clipboard.writeText(v).then(done,done)}catch(_){done()}});
+function renderCouriers(){fillCourierArea();renderCourTiles();
   if(!$("cour-grid"))return;
   const n=Object.keys(list).filter(h=>byH[h]).length, hasAddr=!!(me.street||"").trim();
   $("cour-addr").innerHTML=!n?`<p>🛒 קודם מוסיפים לרשימה את הספקים שהזמנתם מהם, בלשונית <a href="#mylist">רשימת הקניות</a>.</p>`
@@ -1772,7 +1742,7 @@ function renderCouriers(){fillCourierArea();
   let ci=(me.carea!==""&&me.carea!=null&&COURIERS[+me.carea])?+me.carea:-1;
   if(ci<0&&me.point)ci=COURIERS.findIndex(c=>c.area.includes(me.point)||me.point.includes(c.area));
   const mine=ci>=0?COURIERS[ci]:null,ord=COURIERS.map((c,i)=>[c,i]).sort((a,b)=>(b[1]===ci)-(a[1]===ci));
-  $("cour-grid").innerHTML=ord.map(([c,i])=>`<article class="cour-card${i===ci?" mine":""}">${i===ci?'<span class="cour-mine">⭐ השליח של הנקודה שלכם</span>':""}<div class="cour-top"><span class="cour-ic" aria-hidden="true">🛵</span><div><b>${esc(c.area)}</b><span>${esc(c.name)}</span><a class="cour-phone" dir="ltr" href="tel:+972${c.phone.replace(/\D/g,"").slice(1)}">📞 ${c.phone}</a></div></div>
+  $("cour-grid").innerHTML=ord.map(([c,i])=>`<article class="cour-card${i===ci?" mine":""}">${i===ci?'<span class="cour-mine">⭐ השליח של הנקודה שלכם</span>':""}<div class="cour-top"><span class="cour-ic" aria-hidden="true">🛵</span><div><b>${esc(c.area)}</b><span>${esc(c.name)} · <a class="tel" dir="ltr" href="tel:+972${c.phone.replace(/\D/g,"").slice(1)}">${c.phone}</a></span></div></div>
     <p>${esc(c.note)}</p>
     ${mine&&i!==ci?`<p class="cour-lock">הנקודה שלכם היא <b>${esc(mine.area)}</b>, ולכן שולחים רק ל${esc(mine.name)}. <button class="linkbtn" type="button" data-couraddr>החלפת נקודה</button></p>`
       :n?`<a class="btn go" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=972${c.phone.replace(/\D/g,"").slice(1)}&text=${txt}">שליחת הרשימה ל${esc(c.name)} בוואטסאפ ←</a>`:`<span class="btn ghost" aria-disabled="true">הרשימה עוד ריקה</span>`}</article>`).join("");
@@ -1802,25 +1772,8 @@ function fillMe(){
   $("f-point").value=me.point||"";["street","apt","floor","code","cnote","cphone"].forEach(k=>put("f-"+k,me[k]));
   $("pick-fields").hidden=me.mode==="courier";{const cn=$("ml-cnote");if(cn)cn.hidden=me.mode!=="courier"}$("cour-fields").hidden=me.mode!=="courier";
   renderMeSum();
-  if(me.mode==="courier"&&!window._cwInit){window._cwInit=1;setTimeout(()=>{try{cwStart()}catch(e){}},0)}
 }
 let EDITING=false;
-let CSTEP=1;
-function cwShow(n){CSTEP=n;document.querySelectorAll("#cour-fields .cw-step").forEach(el=>el.hidden=+el.dataset.step!==n);
-  const cnt=$("cw-count");if(cnt){cnt.hidden=n>3;cnt.textContent=`שלב ${n} מתוך 3`}
-  document.querySelectorAll("#cour-fields .cw-bar span").forEach(el=>el.classList.toggle("on",+el.dataset.s<=n));
-  const bar=document.querySelector("#cour-fields .cw-bar");if(bar)bar.hidden=n>3;
-  if(n===3)fillCourierArea()}
-function cwGo(n){const m1=$("cw-miss1"),m2=$("cw-miss2");if(m1)m1.hidden=true;if(m2)m2.hidden=true;
-  if(n>=2&&(me.carea===""||me.carea==null)){cwShow(1);m1.hidden=false;$("f-carea").focus();return}
-  if(n>=3){const miss=meMissing();if(miss.length){cwShow(2);m2.hidden=false;m2.innerHTML="כדי להמשיך צריך למלא: <b>"+miss.join(", ")+"</b>";return}}
-  cwShow(n);const f=$("cour-fields");if(f)requestAnimationFrame(()=>f.scrollIntoView({behavior:"smooth",block:"start"}))}
-function cwStart(){cwShow(meDone()?3:(me.carea!==""&&me.carea!=null)?2:1)}
-document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-cgo]");if(!b)return;e.preventDefault();EDITING=true;cwGo(+b.dataset.cgo)});
-document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-copy]");if(!b)return;const v=b.dataset.copy;const done=()=>{const t=b.textContent;b.textContent="המספר הועתק ✓";setTimeout(()=>b.textContent=t,2000)};try{navigator.clipboard.writeText(v).then(done,done)}catch(_){done()}});
-document.addEventListener("click",e=>{if(!e.target.closest("#cour-send"))return;const c=COURIERS[+me.carea];if(!c)return;const n=Object.keys(list).filter(h=>byH[h]).length,ph=c.phone.replace(/\D/g,"").slice(1);
-  setTimeout(()=>{$("cw-done").innerHTML=`<div class="cw-ok" aria-hidden="true">✓</div><h4>הרשימה נשלחה ל${esc(c.name)}</h4><p>${esc(c.name)} יאסוף ביום ${DIST?DAYN[DIST.wd]:"החלוקה"} את ההזמנות מ-${n} ספקים ויביא אותן אליכם. נשאר רק להעביר 40 ₪ בביט:</p><a class="cour-phone big" dir="ltr" href="tel:+972${ph}">${esc(c.phone)}</a><button class="linkbtn" type="button" data-copy="${esc(c.phone)}">העתקת המספר</button><button class="btn go" type="button" data-backsup>חזרה לספקי השבוע</button><button class="linkbtn" type="button" data-cgo="3">חזרה לסיכום</button>`;cwShow(4)},300)});
-document.addEventListener("click",e=>{if(!e.target.closest("[data-backsup]"))return;showTab("sup");window.scrollTo(0,0)});
 function migrateOld(){get(ref(db,"cust4/"+CID)).then(sn=>{const o=sn.val();if(!o||typeof o!=="object"){syncState("ok","מחובר ✓");return}
   const c=o.courier||{},pts=DATA.points||[],P=String(o.point||"");
   const pt=pts.find(p=>p.n===P)||pts.find(p=>P&&(P.includes(p.n)||p.n.includes(P)));
@@ -1869,7 +1822,7 @@ $("f-name").addEventListener("input",e=>{me.name=e.target.value;saveMe();updateL
 $("f-phone").addEventListener("input",e=>{me.phone=e.target.value;saveMe()});
 $("f-point").addEventListener("change",e=>{me.point=e.target.value;saveMe();updateLinks()});
 ["street","apt","floor","code","cnote","cphone"].forEach(k=>$("f-"+k).addEventListener("input",e=>{me[k]=e.target.value;saveMe();updateLinks()}));
-document.addEventListener("change",e=>{if(e.target.id!=="f-carea")return;me.carea=e.target.value;{const m=$("cw-miss1");if(m)m.hidden=true}const c=COURIERS[+me.carea];me.cphone=c?c.phone:"";saveMe();updateLinks()});
+document.addEventListener("change",e=>{if(e.target.id!=="f-carea")return;me.carea=e.target.value;const c=COURIERS[+me.carea];me.cphone=c?c.phone:"";saveMe();updateLinks()});
 document.querySelectorAll('input[name="mode"]').forEach(r=>r.addEventListener("change",e=>{me.mode=e.target.value;saveMe();fillMe();updateLinks()}));
 $("share-copy").addEventListener("click",()=>{
   const t=shareLink();
@@ -1980,8 +1933,8 @@ $("a11y-link").addEventListener("click",()=>{$("a11y").open=true});
    if(e.key==="Tab"){const f=foc(d);if(!f.length)return;const i=f.indexOf(document.activeElement);
      if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&(i===-1||i===f.length-1)){e.preventDefault();f[0].focus()}}});}
 $("me-edit").addEventListener("focusin",()=>{EDITING=true});
-$("cour-open").addEventListener("click",()=>{cwStart();me.mode="courier";saveMe();fillMe();updateLinks();requestAnimationFrame(()=>{const t=$("me-edit").hidden?$("me-sum"):$("f-carea");t.scrollIntoView({behavior:"smooth",block:"center"});if(t.id==="me-sum")t.tabIndex=-1;t.focus({preventScroll:true})})});
-$("cour-close").addEventListener("click",()=>{me.mode="pickup";saveMe();fillMe();updateLinks();$("cour-open").focus()});
+$("cour-open").addEventListener("click",()=>{me.mode="courier";saveMe();fillMe();updateLinks();requestAnimationFrame(()=>{const t=$("me-edit").hidden?$("me-sum"):$("f-carea");t.scrollIntoView({behavior:"smooth",block:"center"});if(t.id==="me-sum")t.tabIndex=-1;t.focus({preventScroll:true})})});
+$("cour-close").addEventListener("click",()=>{me.mode="pickup";saveMe();fillMe();updateLinks();renderCouriers();const g=$("ct-grid");if(g)g.scrollIntoView({behavior:"smooth",block:"start"})});
 document.addEventListener("click",e=>{if(!e.target.closest("#cour-send"))return;EDITING=false;me.locked=true;saveMe();setTimeout(renderMeSum,400)});
 document.addEventListener("input",e=>{if(e.target.tagName!=="SELECT"&&e.target.closest&&e.target.closest("#me-edit"))fillCourierArea()});
 document.addEventListener("click",e=>{if(e.target.id!=="me-change")return;EDITING=true;me.locked=false;saveMe();renderMeSum();$("f-name").focus()});
