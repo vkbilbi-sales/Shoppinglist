@@ -17,7 +17,7 @@
 <meta property="og:description" content="כל הספקים של השבוע, מועדי סגירה, תשלום ורשימת קניות משותפת.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Secular+One&family=Assistant:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Secular+One&family=Assistant:wght@400;600;700;800&display=swap">
 <style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}.ks-wrap{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0}.ks-wrap select,.ks-wrap input{width:100%;box-sizing:border-box}.ks-wrap input[hidden]{display:none}
 </style>
 <script>document.documentElement.setAttribute("data-theme","light")</script>
@@ -891,6 +891,28 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
 .badge{border-radius:12px!important;max-width:100%;line-height:1.35;overflow-wrap:anywhere}
 
 .wk-line{margin:0;font-size:15.5px;line-height:1.45;color:var(--ink);background:var(--leaf-soft);border-radius:10px;padding:6px 10px}.wk-line b{color:var(--leaf-deep)}
+
+/* ---- requested tweaks: green dot, no logo, gentle buttons, gentle kosher, payment like the video ---- */
+.card .top>.mark,.card .top>.logo-mark{display:none!important}
+.c-status{margin:3px 0 0;display:flex;align-items:center;gap:6px;font-size:14.5px;font-weight:700}
+.c-status i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.st-open{color:#137A3A}.st-open i{background:#1FA64A;box-shadow:0 0 0 3px #D7F2DF}
+.st-closed{color:var(--muted)}.st-closed i{background:#9AA9A9}
+.st-next{color:#5E6B6B}.st-next i{background:#C9B37A}
+.badges .badge.kosher,.badges .badge.kosher-home,.badges .badge.kosher-none{border:0!important;padding:0!important;background:none!important;border-radius:0!important;color:var(--muted)!important;font-weight:600!important;font-size:14px!important}
+.badges .badge.ksd-btn{text-decoration:underline dotted;text-underline-offset:3px}
+.card .actions .btn.go{border-radius:12px!important;font-weight:700!important;box-shadow:none!important}
+.c-pay{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:15px}
+.c-pay .pm{font-weight:800;color:var(--ink)}
+.c-pay .pm-note{color:var(--muted)}
+.c-pay .paylink{background:#FFF5F5!important;color:#B3262B!important;border:1.5px solid #EDB3B5;border-radius:999px;padding:4px 12px!important;font-weight:700;font-size:14.5px!important}
+.c-pay .paylink:hover{background:#FDEBEB!important;filter:none}
+.c-pay .paylink.spare{background:#F7F2FD!important;color:#5B3F99!important;border-color:#CDBDEB}
+@media (max-width:620px){.c-pay{font-size:13px;flex-direction:column;align-items:stretch;gap:5px;padding-top:8px}.c-pay .paylink{justify-content:center;text-align:center;font-size:13px!important;padding:5px 8px!important;border-radius:10px;line-height:1.25}}
+/* banner sentence in the clear font of the video (not too big) */
+.road-cap b{font-family:"Assistant",system-ui,sans-serif!important;font-weight:800!important;font-size:21px!important;line-height:1.3!important;letter-spacing:0}
+header .road-cap b,.road-cap b{font-size:25px!important;line-height:1.3!important;letter-spacing:0!important}
+@media (max-width:620px){header .road-cap b,.road-cap b{font-size:21px!important}}
 </style>
 </head>
 <body>
@@ -1191,7 +1213,7 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
     <div class="grid" id="grid-fri"></div>
   </section>
   <section class="info" aria-label="חשוב לדעת">
-    <div class="note"><h3>כשרות</h3><p>הסימון ✡️ כשר מופיע רק אצל ספקים שיש להם תעודת כשרות. שאר המידע על כשרות נמסר על ידי הספקים עצמם, בלי פיקוח של גוף כשרות. לשאלות על כשרות יש לפנות לספק ישירות.</p></div>
+    <div class="note"><h3>כשרות</h3><p>"כשר" כתוב רק אצל ספקים שיש להם תעודת כשרות. שאר המידע על כשרות נמסר על ידי הספקים עצמם, בלי פיקוח של גוף כשרות. לשאלות על כשרות יש לפנות לספק ישירות.</p></div>
     <div class="note"><h3>הזמנה ותשלום</h3><p>ההזמנה והתשלום מתבצעים אצל כל ספק בנפרד, בחנות שלו או בטופס ההזמנה. שליחת הזמנה מחייבת בתשלום.</p></div>
     <button type="button" class="note note-a2hs" data-a2hs><h3>📲 להתקנת האפליקציה במסך הבית</h3><p>לחצו כאן, וכל שבוע האתר יהיה במרחק לחיצה אחת מהמסך הראשי של הטלפון.</p></button>
     <div class="note"><h3>איסוף בזמן</h3><p>מגיעים לנקודת החלוקה בשעה שפורסמה ובודקים את ההזמנה במקום.</p></div>
@@ -1492,7 +1514,7 @@ function cdText(t){let ms=t-Date.now();if(ms<=0)return["ההזמנות נסגר�
 function tick(){let flip=false;document.querySelectorAll("[data-cd]").forEach(el=>{const s=byH[el.dataset.cd],t=closeAt(s);const[tx,c]=cdText(t);el.textContent=tx;el.className="cd "+c;if(c==="over"&&!el.closest(".card").classList.contains("closed"))flip=true});if(flip)renderGrid()}
 
 function ksBadge(s){const k=s.ks||"",t=k==="לא כשר"?"":k;
-  const cls=k==="כשר"?"kosher":k==="הקפדה על כשרות, ללא תעודה"?"kosher-home":"kosher-none",lab=k==="כשר"?"✡️ כשר":t;
+  const cls=k==="כשר"?"kosher":k==="הקפדה על כשרות, ללא תעודה"?"kosher-home":"kosher-none",lab=t;
   if(s.ksd)return `<button type="button" class="badge ${cls} ksd-btn" data-ksd="${esc(s.h)}" aria-expanded="false" aria-controls="ksd-${esc(s.h)}">${esc(lab||"כשרות")} <span aria-hidden="true">ⓘ</span><span class="sr-only"> (פירוט)</span></button>`;
   return lab?`<span class="badge ${cls}">${esc(lab)}</span>`:""}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ksd]");if(!b)return;e.preventDefault();e.stopPropagation();
@@ -1531,19 +1553,20 @@ function renderGrid(){
     ${blob(s.cov)?`<img class="cover" src="${esc(blob(s.cov))}" alt="" loading="lazy">`:""}
     <div class="top">${blob(s.img)?`<img class="mark logo-mark" src="${esc(blob(s.img))}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
       <div><div class="cat">${C.label}</div><h3>${esc(s.n)}</h3>
-      <div class="badges">${ksBadge(s)}${String(s.tags||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="badge tag">${esc(x)}</span>`).join("")}${isOpen(s)?'<span class="badge open">פתוח להזמנות</span>':s.o?'<span class="badge">ההזמנות נסגרו לשבוע הזה</span>':'<span class="badge next">⏳ מגיע בשבוע הבא</span>'}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>${s.ksd?`<div class="ksd-panel" id="ksd-${esc(s.h)}" hidden><b>כשרות</b><p>${esc(s.ksd).replace(/\n/g,"<br>")}</p></div>`:""}
+      ${isOpen(s)?'<p class="c-status st-open"><i aria-hidden="true"></i>פתוח להזמנה</p>':s.o?'<p class="c-status st-closed"><i aria-hidden="true"></i>ההזמנות נסגרו לשבוע הזה</p>':'<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>'}
+      <div class="badges">${ksBadge(s)}${String(s.tags||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="badge tag">${esc(x)}</span>`).join("")}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>${s.ksd?`<div class="ksd-panel" id="ksd-${esc(s.h)}" hidden><b>כשרות</b><p>${esc(s.ksd).replace(/\n/g,"<br>")}</p></div>`:""}
     <p class="desc">${esc(s.d)}</p>${WEEKLY[s.h]?`<p class="wk-line"><b>🛒 השבוע בחנות:</b> ${esc(WEEKLY[s.h])}</p>`:""}
     ${s.more?`<details class="more"><summary>מידע נוסף</summary><p>${esc(s.more).replace(/\n/g,"<br>")}</p></details>`:""}
     <dl class="rows">
       ${closeAt(s)?`<div><dt>פתוח עד</dt><dd>${closeLabel(s)}<br><span class="cd" data-cd="${s.h}"></span></dd></div>`:""}
-      ${payMethod(s)?`<div class="payrow"><dt class="sr-only">תשלום</dt><dd><span class="pm">תשלום ב${esc(payMethod(s))}</span>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו כאן לתשלום ב${esc(payMethod(s))}: ${esc(s.n)}">לחצו כאן לתשלום ב${esc(payMethod(s))} ←</a>`:!s.p?`<span class="pm-note">משלמים בחנות, בזמן ההזמנה</span>`:""}${spareLink(s)}</dd></div>`:(spareLink(s)?`<div class="payrow"><dd>${spareLink(s)}</dd></div>`:"")}
       ${s.ks?`<div><dt>כשרות</dt><dd class="ks">${esc(s.ks)}</dd></div>`:""}
     </dl>
     <div class="actions">
-      <a class="btn go" href="${esc(s.url)}" target="_blank" rel="noopener">${isForm(s)?"לטופס הזמנה ←":"לחצו כאן לחנות ההזמנות ←"}</a>
+      <a class="btn go" href="${esc(s.url)}" target="_blank" rel="noopener">${isForm(s)?"להזמנה בטופס ←":"להזמנה בחנות ←"}</a>
       <button type="button" class="icon fav" data-fav="${s.h}" aria-pressed="${favs.has(s.h)}" aria-label="הוספה למועדפים: ${s.n}">${heart}</button>
       <button type="button" class="addbtn" data-add="${s.h}" aria-pressed="${inL}" aria-label="${inL?"הסרה מרשימת הקניות":"הוספה לרשימת הקניות"}: ${s.n}">${inL?"✓ ברשימת הקניות":"+ להוסיף לרשימת הקניות"}</button>
     </div>
+    ${payMethod(s)||spareLink(s)?`<div class="c-pay">${payMethod(s)?`<span class="pm">תשלום ב${esc(payMethod(s))}</span>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לתשלום ב${esc(payMethod(s))}: ${esc(s.n)}">לתשלום ב${esc(payMethod(s))} ←</a>`:!s.p?`<span class="pm-note">משלמים בחנות, בזמן ההזמנה</span>`:""}`:""}${spareLink(s)}</div>`:""}
   </article>`}).join(""):`<div class="empty">${state.view==="favs"?"עוד לא סימנתם מועדפים. לחצו על הלב בכרטיס של ספק כדי לשמור אותו כאן.":"לא נמצאו ספקים שמתאימים לחיפוש."}</div>`;
   { const g=$("grid"), fr=$("grid-fri"); fr.innerHTML="";
     if(!q)g.querySelectorAll("article[data-fri]").forEach(a=>fr.appendChild(a));
