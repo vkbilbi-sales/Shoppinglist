@@ -928,6 +928,18 @@ header .road-cap b,.road-cap b{font-size:25px!important;line-height:1.3!importan
 .c-pay .paylink.spare{background:none!important;color:#5B3F99!important}
 @media (max-width:620px){.c-pay{flex-direction:row!important;flex-wrap:wrap;align-items:baseline!important;gap:2px 8px!important}.c-pay .paylink{text-align:start!important;justify-content:flex-start!important;padding:0!important;font-size:13.5px!important}}
 .tools .search{display:none!important}
+
+/* ---- round 3 ---- */
+.st-closed{color:#B3262B!important}.st-closed i{background:#D93A3F!important;box-shadow:0 0 0 3px #FBE0E1}
+.c-status{line-height:1.35}
+.desc-panel{background:var(--bg);border-radius:10px;padding:8px 10px;font-size:14.5px;color:var(--ink);line-height:1.5}
+.desc-panel p{margin:0}.desc-panel p+p{margin-top:6px}
+.desc-panel[hidden]{display:none!important}
+.desc-i{margin-top:0!important}
+#grid .card .addbtn,#grid-fri .card .addbtn,.card .addbtn{background:#C2353A!important;color:#fff!important;border:0!important;border-radius:999px!important;height:auto!important;min-height:0!important;padding:6px 12px!important;font-size:14px!important;font-weight:700!important;line-height:1.25;justify-self:center;width:auto!important;margin:0 auto}
+.card .addbtn:hover{background:#A82B30!important}
+.card .addbtn[aria-pressed="true"]{background:#FBE0E1!important;color:#8E1F24!important}
+@media (max-width:620px){#grid .card .addbtn,#grid-fri .card .addbtn{font-size:13px!important;padding:6px 10px!important;width:auto!important;white-space:nowrap}}
 </style>
 </head>
 <body>
@@ -1133,7 +1145,7 @@ header .road-cap b,.road-cap b{font-size:25px!important;line-height:1.3!importan
 
   <a class="howto" href="#mylist">
     <b>🛒 רשימת הקניות שלי</b>
-    <span>לוחצים "+ להוסיף לרשימת הקניות" על כל ספק שהזמנתם ממנו, רושמים מה הזמנתם, ושולחים את הרשימה למי שאוסף. בזמן האיסוף מסמנים מה נאסף.</span>
+    <span>לוחצים "+ לרשימת הקניות" על כל ספק שהזמנתם ממנו, רושמים מה הזמנתם, ושולחים את הרשימה למי שאוסף. בזמן האיסוף מסמנים מה נאסף.</span>
     <em>לרשימה ↓</em>
   </a>
 
@@ -1534,8 +1546,8 @@ function ksBadge(s){const k=s.ks||"",t=k==="לא כשר"?"":k;
   return lab?`<span class="badge ${cls}">${esc(lab)}</span>`:""}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ksd]");if(!b)return;e.preventDefault();e.stopPropagation();
   const pn=document.getElementById("ksd-"+b.dataset.ksd);if(!pn)return;const o=pn.hidden;pn.hidden=!o;b.setAttribute("aria-expanded",String(o))});
-function markDescs(){document.querySelectorAll(".card .desc").forEach(d=>{const b=d.nextElementSibling;if(!b||!b.classList.contains("desc-i"))return;if(d.classList.contains("open")){b.hidden=false;return}b.hidden=!(d.scrollHeight>d.clientHeight+2)})}
-document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-desc]");if(!b)return;const d=document.getElementById("d-"+b.dataset.desc);if(!d)return;const o=!d.classList.contains("open");d.classList.toggle("open",o);b.setAttribute("aria-expanded",String(o));b.innerHTML=o?'<span aria-hidden="true">ⓘ</span> פחות':'<span aria-hidden="true">ⓘ</span> עוד על הספק'});
+function markDescs(){return;document.querySelectorAll(".card .desc").forEach(d=>{const b=d.nextElementSibling;if(!b||!b.classList.contains("desc-i"))return;if(d.classList.contains("open")){b.hidden=false;return}b.hidden=!(d.scrollHeight>d.clientHeight+2)})}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-desc]");if(!b)return;const d=document.getElementById("d-"+b.dataset.desc);if(!d)return;const o=d.hidden;d.hidden=!o;b.setAttribute("aria-expanded",String(o));b.innerHTML=o?'<span aria-hidden="true">ⓘ</span> סגירה':'<span aria-hidden="true">ⓘ</span> מידע נוסף'});
 window.addEventListener("resize",()=>{clearTimeout(window._mdT);window._mdT=setTimeout(markDescs,200)});
 function isForm(s){return /forms\.gle|docs\.google\.com\/forms/.test(s.url||"")}
 
@@ -1571,10 +1583,9 @@ function renderGrid(){
     ${blob(s.cov)?`<img class="cover" src="${esc(blob(s.cov))}" alt="" loading="lazy">`:""}
     <div class="top">${blob(s.img)?`<img class="mark logo-mark" src="${esc(blob(s.img))}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
       <div><div class="cat">${C.label}</div><h3>${esc(s.n)}</h3>
-      ${isOpen(s)?'<p class="c-status st-open"><i aria-hidden="true"></i>פתוח להזמנה</p>':s.o?'<p class="c-status st-closed"><i aria-hidden="true"></i>ההזמנות נסגרו לשבוע הזה</p>':'<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>'}${closeAt(s)?`<p class="c-until">פתוח עד ${closeLabel(s)}</p>`:""}
+      ${isOpen(s)?`<p class="c-status st-open"><i aria-hidden="true"></i>${closeAt(s)?"פתוח עד "+closeLabel(s):"פתוח להזמנה"}</p>`:s.o?'<p class="c-status st-closed"><i aria-hidden="true"></i>ההזמנות נסגרו לשבוע הזה</p>':'<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>'}
       <div class="badges">${ksBadge(s)}${String(s.tags||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="badge tag">${esc(x)}</span>`).join("")}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>${s.ksd?`<div class="ksd-panel" id="ksd-${esc(s.h)}" hidden><b>כשרות</b><p>${esc(s.ksd).replace(/\n/g,"<br>")}</p></div>`:""}
-    ${s.d?`<p class="desc" id="d-${esc(s.h)}">${esc(s.d)}</p><button type="button" class="desc-i" data-desc="${esc(s.h)}" aria-expanded="false" aria-controls="d-${esc(s.h)}" hidden><span aria-hidden="true">ⓘ</span> עוד על הספק</button>`:""}${WEEKLY[s.h]?`<p class="wk-line"><b>🛒 השבוע בחנות:</b> ${esc(WEEKLY[s.h])}</p>`:""}
-    ${s.more?`<details class="more"><summary>מידע נוסף</summary><p>${esc(s.more).replace(/\n/g,"<br>")}</p></details>`:""}
+    ${s.d||s.more?`<button type="button" class="desc-i" data-desc="${esc(s.h)}" aria-expanded="false" aria-controls="d-${esc(s.h)}"><span aria-hidden="true">ⓘ</span> מידע נוסף</button><div class="desc-panel" id="d-${esc(s.h)}" hidden>${s.d?`<p>${esc(s.d)}</p>`:""}${s.more?`<p>${esc(s.more).replace(/\n/g,"<br>")}</p>`:""}</div>`:""}${WEEKLY[s.h]?`<p class="wk-line"><b>🛒 השבוע בחנות:</b> ${esc(WEEKLY[s.h])}</p>`:""}
     <dl class="rows">
       ${closeAt(s)?`<div class="cdrow"><dt class="sr-only">זמן שנשאר להזמנה</dt><dd><span class="cd" data-cd="${s.h}"></span></dd></div>`:""}
       ${s.ks?`<div><dt>כשרות</dt><dd class="ks">${esc(s.ks)}</dd></div>`:""}
@@ -1582,7 +1593,7 @@ function renderGrid(){
     <div class="actions">
       <a class="btn go" href="${esc(s.url)}" target="_blank" rel="noopener">${isForm(s)?"להזמנה בטופס ←":"להזמנה בחנות ←"}</a>
       <button type="button" class="icon fav" data-fav="${s.h}" aria-pressed="${favs.has(s.h)}" aria-label="הוספה למועדפים: ${s.n}">${heart}</button>
-      <button type="button" class="addbtn" data-add="${s.h}" aria-pressed="${inL}" aria-label="${inL?"הסרה מרשימת הקניות":"הוספה לרשימת הקניות"}: ${s.n}">${inL?"✓ ברשימת הקניות":"+ להוסיף לרשימת הקניות"}</button>
+      <button type="button" class="addbtn" data-add="${s.h}" aria-pressed="${inL}" aria-label="${inL?"הסרה מרשימת הקניות":"הוספה לרשימת הקניות"}: ${s.n}">${inL?"✓ ברשימת הקניות":"+ לרשימת הקניות"}</button>
     </div>
     ${payMethod(s)||spareLink(s)?`<div class="c-pay">${payMethod(s)?`<span class="pm">תשלום ב${esc(payMethod(s))}</span>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו כאן לתשלום ב${esc(payMethod(s))}: ${esc(s.n)}">לחצו כאן לתשלום ב${esc(payMethod(s))} ←</a>`:""}`:""}${spareLink(s)}</div>`:""}
   </article>`}).join(""):`<div class="empty">${state.view==="favs"?"עוד לא סימנתם מועדפים. לחצו על הלב בכרטיס של ספק כדי לשמור אותו כאן.":"לא נמצאו ספקים שמתאימים לחיפוש."}</div>`;
@@ -1647,7 +1658,7 @@ function renderList(){
     <button type="button" class="rm" data-rm="${h}" aria-label="הסרה מהרשימה: ${byH[h].n}">×</button>
     <input type="text" id="note-${h}" data-note="${h}" value="${esc(it.note||"")}" placeholder="מה הזמנתי? (כמות, מוצרים)">
     ${payLine(byH[h])}
-  </li>`}).join(""):`<li class="none">עוד אין ספקים ברשימה. לחצו על "+ להוסיף לרשימת הקניות" בכרטיס של כל ספק שהזמנתם ממנו.</li>`;
+  </li>`}).join(""):`<li class="none">עוד אין ספקים ברשימה. לחצו על "+ לרשימת הקניות" בכרטיס של כל ספק שהזמנתם ממנו.</li>`;
   $("progress").textContent=hs.length?`${hs.length} ספקים ברשימה · ${got} נאספו`:"הרשימה ריקה";
   $("n-ord").textContent=hs.length;{const n=$("tab-n");if(n){n.textContent=hs.length;n.hidden=!hs.length}}
   $("fb-txt").textContent=`🛒 ${hs.length} ספקים ברשימה · ${got} נאספו`;
