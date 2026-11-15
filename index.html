@@ -976,6 +976,24 @@ header .road-cap b,.road-cap b{font-size:25px!important;line-height:1.3!importan
 #ct-form[hidden]{display:none!important}
 #ct-form #cour-open,#ct-form label[for="f-carea"],#ct-form #cour-who,#couriers #cour-addr,#couriers #cour-grid{display:none!important}
 .ct-pay{background:#FFF6E0;border:2px solid var(--sun);border-radius:14px;padding:12px 14px;display:grid;gap:4px;justify-items:start;margin-bottom:8px}
+
+/* tiles: picture + name only; customer-friendly form */
+button.ct-tile{font:inherit;cursor:pointer;color:inherit}
+.ct-pick{justify-content:center;min-height:150px;transition:transform .12s,box-shadow .12s}
+.ct-pick:hover{box-shadow:0 6px 16px rgba(18,111,116,.15)}
+.ct-pick .ct-ic{width:72px;height:72px;font-size:42px}
+.ct-name{font-size:19px;font-weight:800;color:var(--leaf-deep);line-height:1.25}
+#ct-form{gap:14px!important;padding:18px 16px!important}
+#ct-form h3{font-size:20px!important;font-weight:800}
+#ct-form .cour-lead{font-size:16px;line-height:1.5}
+#ct-form .hint{font-size:14.5px}
+#ct-form .field{font-size:16px!important;font-weight:700!important;color:var(--ink)!important;gap:6px}
+#ct-form .field input,#ct-form .field select{font-size:17px!important;padding:13px 14px!important;border:1.5px solid #B9CFCD!important;border-radius:12px!important;background:#fff!important}
+#ct-form .field input:focus{outline:none;border-color:var(--leaf)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--leaf) 25%,transparent)}
+#ct-form .field input::placeholder{color:#8AA0A0}
+#ct-form .two{gap:12px}
+#ct-form .cour-miss{font-size:15px;background:var(--heart-soft);border-radius:10px;padding:10px 12px}
+#ct-form .btn.wa-go{font-size:17px;padding:14px 16px;justify-content:center}
 </style>
 </head>
 <body>
@@ -1297,15 +1315,15 @@ header .road-cap b,.road-cap b{font-size:25px!important;line-height:1.3!importan
             <p class="hint">שדות עם <b>*</b> הם חובה. ממלאים פעם אחת, והפרטים נשמרים גם לשבועות הבאים.</p>
             <label class="field" for="f-carea">נקודת האיסוף שלכם *<select id="f-carea" required aria-required="true"></select></label>
             <div class="cour-who" id="cour-who" hidden></div>
-            <label class="field" for="f-name">שם מלא *<input id="f-name" type="text" autocomplete="name" required aria-required="true"></label>
+            <label class="field" for="f-name">שם מלא *<input id="f-name" type="text" autocomplete="name" placeholder="השם שיופיע לשליח" required aria-required="true"></label>
             <label class="field" for="f-phone">טלפון *<input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05X-XXXXXXX" required aria-required="true"></label>
-            <label class="field" for="f-street">רחוב ומספר בית *<input id="f-street" type="text" autocomplete="street-address" required aria-required="true"></label>
+            <label class="field" for="f-street">רחוב ומספר בית *<input id="f-street" type="text" autocomplete="street-address" placeholder="למשל: הרימון 7, גני תקוה" required aria-required="true"></label>
             <div class="two">
               <label class="field" for="f-apt">דירה<input id="f-apt" type="text"></label>
               <label class="field" for="f-floor">קומה<input id="f-floor" type="text"></label>
             </div>
             <label class="field" for="f-code">קוד כניסה<input id="f-code" type="text"></label>
-            <label class="field" for="f-cnote">הערות לשליח<input id="f-cnote" type="text"></label>
+            <label class="field" for="f-cnote">הערות לשליח<input id="f-cnote" type="text" placeholder="למשל: להשאיר ליד הדלת"></label>
             <input id="f-cphone" type="hidden">
           </div>
           <div class="cour-pick" id="cour-pick" hidden></div>
@@ -1724,13 +1742,16 @@ function fillCourierArea(){
     :miss.length?`<p class="cour-miss">כדי לשלוח לשליח, צריך למלא עוד: <b>${miss.join(", ")}</b></p>`
     :`<div class="ct-pay"><b>💳 תשלום למשלוח: 40 ₪ בביט</b><span>מעבירים בביט ל${esc(c.name)}, למספר:</span><a class="ct-phone big" dir="ltr" href="tel:+972${ph}">${esc(c.phone)}</a><button class="linkbtn" type="button" data-copy="${esc(c.phone)}">העתקת המספר</button></div><a class="btn wa-go" id="cour-send" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=972${ph}&text=${encodeURIComponent(listText(true))}">שליחת רשימת הקניות ל${esc(c.name)} בוואטסאפ ←</a><p class="hint">נפתח וואטסאפ של ${esc(c.name)} (<span dir="ltr">${c.phone}</span>) עם הודעה מוכנה: הרשימה וכל הפרטים שלכם. נשאר רק ללחוץ "שליחה".</p>`;
 }
+let CT_OPEN=-1;
 function renderCourTiles(){const g=$("ct-grid");if(!g)return;
-  const ci=(me.mode==="courier"&&me.carea!==""&&me.carea!=null&&COURIERS[+me.carea])?+me.carea:-1;
-  g.innerHTML=COURIERS.map((c,i)=>ci>=0&&i!==ci?"":`<article class="ct-tile${i===ci?" on":""}"><span class="ct-ic" aria-hidden="true">🛵</span><h3>${esc(c.area)}</h3><p class="ct-who">השליח: <b>${esc(c.name)}</b></p><a class="ct-phone" dir="ltr" href="tel:+972${c.phone.replace(/\D/g,"").slice(1)}">📞 ${esc(c.phone)}</a>${c.note?`<p class="ct-note">${esc(c.note)}</p>`:""}${i===ci?`<span class="ct-mine">⭐ הנקודה שלכם</span><button class="linkbtn" type="button" data-ctreset>החלפת נקודה</button>`:`<button class="btn go" type="button" data-ctile="${i}" aria-label="משלוח עד הבית ב${esc(c.area)} עם ${esc(c.name)}">בחירה ←</button>`}</article>`).join("");
+  const ci=(CT_OPEN>=0&&COURIERS[CT_OPEN]&&me.mode==="courier")?CT_OPEN:-1;
+  g.innerHTML=COURIERS.map((c,i)=>ci>=0&&i!==ci?"":i===ci
+    ?`<article class="ct-tile on"><span class="ct-ic" aria-hidden="true">🛵</span><h3>שליחות ${esc(c.area)}</h3><p class="ct-who">השליח שלכם: <b>${esc(c.name)}</b></p><a class="ct-phone" dir="ltr" href="tel:+972${c.phone.replace(/\D/g,"").slice(1)}">📞 ${esc(c.phone)}</a>${c.note?`<p class="ct-note">${esc(c.note)}</p>`:""}<button class="linkbtn" type="button" data-ctreset>החלפת נקודה</button></article>`
+    :`<button type="button" class="ct-tile ct-pick" data-ctile="${i}"><span class="ct-ic" aria-hidden="true">🛵</span><span class="ct-name">שליחות ${esc(c.area)}</span></button>`).join("");
   g.classList.toggle("one",ci>=0);const f=$("ct-form");if(f)f.hidden=ci<0}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ctile]");if(!b)return;const i=+b.dataset.ctile,c=COURIERS[i];if(!c)return;
-  me.mode="courier";me.carea=String(i);me.cphone=c.phone;saveMe();fillMe();updateLinks();renderCouriers();requestAnimationFrame(()=>{const f=$("ct-form");if(f)f.scrollIntoView({behavior:"smooth",block:"start"})})});
-document.addEventListener("click",e=>{if(!(e.target.closest&&e.target.closest("[data-ctreset]")))return;me.carea="";me.cphone="";saveMe();fillMe();updateLinks();renderCouriers();const g=$("ct-grid");if(g)g.scrollIntoView({behavior:"smooth",block:"start"})});
+  CT_OPEN=i;me.mode="courier";me.carea=String(i);me.cphone=c.phone;saveMe();fillMe();updateLinks();renderCouriers();requestAnimationFrame(()=>{const f=$("ct-form");if(f)f.scrollIntoView({behavior:"smooth",block:"start"})})});
+document.addEventListener("click",e=>{if(!(e.target.closest&&e.target.closest("[data-ctreset]")))return;CT_OPEN=-1;me.carea="";me.cphone="";saveMe();fillMe();updateLinks();renderCouriers();const g=$("ct-grid");if(g)g.scrollIntoView({behavior:"smooth",block:"start"})});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-copy]");if(!b)return;const v=b.dataset.copy;const done=()=>{const t=b.textContent;b.textContent="המספר הועתק ✓";setTimeout(()=>b.textContent=t,2000)};try{navigator.clipboard.writeText(v).then(done,done)}catch(_){done()}});
 function renderCouriers(){fillCourierArea();renderCourTiles();
   if(!$("cour-grid"))return;
@@ -1934,7 +1955,7 @@ $("a11y-link").addEventListener("click",()=>{$("a11y").open=true});
      if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&(i===-1||i===f.length-1)){e.preventDefault();f[0].focus()}}});}
 $("me-edit").addEventListener("focusin",()=>{EDITING=true});
 $("cour-open").addEventListener("click",()=>{me.mode="courier";saveMe();fillMe();updateLinks();requestAnimationFrame(()=>{const t=$("me-edit").hidden?$("me-sum"):$("f-carea");t.scrollIntoView({behavior:"smooth",block:"center"});if(t.id==="me-sum")t.tabIndex=-1;t.focus({preventScroll:true})})});
-$("cour-close").addEventListener("click",()=>{me.mode="pickup";saveMe();fillMe();updateLinks();renderCouriers();const g=$("ct-grid");if(g)g.scrollIntoView({behavior:"smooth",block:"start"})});
+$("cour-close").addEventListener("click",()=>{CT_OPEN=-1;me.mode="pickup";saveMe();fillMe();updateLinks();renderCouriers();const g=$("ct-grid");if(g)g.scrollIntoView({behavior:"smooth",block:"start"})});
 document.addEventListener("click",e=>{if(!e.target.closest("#cour-send"))return;EDITING=false;me.locked=true;saveMe();setTimeout(renderMeSum,400)});
 document.addEventListener("input",e=>{if(e.target.tagName!=="SELECT"&&e.target.closest&&e.target.closest("#me-edit"))fillCourierArea()});
 document.addEventListener("click",e=>{if(e.target.id!=="me-change")return;EDITING=true;me.locked=false;saveMe();renderMeSum();$("f-name").focus()});
