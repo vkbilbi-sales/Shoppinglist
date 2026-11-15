@@ -913,6 +913,21 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
 .road-cap b{font-family:"Assistant",system-ui,sans-serif!important;font-weight:800!important;font-size:21px!important;line-height:1.3!important;letter-spacing:0}
 header .road-cap b,.road-cap b{font-size:25px!important;line-height:1.3!important;letter-spacing:0!important}
 @media (max-width:620px){header .road-cap b,.road-cap b{font-size:21px!important}}
+
+/* ---- round 2: until-line under the dot, ⓘ description, payment as in the picture, one search ---- */
+.c-until{margin:2px 0 0;font-size:14px;color:var(--muted);line-height:1.35}
+.rows .cdrow{display:block!important}
+.card .desc:not(.open){display:-webkit-box!important;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4!important;max-height:4.2em;align-self:start}
+.card .desc.open{line-height:1.4!important;display:block!important;-webkit-line-clamp:unset!important;overflow:visible}
+.desc-i{align-self:flex-start;justify-self:start;background:none;border:0;padding:0;margin-top:-6px;font:inherit;font-size:14px;font-weight:700;color:var(--leaf-deep);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.desc-i[hidden]{display:none!important}
+.c-pay{align-items:baseline!important}
+.c-pay .pm{font-weight:600!important}
+.c-pay .paylink{background:none!important;border:0!important;border-radius:0!important;padding:0!important;color:var(--leaf-deep)!important;font-weight:700!important;text-decoration:underline!important;text-underline-offset:3px}
+.c-pay .paylink:hover{background:none!important}
+.c-pay .paylink.spare{background:none!important;color:#5B3F99!important}
+@media (max-width:620px){.c-pay{flex-direction:row!important;flex-wrap:wrap;align-items:baseline!important;gap:2px 8px!important}.c-pay .paylink{text-align:start!important;justify-content:flex-start!important;padding:0!important;font-size:13.5px!important}}
+.tools .search{display:none!important}
 </style>
 </head>
 <body>
@@ -1519,6 +1534,9 @@ function ksBadge(s){const k=s.ks||"",t=k==="לא כשר"?"":k;
   return lab?`<span class="badge ${cls}">${esc(lab)}</span>`:""}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ksd]");if(!b)return;e.preventDefault();e.stopPropagation();
   const pn=document.getElementById("ksd-"+b.dataset.ksd);if(!pn)return;const o=pn.hidden;pn.hidden=!o;b.setAttribute("aria-expanded",String(o))});
+function markDescs(){document.querySelectorAll(".card .desc").forEach(d=>{const b=d.nextElementSibling;if(!b||!b.classList.contains("desc-i"))return;if(d.classList.contains("open")){b.hidden=false;return}b.hidden=!(d.scrollHeight>d.clientHeight+2)})}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-desc]");if(!b)return;const d=document.getElementById("d-"+b.dataset.desc);if(!d)return;const o=!d.classList.contains("open");d.classList.toggle("open",o);b.setAttribute("aria-expanded",String(o));b.innerHTML=o?'<span aria-hidden="true">ⓘ</span> פחות':'<span aria-hidden="true">ⓘ</span> עוד על הספק'});
+window.addEventListener("resize",()=>{clearTimeout(window._mdT);window._mdT=setTimeout(markDescs,200)});
 function isForm(s){return /forms\.gle|docs\.google\.com\/forms/.test(s.url||"")}
 
 function renderPoints(){
@@ -1553,12 +1571,12 @@ function renderGrid(){
     ${blob(s.cov)?`<img class="cover" src="${esc(blob(s.cov))}" alt="" loading="lazy">`:""}
     <div class="top">${blob(s.img)?`<img class="mark logo-mark" src="${esc(blob(s.img))}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
       <div><div class="cat">${C.label}</div><h3>${esc(s.n)}</h3>
-      ${isOpen(s)?'<p class="c-status st-open"><i aria-hidden="true"></i>פתוח להזמנה</p>':s.o?'<p class="c-status st-closed"><i aria-hidden="true"></i>ההזמנות נסגרו לשבוע הזה</p>':'<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>'}
+      ${isOpen(s)?'<p class="c-status st-open"><i aria-hidden="true"></i>פתוח להזמנה</p>':s.o?'<p class="c-status st-closed"><i aria-hidden="true"></i>ההזמנות נסגרו לשבוע הזה</p>':'<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>'}${closeAt(s)?`<p class="c-until">פתוח עד ${closeLabel(s)}</p>`:""}
       <div class="badges">${ksBadge(s)}${String(s.tags||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="badge tag">${esc(x)}</span>`).join("")}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>${s.ksd?`<div class="ksd-panel" id="ksd-${esc(s.h)}" hidden><b>כשרות</b><p>${esc(s.ksd).replace(/\n/g,"<br>")}</p></div>`:""}
-    <p class="desc">${esc(s.d)}</p>${WEEKLY[s.h]?`<p class="wk-line"><b>🛒 השבוע בחנות:</b> ${esc(WEEKLY[s.h])}</p>`:""}
+    ${s.d?`<p class="desc" id="d-${esc(s.h)}">${esc(s.d)}</p><button type="button" class="desc-i" data-desc="${esc(s.h)}" aria-expanded="false" aria-controls="d-${esc(s.h)}" hidden><span aria-hidden="true">ⓘ</span> עוד על הספק</button>`:""}${WEEKLY[s.h]?`<p class="wk-line"><b>🛒 השבוע בחנות:</b> ${esc(WEEKLY[s.h])}</p>`:""}
     ${s.more?`<details class="more"><summary>מידע נוסף</summary><p>${esc(s.more).replace(/\n/g,"<br>")}</p></details>`:""}
     <dl class="rows">
-      ${closeAt(s)?`<div><dt>פתוח עד</dt><dd>${closeLabel(s)}<br><span class="cd" data-cd="${s.h}"></span></dd></div>`:""}
+      ${closeAt(s)?`<div class="cdrow"><dt class="sr-only">זמן שנשאר להזמנה</dt><dd><span class="cd" data-cd="${s.h}"></span></dd></div>`:""}
       ${s.ks?`<div><dt>כשרות</dt><dd class="ks">${esc(s.ks)}</dd></div>`:""}
     </dl>
     <div class="actions">
@@ -1566,8 +1584,9 @@ function renderGrid(){
       <button type="button" class="icon fav" data-fav="${s.h}" aria-pressed="${favs.has(s.h)}" aria-label="הוספה למועדפים: ${s.n}">${heart}</button>
       <button type="button" class="addbtn" data-add="${s.h}" aria-pressed="${inL}" aria-label="${inL?"הסרה מרשימת הקניות":"הוספה לרשימת הקניות"}: ${s.n}">${inL?"✓ ברשימת הקניות":"+ להוסיף לרשימת הקניות"}</button>
     </div>
-    ${payMethod(s)||spareLink(s)?`<div class="c-pay">${payMethod(s)?`<span class="pm">תשלום ב${esc(payMethod(s))}</span>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לתשלום ב${esc(payMethod(s))}: ${esc(s.n)}">לתשלום ב${esc(payMethod(s))} ←</a>`:!s.p?`<span class="pm-note">משלמים בחנות, בזמן ההזמנה</span>`:""}`:""}${spareLink(s)}</div>`:""}
+    ${payMethod(s)||spareLink(s)?`<div class="c-pay">${payMethod(s)?`<span class="pm">תשלום ב${esc(payMethod(s))}</span>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו כאן לתשלום ב${esc(payMethod(s))}: ${esc(s.n)}">לחצו כאן לתשלום ב${esc(payMethod(s))} ←</a>`:""}`:""}${spareLink(s)}</div>`:""}
   </article>`}).join(""):`<div class="empty">${state.view==="favs"?"עוד לא סימנתם מועדפים. לחצו על הלב בכרטיס של ספק כדי לשמור אותו כאן.":"לא נמצאו ספקים שמתאימים לחיפוש."}</div>`;
+  setTimeout(markDescs,0);
   { const g=$("grid"), fr=$("grid-fri"); fr.innerHTML="";
     if(!q)g.querySelectorAll("article[data-fri]").forEach(a=>fr.appendChild(a));
     if(!g.querySelector("article")&&!g.querySelector(".empty"))g.innerHTML='<div class="empty">אין ספקים שמתאימים לחיפוש בחלוקה של יום רביעי.</div>';
