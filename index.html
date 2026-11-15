@@ -999,6 +999,8 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
 .ct-end .btn{justify-content:center;width:100%;font-size:17px;padding:14px 16px;white-space:normal;text-align:center;border-radius:14px}
 #cour-pick .ct-bit,.ct-bit{background:#0B6FC7!important;color:#fff!important;border:0}
 .ct-off{opacity:.5;cursor:not-allowed}
+.ct-end .ct-bit{display:flex;flex-direction:column;gap:3px;box-shadow:0 4px 0 #084F8F;text-decoration:none}
+.ct-bit .ct-bt{font-weight:800;font-size:17px}.ct-bit small{font-size:13.5px;font-weight:600;opacity:.95}
 .ct-bitnum{margin:0;text-align:center;font-size:15px}
 .ct-pay{display:none!important}
 </style>
@@ -1746,8 +1748,8 @@ function fillCourierArea(){
   box.hidden=false;if(!c){box.innerHTML="";return}
   const n=Object.keys(list).filter(h=>byH[h]).length,miss=meMissing();
   const bitU=c.bit?(/^https?:\/\//i.test(c.bit)?c.bit:"https://"+c.bit):"";
-  const bitBtn=bitU?`<a class="btn ct-bit" href="${esc(bitU)}" target="_blank" rel="noopener">💳 לתשלום 40 ₪ בביט ל${esc(c.name)}</a>`
-    :`<button class="btn ct-bit" type="button" data-bitcopy="${esc(c.phone)}">💳 לתשלום 40 ₪ בביט ל${esc(c.name)}</button>`;
+  const bitBtn=bitU?`<a class="btn ct-bit" href="${esc(bitU)}" target="_blank" rel="noopener"><span class="ct-bt">👆 לחצו כאן לתשלום בביט ל${esc(c.name)} ←</span><small>דמי משלוח 40 ₪ · נפתח ישר בביט של ${esc(c.name)}</small></a>`
+    :`<button class="btn ct-bit" type="button" data-bitcopy="${esc(c.phone)}"><span class="ct-bt">👆 לחצו כאן לתשלום בביט ל${esc(c.name)} ←</span><small>דמי משלוח 40 ₪ · המספר של ${esc(c.name)} יועתק, ואז משלמים בביט</small></button>`;
   const bitInfo=`<p class="ct-bitnum">התשלום בביט למספר של ${esc(c.name)}: <a class="ct-phone" dir="ltr" href="tel:+972${ph}">${esc(c.phone)}</a></p>`;
   const waBtn=n&&!miss.length?`<a class="btn wa-go" id="cour-send" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=972${ph}&text=${encodeURIComponent(listText(true))}">📝 לשליחת רשימת הקניות בוואטסאפ ל${esc(c.name)}</a>`
     :`<span class="btn wa-go ct-off" aria-disabled="true">📝 לשליחת רשימת הקניות בוואטסאפ ל${esc(c.name)}</span>`;
@@ -1765,7 +1767,7 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
   CT_OPEN=i;me.mode="courier";me.carea=String(i);me.cphone=c.phone;saveMe();fillMe();updateLinks();renderCouriers();requestAnimationFrame(()=>{const f=$("ct-form");if(f)f.scrollIntoView({behavior:"smooth",block:"start"})})});
 document.addEventListener("click",e=>{if(!(e.target.closest&&e.target.closest("[data-ctreset]")))return;CT_OPEN=-1;me.carea="";me.cphone="";saveMe();fillMe();updateLinks();renderCouriers();const g=$("ct-grid");if(g)g.scrollIntoView({behavior:"smooth",block:"start"})});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-copy]");if(!b)return;const v=b.dataset.copy;const done=()=>{const t=b.textContent;b.textContent="המספר הועתק ✓";setTimeout(()=>b.textContent=t,2000)};try{navigator.clipboard.writeText(v).then(done,done)}catch(_){done()}});
-document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-bitcopy]");if(!b)return;const v=b.dataset.bitcopy,t=b.textContent;const done=()=>{b.textContent="המספר הועתק ✓ פתחו את ביט והעבירו 40 ₪";setTimeout(()=>b.textContent=t,3500)};try{navigator.clipboard.writeText(v).then(done,done)}catch(_){done()}});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-bitcopy]");if(!b)return;const v=b.dataset.bitcopy,t=b.innerHTML;const done=()=>{b.innerHTML='<span class="ct-bt">המספר הועתק ✓</span><small>עכשיו פותחים את ביט, מדביקים את המספר ומעבירים 40 ₪</small>';setTimeout(()=>b.innerHTML=t,4000)};try{navigator.clipboard.writeText(v).then(done,done)}catch(_){done()}});
 function renderCouriers(){fillCourierArea();renderCourTiles();
   if(!$("cour-grid"))return;
   const n=Object.keys(list).filter(h=>byH[h]).length, hasAddr=!!(me.street||"").trim();
