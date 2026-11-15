@@ -466,7 +466,7 @@ footer b{font-family:var(--hand);font-weight:700;color:var(--sun);font-size:30px
 .sub-top h2{font-family:var(--display);font-weight:400;font-size:22px;color:var(--leaf-deep)}
 .sub .lb-x{position:static;background:var(--bg);color:var(--ink);width:36px;height:36px;border-radius:50%;border:0;font-size:22px}
 .sub textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 11px;width:100%}
-.seg3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px}
+.seg3{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px}
 .seg3 label{display:flex;justify-content:center;align-items:center;gap:4px;padding:8px 4px;border-radius:9px;font-weight:700;font-size:15px;cursor:pointer}
 .seg3 input{position:absolute;opacity:0;pointer-events:none}
 .seg3 label:has(input:checked){background:var(--leaf);color:#fff}
@@ -690,6 +690,24 @@ main [data-tab]:not(.tab-on){display:none!important}
 .tabs{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);margin-top:6px}
 .tabs-in{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-block:8px}
 .tabs-in::-webkit-scrollbar{display:none}
+.gs{position:relative;padding-top:8px}
+.gs-box{display:flex;align-items:center;gap:8px;background:var(--surface);border:2px solid var(--leaf);border-radius:999px;padding:6px 14px;color:var(--ink)}
+.gs-box input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:16px;color:var(--ink);padding:4px 0}
+.gs-box input:focus{outline:none}
+.gs-box:focus-within{box-shadow:0 0 0 3px color-mix(in srgb,var(--leaf) 35%,transparent)}
+.gs-res{position:absolute;inset-inline:12px;top:100%;margin-top:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.18);max-height:60vh;overflow-y:auto;z-index:30;padding:6px}
+.gs-res button{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:start;border:0;background:transparent;color:var(--ink);padding:10px;border-radius:10px;font:inherit;cursor:pointer}
+.gs-res button:hover,.gs-res button:focus{background:var(--bg);outline:2px solid var(--leaf)}
+.gs-res .gs-i{font-size:20px;line-height:1.2;flex:none}
+.gs-res small{display:block;color:var(--muted);font-size:14px;line-height:1.35}
+.tabs .gs-res button{border:0;border-radius:10px;padding:10px;white-space:normal;flex:none;font-weight:400;font-size:inherit;background:transparent;color:var(--ink)}
+.gs-res .gs-t{display:block;color:var(--ink);font-size:16px;font-weight:700}
+.tabs .gs-res button small{white-space:normal}
+.gs-none{padding:10px;color:var(--muted);margin:0}
+.gs-hit{animation:gsHit 2.2s ease}
+@keyframes gsHit{0%,60%{box-shadow:0 0 0 4px var(--sun)}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.gs-hit{animation:none;outline:3px solid var(--sun)}}
+
 .tabs button{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font-weight:700;font-size:15.5px;white-space:nowrap}
 .tabs button[aria-selected="true"]{background:var(--leaf);border-color:var(--leaf);color:#fff}
 .tabs button b{display:inline-block;min-width:20px;padding:0 6px;margin-inline-start:4px;border-radius:999px;background:var(--heart);color:#fff;font-size:13px}
@@ -877,6 +895,11 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
 <div id="rk-root"></div>
 <script type="text/html" id="rk-body"><a class="skip" href="#main">דילוג לתוכן הראשי</a><button class="motion-btn" id="motion-btn" type="button" aria-pressed="false">⏸ עצירת אנימציה</button><div class="awning" aria-hidden="true"></div>
 <nav class="tabs" id="tabs" aria-label="אזורים בדף">
+  <div class="wrap gs" role="search">
+    <label class="gs-box" for="gs-q"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="sr-only">חיפוש בכל האתר</span><input id="gs-q" type="search" placeholder="מה מחפשים? ספק, מוצר, הטבה, חוסרים, שליח…" autocomplete="off" aria-controls="gs-res" aria-describedby="gs-st"></label>
+    <div class="gs-res" id="gs-res" hidden></div>
+    <p class="sr-only" id="gs-st" role="status" aria-live="polite"></p>
+  </div>
   <div class="wrap tabs-in">
     <button type="button" data-tabbtn="about">💚 קצת עלינו</button>
     <button type="button" data-tabbtn="sup">🛒 ספקי השבוע</button>
@@ -1051,6 +1074,13 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
   <section class="posts" id="sec-perks" hidden aria-labelledby="h-perks">
     <div class="gal-head"><h2 id="h-perks">הטבות לחברי הקהילה</h2><p>שיתופי פעולה והטבות שמחכים רק לכם</p></div>
     <div class="post-grid" id="pg-perks"></div>
+  </section>
+
+  <section class="share" id="share-perk" aria-labelledby="sp-h">
+    <div class="share-in">
+      <div><h2 id="sp-h">רוצים להציע הטבה לחברי הקהילה? 🎁</h2><p>יש לכם עסק, שירות או מוצר? שלחו הצעה להטבה לחברי הקהילה. ורד עוברת על כל הצעה, ואחרי אישור היא מתפרסמת כאן לכולם.</p></div>
+      <div class="share-btns"><button class="btn go" type="button" data-sub="perk">🎁 הצעת הטבה</button></div>
+    </div>
   </section>
 
   <section class="collab" aria-labelledby="co-h">
@@ -1281,6 +1311,7 @@ html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none
       <label><input type="radio" name="sub-type" value="review"> 💬 המלצה</label>
       <label><input type="radio" name="sub-type" value="recipe"> 🍳 מתכון</label>
       <label><input type="radio" name="sub-type" value="photo"> 📸 תמונה</label>
+      <label><input type="radio" name="sub-type" value="perk"> 🎁 הטבה</label>
     </div>
     <label class="field">השם שלך<input id="sub-name" type="text" autocomplete="name" required></label>
     <label class="field" id="sub-t-l">כותרת<input id="sub-t" type="text" placeholder="למשל: הקובה של משה, או שם המתכון"></label>
@@ -1756,7 +1787,7 @@ $("lb").addEventListener("click",e=>{if(e.target.id==="lb")$("lb").hidden=true})
 $("lb-prev").addEventListener("click",()=>lbMove(-1));$("lb-next").addEventListener("click",()=>lbMove(1));
 document.addEventListener("keydown",e=>{if($("lb").hidden)return;if(e.key==="Escape")$("lb").hidden=true;if(e.key==="ArrowLeft")lbMove(1);if(e.key==="ArrowRight")lbMove(-1)});
 // ---- tabs ----
-const TABMAP=[["#sec-news","news"],["#meet","about"],["#about-us","about"],[".story:not(.story-head)","about"],["#sec-reviews","reviews"],["#share-rev","reviews"],["#gal-people","gallery"],["#gal-intro","gallery"],["#share","recipes"],["#gal-products","gallery"],["#sec-recipes","recipes"],["#sec-gifts","news"],["#sec-perks","news"],["main .collab","about"],["main .howto","list"],["#dist-box","sup"],["main .info","sup"],["#contact","contact"],["#suppliers","sup"],["main .tools","sup"],["#grid","sup"],["#fri-sec","sup"],["#mylist","list"],["#couriers","couriers"]];
+const TABMAP=[["#sec-news","news"],["#meet","about"],["#about-us","about"],[".story:not(.story-head)","about"],["#sec-reviews","reviews"],["#share-rev","reviews"],["#gal-people","gallery"],["#gal-intro","gallery"],["#share","recipes"],["#gal-products","gallery"],["#sec-recipes","recipes"],["#sec-gifts","news"],["#sec-perks","news"],["#share-perk","news"],["main .collab","about"],["main .howto","list"],["#dist-box","sup"],["main .info","sup"],["#contact","contact"],["#suppliers","sup"],["main .tools","sup"],["#grid","sup"],["#fri-sec","sup"],["#mylist","list"],["#couriers","couriers"]];
 TABMAP.forEach(([sel,t])=>document.querySelectorAll(sel).forEach(el=>el.dataset.tab=t));
 let TAB="sup";
 function showTab(t,scroll){
@@ -2050,9 +2081,85 @@ document.addEventListener("click",async e=>{const b=e.target.closest("[data-a2hs
   $("a2hs-ios").hidden=!ios;$("a2hs-and").hidden=!and;$("a2hs-pc").hidden=ios||and;$("a2hs").hidden=false;document.body.style.overflow="hidden"});
 $("a2hs-x").addEventListener("click",()=>{$("a2hs").hidden=true;document.body.style.overflow=""});
 $("a2hs").addEventListener("click",e=>{if(e.target.id==="a2hs"){$("a2hs").hidden=true;document.body.style.overflow=""}});
+
+// ---- global site search ----
+{
+const GS_TOPICS=[
+ ["⚠️","דיווח על חוסרים או בעיה בהזמנה","דרך טופס התקשרות עם ורד","חוסר חוסרים חסר בעיה טעות תקלה החזר זיכוי פגום תלונה","#contact"],
+ ["💬","התקשרות עם ורד","טופס שירות, טעויות ופירגונים","ורד קשר התקשרות טלפון וואטסאפ שאלה","#contact"],
+ ["🛵","שליחים עד הבית","פרטי השליחים ושליחת רשימת הקניות אליהם","שליח שליחים משלוח משלוחים עד הבית דרור כפיר אוהד","#couriers"],
+ ["📍","נקודות החלוקה ושעות האיסוף","רמת השרון, רעננה, גני תקוה","נקודה נקודות חלוקה איסוף שעות שעה מיקום איפה רמת השרון רעננה גני תקוה חניון","#dist-box"],
+ ["📝","רשימת הקניות והאיסוף שלי","מסמנים ממי הזמנתם ומה, ושולחים למי שאוסף","רשימה רשימת קניות איסוף משפחה סימון","#mylist"],
+ ["✡️","מידע על כשרות","מופיע בכרטיס של כל ספק","כשרות כשר תעודה הקפדה","#suppliers"],
+ ["💳","תשלום וקישורים לתשלום","מופיעים בכרטיס של כל ספק","תשלום לשלם פייבוקס ביט אשראי פייפאל קישור","#suppliers"],
+ ["⏰","שעות סגירת ההזמנות","לכל ספק מופיע מועד הסגירה","סגירה נסגר נסגרים מתי עד מתי מועד הזמנה להזמין","#suppliers"],
+ ["💚","צירוף חברים","שולחים את האתר לחברים בוואטסאפ בלחיצה","חברים חבר צירוף לצרף שיתוף לשתף הזמנת חברים המלצה לחבר","share"],
+ ["📲","שמירת האתר במסך הבית","כמו אפליקציה, במרחק לחיצה","מסך הבית אפליקציה התקנה להתקין קיצור אייקון","a2hs"],
+ ["🍳","שליחת מתכון","שתפו מתכון משלכם, ורד מפרסמת אחרי אישור","מתכון מתכונים לשלוח מתכון הוראות הכנה","#share"],
+ ["🎁","הצעת הטבה לחברי הקהילה","שולחים הצעה, ורד מאשרת ומפרסמת","הטבה הטבות להציע הנחה קופון מבצע עסק","#share-perk"],
+ ["🎁","הטבות לחברי הקהילה","שיתופי פעולה והטבות שמחכים לכם","הטבה הטבות הנחה קופון","#sec-perks"],
+ ["🎀","מארזים ומתנות","רעיונות למתנה מהיצרנים שלנו","מארז מארזים מתנה מתנות","#sec-gifts"],
+ ["💬","שליחת המלצה ופרגון","מילה טובה ליצרנים שלנו","המלצה המלצות פרגון פירגון ביקורת","#share-rev"],
+ ["📸","גלריית התמונות","ואפשר לשלוח תמונה משלכם","תמונה תמונות גלריה צילום","#gal-intro"],
+ ["📣","הודעות ועדכונים","מה חדש ומה חשוב השבוע","הודעה הודעות עדכון עדכונים חדש","#sec-news"],
+ ["📬","הצטרפות לעדכונים בוואטסאפ","מקבלים את היצרנים של השבוע","הצטרפות להצטרף עדכונים רשימת תפוצה קבוצה","#join"],
+ ["💚","קצת עלינו","מי אנחנו ואיך זה עובד","עלינו מי אנחנו אודות קהילה איך זה עובד","#about-us"]
+];
+const PTAB={news:"news",reviews:"reviews",recipes:"recipes",gifts:"news",perks:"news"};
+const PICO={news:"📣",reviews:"💬",recipes:"🍳",gifts:"🎀",perks:"🎁"};
+const norm=x=>String(x||"").toLowerCase().replace(/[֑-ׇ"'׳״`.,!?()\-–:;]/g," ").replace(/\s+/g," ").trim();
+const words=q=>norm(q).split(" ").filter(w=>w.length>1||/\d/.test(w));
+function hit(hay,ws){hay=" "+norm(hay)+" ";return ws.every(w=>hay.includes(w)||(w.length>2&&/^[הוב]/.test(w)&&hay.includes(w.slice(1))))}
+let GS=[];
+function gsFind(q){
+  const ws=words(q);if(!ws.length)return [];
+  const R=[];
+  (S||[]).forEach(s=>{const name=s.n||"";const hay=[name,s.d,s.k,s.ks,s.p,s.more].join(" ");
+    if(hit(hay,ws))R.push({sc:(hit(name,ws)?30:10)+(s.o?5:0),i:"🛒",t:name,d:(s.o?"":"לא מגיע השבוע · ")+(s.d||"").slice(0,90),go:{sup:s.n}})});
+  (DATA.posts||[]).forEach((p,ix)=>{if(!PTAB[p.sec])return;const hay=[p.t,p.b,p.who].join(" ");
+    if(hit(hay,ws))R.push({sc:hit(p.t,ws)?20:8,i:PICO[p.sec],t:p.t||(p.b||"").slice(0,40),d:(p.b||"").replace(/\s+/g," ").slice(0,90),go:{post:p}})});
+  GS_TOPICS.forEach(([i,t,d,k,go])=>{if(hit(t+" "+k,ws))R.push({sc:hit(t,ws)?25:15,i,t,d,go:{to:go}})});
+  return R.sort((a,b)=>b.sc-a.sc).slice(0,10);
+}
+function gsClose(){$("gs-res").hidden=true}
+function gsJump(el){if(!el)return;const host=el.closest("[data-tab]");if(host)showTab(host.dataset.tab,false);
+  if(el.hidden)el.hidden=false;
+  requestAnimationFrame(()=>{const nav=$("tabs");window.scrollTo({top:el.getBoundingClientRect().top+window.scrollY-nav.offsetHeight-8,behavior:"smooth"});
+    el.classList.remove("gs-hit");void el.offsetWidth;el.classList.add("gs-hit");el.setAttribute("tabindex","-1");el.focus({preventScroll:true})})}
+function gsGo(r){gsClose();const g=r.go;
+  if(g.sup){showTab("sup",false);const q=$("q");if(q){q.value=g.sup;q.dispatchEvent(new Event("input",{bubbles:true}))}
+    const oo=$("openonly");if(oo&&oo.checked){oo.checked=false;oo.dispatchEvent(new Event("change",{bubbles:true}))}
+    setTimeout(()=>gsJump(document.querySelector("#grid .card")||$("suppliers")),60);return}
+  if(g.post){const p=g.post,L=DATA.posts.filter(x=>x.sec===p.sec),n=L.indexOf(p);showTab(PTAB[p.sec],false);
+    setTimeout(()=>gsJump(document.querySelectorAll("#pg-"+p.sec+" .post")[n]||$("sec-"+p.sec)),60);return}
+  if(g.to==="share"){const a=document.querySelector("[data-share-site]");if(a)a.click();return}
+  if(g.to==="a2hs"){if(typeof STANDALONE!=="undefined"&&STANDALONE){$("gs-st").textContent="האתר כבר שמור אצלכם במסך הבית 🎉";return}
+    const b=document.querySelector("[data-a2hs]");if(b)b.click();return}
+  setTimeout(()=>gsJump(document.querySelector(g.to)),30);
+}
+function gsRender(){const q=$("gs-q").value,box=$("gs-res");
+  if(!words(q).length){box.hidden=true;$("gs-st").textContent="";return}
+  GS=gsFind(q);
+  box.innerHTML=GS.length?GS.map((r,i)=>`<button type="button" data-gs="${i}"><span class="gs-i" aria-hidden="true">${r.i}</span><span><span class="gs-t">${esc(r.t)}</span>${r.d?`<small>${esc(r.d)}</small>`:""}</span></button>`).join("")
+    :`<p class="gs-none">לא מצאנו. נסו מילה אחרת, או <a href="#contact">כתבו לורד</a>.</p>`;
+  box.hidden=false;$("gs-st").textContent=GS.length?`נמצאו ${GS.length} תוצאות`:"לא נמצאו תוצאות";
+}
+$("gs-q").addEventListener("input",gsRender);
+$("gs-q").addEventListener("focus",()=>{if($("gs-q").value)gsRender()});
+$("gs-q").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){e.preventDefault();if(GS[0])gsGo(GS[0])}
+  else if(e.key==="Escape")gsClose();
+  else if(e.key==="ArrowDown"){const b=$("gs-res").querySelector("button");if(b){e.preventDefault();b.focus()}}});
+$("gs-res").addEventListener("keydown",e=>{const L=[...$("gs-res").querySelectorAll("button")],i=L.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"&&i<L.length-1){e.preventDefault();L[i+1].focus()}
+  else if(e.key==="ArrowUp"){e.preventDefault();(i>0?L[i-1]:$("gs-q")).focus()}
+  else if(e.key==="Escape"){gsClose();$("gs-q").focus()}});
+$("gs-res").addEventListener("click",e=>{const b=e.target.closest("[data-gs]");if(b)gsGo(GS[+b.dataset.gs]);else if(e.target.closest("a"))gsClose()});
+document.addEventListener("click",e=>{if(!e.target.closest(".gs"))gsClose()});
+}
 // ---- customer submissions ----
 const SUBS="subs5";let SUBTYPE="review",APPROVED=[],SUBLIST={};
-const SUBLBL={review:["שליחת המלצה","על איזה ספק או מוצר?","מה אהבתם?"],recipe:["שליחת מתכון","שם המתכון","המצרכים ואופן ההכנה"],photo:["שליחת תמונה לגלריה","כיתוב לתמונה (לא חובה)",""]};
+const SUBLBL={review:["שליחת המלצה","על איזה ספק או מוצר?","מה אהבתם?"],recipe:["שליחת מתכון","שם המתכון","המצרכים ואופן ההכנה"],photo:["שליחת תמונה לגלריה","כיתוב לתמונה (לא חובה)",""],perk:["הצעת הטבה לחברי הקהילה","שם העסק וההטבה (למשל: 10% הנחה בסטודיו של דנה)","מה מקבלים, איך מממשים, עד מתי, ופרטי קשר"]};
 function subType(t){SUBTYPE=t;document.querySelectorAll('input[name="sub-type"]').forEach(r=>r.checked=r.value===t);
   $("sub-h").textContent=SUBLBL[t][0];$("sub-t").placeholder=SUBLBL[t][1];$("sub-b-l").hidden=t==="photo";$("sub-b").placeholder=SUBLBL[t][2]}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-sub]");if(!b)return;
@@ -2077,7 +2184,7 @@ $("sub-form").addEventListener("submit",async e=>{e.preventDefault();
 });
 function edSubs(){
   const L=Object.entries(SUBLIST).filter(([id])=>!APPROVED.includes(id)).sort((a,b)=>b[1].ts-a[1].ts);
-  const T={review:"💬 המלצה",recipe:"🍳 מתכון",photo:"📸 תמונה"};
+  const T={review:"💬 המלצה",recipe:"🍳 מתכון",photo:"📸 תמונה",perk:"🎁 הצעת הטבה"};
   $("ed-subs").innerHTML=L.length?L.map(([id,s])=>`<div class="ed-subi">${s.img?`<img src="${blob(s.img)}" alt="">`:""}<div><b>${T[s.type]||""} · ${esc(s.name||"")}</b>${s.t?`<div>${esc(s.t)}</div>`:""}${s.b?`<p>${esc(s.b).replace(/\n/g,"<br>")}</p>`:""}
     <div class="ed-subact">${s.type==="photo"?`<button class="btn go" type="button" data-subok="${id}" data-to="people">לגלריית האנשים</button><button class="btn go" type="button" data-subok="${id}" data-to="products">לגלריית המוצרים</button>`:`<button class="btn go" type="button" data-subok="${id}">אישור ופרסום</button>`}<button class="btn ghost" type="button" data-subdel="${id}">מחיקה</button></div></div></div>`).join("")
     :'<p class="hint">אין כרגע שליחות חדשות.</p>';
@@ -2087,7 +2194,7 @@ document.addEventListener("click",e=>{if(!e.target.closest("#ed"))return;
   const ok=e.target.closest("[data-subok]");if(ok){const id=ok.dataset.subok,s=SUBLIST[id];if(!s)return;
     if(/^data:image\//.test(s.img||"")&&!ok.dataset.busy){ok.dataset.busy=1;fbStore(s.img).then(p=>{s.img=p;ok.click()});return}
     if(s.type==="photo"){const k=ok.dataset.to;draft[k].push({id:s.img,cap:s.t||""});edThumbs(k)}
-    else{draft.posts.unshift({sec:s.type==="review"?"reviews":"recipes",t:s.t||"",b:s.b||"",who:s.name||"",url:"",img:s.img||"",_open:0});edPosts()}
+    else{draft.posts.unshift({sec:s.type==="review"?"reviews":s.type==="perk"?"perks":"recipes",t:s.t||"",b:s.b||"",who:s.name||"",url:"",img:s.img||"",_open:0});edPosts()}
     APPROVED.push(id);edSubs();$("ed-msg").textContent='אושר. לחצי "שמירה" כדי לפרסם.';return}
   const del=e.target.closest("[data-subdel]");if(del){const id=del.dataset.subdel;set(ref(db,SUBS+"/"+id),null).then(()=>{delete SUBLIST[id];edSubs()});}
 });
