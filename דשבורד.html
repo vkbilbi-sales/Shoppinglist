@@ -735,7 +735,7 @@ function lookCheck(c){const deep=mix(c.leaf,"#000000",.2),soft=mix(c.leaf,"#ffff
   return T.map(([n,a,b,need])=>({n,r:cr(a,b),need,ok:cr(a,b)>=need}))}
 
 // ---- look: tab order + colours ----
-const TABS=[["about","💚 קצת עלינו"],["sup","🛒 ספקי השבוע"],["list","📝 רשימת הקניות"],["couriers","🛵 שליחים"],["news","📣 הודעות"],["recipes","🍳 מתכונים"],["reviews","💬 לקוחות ממליצים"],["gallery","📸 גלריה"],["contact","💬 התקשרות עם ורד"]];
+const TABS=[["about","💚 קצת עלינו"],["sup","🛒 ספקי השבוע"],["couriers","🛵 שליחים"],["list","📝 רשימת הקניות"],["news","📣 הודעות"],["recipes","🍳 מתכונים"],["reviews","💬 לקוחות ממליצים"],["gallery","📸 גלריה"],["contact","💬 התקשרות עם ורד"]];
 const PRESETS=[["קלאסי (הנוכחי)",{leaf:"#127479",heart:"#C2353A",sun:"#A35F0C"}],["ירוק זית",{leaf:"#4E6B1E",heart:"#B23A48",sun:"#94580A"}],["כחול ים",{leaf:"#1F5FA3",heart:"#C2353A",sun:"#9A5B00"}],["חום אדמה",{leaf:"#7A4B2A",heart:"#A8323A",sun:"#8C5A00"}],["סגול שזיף",{leaf:"#6A3D8F",heart:"#B8325A",sun:"#94580A"}]];
 let TORD=null,LOOK=null,lookDirty=false;
 function lookInit(){const known=TABS.map(t=>t[0]);const saved=(DATA.tabOrder||[]).filter(k=>known.includes(k));TORD=[...saved,...known.filter(k=>!saved.includes(k))];
