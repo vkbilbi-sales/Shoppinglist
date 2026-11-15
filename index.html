@@ -994,6 +994,13 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
 #ct-form .two{gap:12px}
 #ct-form .cour-miss{font-size:15px;background:var(--heart-soft);border-radius:10px;padding:10px 12px}
 #ct-form .btn.wa-go{font-size:17px;padding:14px 16px;justify-content:center}
+
+.ct-end{display:grid;gap:10px}
+.ct-end .btn{justify-content:center;width:100%;font-size:17px;padding:14px 16px;white-space:normal;text-align:center;border-radius:14px}
+#cour-pick .ct-bit,.ct-bit{background:#0B6FC7!important;color:#fff!important;border:0}
+.ct-off{opacity:.5;cursor:not-allowed}
+.ct-bitnum{margin:0;text-align:center;font-size:15px}
+.ct-pay{display:none!important}
 </style>
 </head>
 <body>
@@ -1736,11 +1743,16 @@ function fillCourierArea(){
   const ph=has?c.phone.replace(/\D/g,"").slice(1):"";
   who.hidden=!has;if(has)who.innerHTML=`🛵 השליח של ${esc(c.area)}: <b>${esc(c.name)}</b> · <a class="tel" dir="ltr" href="tel:+972${ph}">${c.phone}</a>`;
   if(me.mode!=="courier"){box.hidden=true;return}
-  box.hidden=false;
+  box.hidden=false;if(!c){box.innerHTML="";return}
   const n=Object.keys(list).filter(h=>byH[h]).length,miss=meMissing();
-  box.innerHTML=!n?`<p class="hint">כדי לשלוח לשליח, קודם מוסיפים ספקים לרשימה.</p>`
-    :miss.length?`<p class="cour-miss">כדי לשלוח לשליח, צריך למלא עוד: <b>${miss.join(", ")}</b></p>`
-    :`<div class="ct-pay"><b>💳 תשלום למשלוח: 40 ₪ בביט</b><span>מעבירים בביט ל${esc(c.name)}, למספר:</span><a class="ct-phone big" dir="ltr" href="tel:+972${ph}">${esc(c.phone)}</a><button class="linkbtn" type="button" data-copy="${esc(c.phone)}">העתקת המספר</button></div><a class="btn wa-go" id="cour-send" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=972${ph}&text=${encodeURIComponent(listText(true))}">שליחת רשימת הקניות ל${esc(c.name)} בוואטסאפ ←</a><p class="hint">נפתח וואטסאפ של ${esc(c.name)} (<span dir="ltr">${c.phone}</span>) עם הודעה מוכנה: הרשימה וכל הפרטים שלכם. נשאר רק ללחוץ "שליחה".</p>`;
+  const bitU=c.bit?(/^https?:\/\//i.test(c.bit)?c.bit:"https://"+c.bit):"";
+  const bitBtn=bitU?`<a class="btn ct-bit" href="${esc(bitU)}" target="_blank" rel="noopener">💳 לתשלום 40 ₪ בביט ל${esc(c.name)}</a>`
+    :`<button class="btn ct-bit" type="button" data-bitcopy="${esc(c.phone)}">💳 לתשלום 40 ₪ בביט ל${esc(c.name)}</button>`;
+  const bitInfo=`<p class="ct-bitnum">התשלום בביט למספר של ${esc(c.name)}: <a class="ct-phone" dir="ltr" href="tel:+972${ph}">${esc(c.phone)}</a></p>`;
+  const waBtn=n&&!miss.length?`<a class="btn wa-go" id="cour-send" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=972${ph}&text=${encodeURIComponent(listText(true))}">📝 לשליחת רשימת הקניות בוואטסאפ ל${esc(c.name)}</a>`
+    :`<span class="btn wa-go ct-off" aria-disabled="true">📝 לשליחת רשימת הקניות בוואטסאפ ל${esc(c.name)}</span>`;
+  box.innerHTML=(!n?`<p class="cour-miss">כדי לשלוח לשליח, קודם מוסיפים ספקים לרשימה.</p>`:miss.length?`<p class="cour-miss">כדי לשלוח לשליח, צריך למלא עוד: <b>${miss.join(", ")}</b></p>`:"")
+    +`<div class="ct-end">${waBtn}${bitBtn}${bitInfo}</div>`;
 }
 let CT_OPEN=-1;
 function renderCourTiles(){const g=$("ct-grid");if(!g)return;
@@ -1753,6 +1765,7 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
   CT_OPEN=i;me.mode="courier";me.carea=String(i);me.cphone=c.phone;saveMe();fillMe();updateLinks();renderCouriers();requestAnimationFrame(()=>{const f=$("ct-form");if(f)f.scrollIntoView({behavior:"smooth",block:"start"})})});
 document.addEventListener("click",e=>{if(!(e.target.closest&&e.target.closest("[data-ctreset]")))return;CT_OPEN=-1;me.carea="";me.cphone="";saveMe();fillMe();updateLinks();renderCouriers();const g=$("ct-grid");if(g)g.scrollIntoView({behavior:"smooth",block:"start"})});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-copy]");if(!b)return;const v=b.dataset.copy;const done=()=>{const t=b.textContent;b.textContent="המספר הועתק ✓";setTimeout(()=>b.textContent=t,2000)};try{navigator.clipboard.writeText(v).then(done,done)}catch(_){done()}});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-bitcopy]");if(!b)return;const v=b.dataset.bitcopy,t=b.textContent;const done=()=>{b.textContent="המספר הועתק ✓ פתחו את ביט והעבירו 40 ₪";setTimeout(()=>b.textContent=t,3500)};try{navigator.clipboard.writeText(v).then(done,done)}catch(_){done()}});
 function renderCouriers(){fillCourierArea();renderCourTiles();
   if(!$("cour-grid"))return;
   const n=Object.keys(list).filter(h=>byH[h]).length, hasAddr=!!(me.street||"").trim();
@@ -2041,6 +2054,7 @@ function edCours(){
     <label class="field">שם השליח<input data-cr="${i}" data-f="name" value="${esc(c.name||"")}"></label>
     <label class="field">טלפון<input data-cr="${i}" data-f="phone" value="${esc(c.phone||"")}" inputmode="tel" dir="ltr"></label>
     <button class="rm" type="button" data-rmcour="${i}" aria-label="מחיקת שליח">×</button>
+    <label class="field wide">קישור לתשלום בביט של השליח (אם יש)<input data-cr="${i}" data-f="bit" value="${esc(c.bit||"")}" dir="ltr" placeholder="https://www.bitpay.co.il/app/me/…"></label>
     <label class="field wide">הסבר קצר<input data-cr="${i}" data-f="note" value="${esc(c.note||"")}" placeholder="איסוף מכל הספקים עד פתח הבית ב־40 ₪"></label></div>`).join("")}
 function edPoints(){
   $("ed-points").innerHTML=draft.points.map((p,i)=>`<div class="ed-pt">
