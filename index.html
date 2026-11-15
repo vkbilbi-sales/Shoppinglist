@@ -1665,7 +1665,7 @@ function renderGrid(){
       <button type="button" class="icon fav" data-fav="${s.h}" aria-pressed="${favs.has(s.h)}" aria-label="הוספה למועדפים: ${s.n}">${heart}</button>
       <button type="button" class="addbtn" data-add="${s.h}" aria-pressed="${inL}" aria-label="${inL?"הסרה מרשימת הקניות":"הוספה לרשימת הקניות"}: ${s.n}">${inL?"✓ ברשימת הקניות":"להוספה לרשימת הקניות"}</button>
     </div>
-    ${payMethod(s)||spareLink(s)?`<div class="c-pay">${payMethod(s)?`<span class="pm">תשלום ב${esc(payMethod(s))}</span>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו כאן לתשלום ב${esc(payMethod(s))}: ${esc(s.n)}">לחצו כאן לתשלום ב${esc(payMethod(s))}&nbsp;←</a>`:""}`:""}${spareLink(s)}</div>`:""}
+    ${payMethod(s)||spareLink(s)?`<div class="c-pay">${payMethod(s)?`<span class="pm">תשלום ב${esc(payMethod(s))}</span>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו כאן לתשלום ב${esc(payMethod(s))}: ${esc(s.n)}">לחצו כאן לתשלום ב${esc(payMethod(s))}</a>`:""}`:""}${spareLink(s)}</div>`:""}
   </article>`}).join(""):`<div class="empty">${state.view==="favs"?"עוד לא סימנתם מועדפים. לחצו על הלב בכרטיס של ספק כדי לשמור אותו כאן.":"לא נמצאו ספקים שמתאימים לחיפוש."}</div>`;
   setTimeout(markDescs,0);
   { const g=$("grid"), fr=$("grid-fri"); fr.innerHTML="";
