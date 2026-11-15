@@ -1654,7 +1654,7 @@ function renderGrid(){
     <div class="top">${blob(s.img)?`<img class="mark logo-mark" src="${esc(blob(s.img))}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
       <div><div class="cat">${C.label}</div><h3>${esc(s.n)}</h3>
       ${isOpen(s)?`<p class="c-status st-open"><i aria-hidden="true"></i>${closeAt(s)?"פתוח להזמנות עד "+closeShort(s):"פתוח להזמנות"}</p>`:s.o?'<p class="c-status st-closed"><i aria-hidden="true"></i>ההזמנות נסגרו לשבוע הזה</p>':'<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>'}
-      <div class="badges">${ksBadge(s)}${String(s.tags||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="badge tag">${esc(x)}</span>`).join("")}${isForm(s)?'<span class="badge form">הזמנה בטופס</span>':""}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>${s.ksd?`<div class="ksd-panel" id="ksd-${esc(s.h)}" hidden><b>כשרות</b><p>${esc(s.ksd).replace(/\n/g,"<br>")}</p></div>`:""}
+      <div class="badges">${ksBadge(s)}${String(s.tags||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="badge tag">${esc(x)}</span>`).join("")}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>${s.ksd?`<div class="ksd-panel" id="ksd-${esc(s.h)}" hidden><b>כשרות</b><p>${esc(s.ksd).replace(/\n/g,"<br>")}</p></div>`:""}
     <dl class="rows">
       ${closeAt(s)?`<div class="cdrow"><dt class="sr-only">זמן שנשאר להזמנה</dt><dd><span class="cd" data-cd="${s.h}"></span></dd></div>`:""}
       ${s.ks?`<div><dt>כשרות</dt><dd class="ks">${esc(s.ks)}</dd></div>`:""}
@@ -1665,7 +1665,7 @@ function renderGrid(){
       <button type="button" class="icon fav" data-fav="${s.h}" aria-pressed="${favs.has(s.h)}" aria-label="הוספה למועדפים: ${s.n}">${heart}</button>
       <button type="button" class="addbtn" data-add="${s.h}" aria-pressed="${inL}" aria-label="${inL?"הסרה מרשימת הקניות":"הוספה לרשימת הקניות"}: ${s.n}">${inL?"✓ ברשימת הקניות":"להוספה לרשימת הקניות"}</button>
     </div>
-    ${payMethod(s)||spareLink(s)?`<div class="c-pay">${payMethod(s)?`<span class="pm">תשלום ב${esc(payMethod(s))}</span>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו כאן לתשלום ב${esc(payMethod(s))}: ${esc(s.n)}">לחצו כאן לתשלום ב${esc(payMethod(s))} ←</a>`:""}`:""}${spareLink(s)}</div>`:""}
+    ${payMethod(s)||spareLink(s)?`<div class="c-pay">${payMethod(s)?`<span class="pm">תשלום ב${esc(payMethod(s))}</span>${s.pl?`<a class="paylink" href="${esc(s.pl)}" target="_blank" rel="noopener" aria-label="לחצו כאן לתשלום ב${esc(payMethod(s))}: ${esc(s.n)}">לחצו כאן לתשלום ב${esc(payMethod(s))}&nbsp;←</a>`:""}`:""}${spareLink(s)}</div>`:""}
   </article>`}).join(""):`<div class="empty">${state.view==="favs"?"עוד לא סימנתם מועדפים. לחצו על הלב בכרטיס של ספק כדי לשמור אותו כאן.":"לא נמצאו ספקים שמתאימים לחיפוש."}</div>`;
   setTimeout(markDescs,0);
   { const g=$("grid"), fr=$("grid-fri"); fr.innerHTML="";
@@ -1939,7 +1939,7 @@ function showTab(t,scroll){
   document.querySelectorAll("main [data-tab]").forEach(el=>el.classList.toggle("tab-on",el.dataset.tab===t));
   document.querySelectorAll("[data-tabbtn]").forEach(b=>b.setAttribute("aria-current",b.dataset.tabbtn===t));
   {const ab=document.querySelector(`[data-tabbtn="${t}"]`);const bar=ab.parentElement;bar.scrollLeft=ab.offsetLeft-(bar.clientWidth-ab.offsetWidth)/2}
-  if(scroll){const nav=$("tabs"),m=t==="sup"?$("suppliers"):document.querySelector("main");window.scrollTo({top:m.getBoundingClientRect().top+window.scrollY-nav.offsetHeight-6,behavior:"smooth"});m.setAttribute("tabindex","-1");m.focus({preventScroll:true})}
+  if(scroll){const m=document.querySelector("main");window.scrollTo({top:0,behavior:"auto"});if(m){m.setAttribute("tabindex","-1");m.focus({preventScroll:true})}}
 }
 document.addEventListener("click",e=>{
   const b=e.target.closest("[data-tabbtn]");if(b){showTab(b.dataset.tabbtn,true);return}
