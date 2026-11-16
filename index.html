@@ -1340,7 +1340,8 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
             <div class="cour-who" id="cour-who" hidden></div>
             <label class="field" for="f-name">שם מלא *<input id="f-name" type="text" autocomplete="name" placeholder="השם שיופיע לשליח" required aria-required="true"></label>
             <label class="field" for="f-phone">טלפון *<input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05X-XXXXXXX" required aria-required="true"></label>
-            <label class="field" for="f-street">רחוב ומספר בית *<input id="f-street" type="text" autocomplete="street-address" placeholder="למשל: הרימון 7, גני תקוה" required aria-required="true"></label>
+            <label class="field" for="f-street">רחוב ומספר בית *<input id="f-street" type="text" autocomplete="address-line1" placeholder="למשל: הרימון 7" required aria-required="true"></label>
+            <label class="field" for="f-city">עיר *<input id="f-city" type="text" autocomplete="address-level2" placeholder="למשל: גני תקוה" required aria-required="true"></label>
             <div class="two">
               <label class="field" for="f-apt">דירה<input id="f-apt" type="text"></label>
               <label class="field" for="f-floor">קומה<input id="f-floor" type="text"></label>
@@ -1575,7 +1576,7 @@ function persist(){
 const saveList=persist, saveMe=persist;
 function track(){
   if(!me.name)return;
-  set(ref(db,"tracking/"+CID),{name:me.name||"",phone:me.phone||"",point:me.mode==="courier"?("שליח · "+((COURIERS[+me.carea]||{}).area||"")):(me.point||""),street:me.mode==="courier"?(me.street||""):"",apt:me.mode==="courier"?(me.apt||""):"",floor:me.mode==="courier"?(me.floor||""):"",code:me.mode==="courier"?(me.code||""):"",notes:me.mode==="courier"?(me.cnote||""):"",
+  set(ref(db,"tracking/"+CID),{name:me.name||"",phone:me.phone||"",point:me.mode==="courier"?("שליח · "+((COURIERS[+me.carea]||{}).area||"")):(me.point||""),street:me.mode==="courier"?(me.street||""):"",city:me.mode==="courier"?(me.city||""):"",apt:me.mode==="courier"?(me.apt||""):"",floor:me.mode==="courier"?(me.floor||""):"",code:me.mode==="courier"?(me.code||""):"",notes:me.mode==="courier"?(me.cnote||""):"",
     deliveryType:me.mode==="courier"?"courier":"self",
     suppliers:Object.keys(list).filter(h=>byH[h]).map(h=>byH[h].n),
     lastSeen:new Date().toLocaleDateString("he-IL"),
@@ -1694,7 +1695,7 @@ function listText(fc){
   let t=`🛒 *${me.name?"רשימת הקניות של "+me.name:"רשימת הקניות שלי"}* – רכישות כדאיות\n`;
   if(fc||me.mode==="courier"){
     t+=`🛵 משלוח בתשלום עד הבית\n📞 טלפון: ${me.phone||"..."}\n`;
-    t+=`🚚 משלוח לכתובת: ${[me.street,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", ")||"..."}\n`;
+    t+=`🚚 משלוח לכתובת: ${[me.street,me.city,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", ")||"..."}\n`;
     if(me.code)t+=`קוד כניסה: ${me.code}\n`;
     if(me.cnote)t+=`הערות: ${me.cnote}\n`;
   } else t+=`📍 איסוף מ${me.point||"..."}\n`;
@@ -1787,7 +1788,7 @@ function renderCouriers(){fillCourierArea();renderCourTiles();
   if(!$("cour-grid"))return;
   const n=Object.keys(list).filter(h=>byH[h]).length, hasAddr=!!(me.street||"").trim();
   $("cour-addr").innerHTML=!n?`<p>🛒 קודם מוסיפים לרשימה את הספקים שהזמנתם מהם, בלשונית <a href="#mylist">רשימת הקניות</a>.</p>`
-    :hasAddr?`<p>📍 הכתובת שתישלח: <b>${esc([me.street,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", "))}</b>${me.code?" · קוד כניסה "+esc(me.code):""}. <button class="linkbtn" type="button" data-couraddr>שינוי</button></p>`
+    :hasAddr?`<p>📍 הכתובת שתישלח: <b>${esc([me.street,me.city,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", "))}</b>${me.code?" · קוד כניסה "+esc(me.code):""}. <button class="linkbtn" type="button" data-couraddr>שינוי</button></p>`
     :`<p>📍 חסרה כתובת למשלוח. <button class="btn alt" type="button" data-couraddr>מילוי כתובת</button></p>`;
   const txt=encodeURIComponent(listText(true));
   let ci=(me.carea!==""&&me.carea!=null&&COURIERS[+me.carea])?+me.carea:-1;
@@ -1820,7 +1821,7 @@ function updateLinks(){renderCouriers();renderSelf();updateShareSite();
 function fillMe(){
   const put=(id,v)=>{const el=$(id);if(el&&document.activeElement!==el)el.value=v||""};
   put("f-name",me.name);put("f-name2",me.name);put("f-phone",me.phone);$("cour-open").setAttribute("aria-expanded",me.mode==="courier");$("cour-open").hidden=me.mode==="courier";
-  $("f-point").value=me.point||"";["street","apt","floor","code","cnote","cphone"].forEach(k=>put("f-"+k,me[k]));
+  $("f-point").value=me.point||"";["street","city","apt","floor","code","cnote","cphone"].forEach(k=>put("f-"+k,me[k]));
   $("pick-fields").hidden=me.mode==="courier";{const cn=$("ml-cnote");if(cn)cn.hidden=me.mode!=="courier"}$("cour-fields").hidden=me.mode!=="courier";
   renderMeSum();
 }
@@ -1843,11 +1844,11 @@ function weeklyReset(){if(!DIST||!fbReady)return;const now=Date.now(),cur=wkKey(
   if(ch){saveList();if(rm){renderAll();$("ml-msg").textContent="הרשימה של השבוע שעבר התאפסה אוטומטית. הפרטים שלכם נשמרו."}}}
 let toastT=null;
 function toast(n){const t=$("toast");t.innerHTML=`✓ <b>${esc(n)}</b> נוסף ללשונית "רשימת הקניות" <a href="#mylist">לרשימה ←</a>`;{const tb=document.querySelector('[data-tabbtn="list"]');if(tb){tb.classList.remove("bump");void tb.offsetWidth;tb.classList.add("bump");setTimeout(()=>tb.classList.remove("bump"),2500)}};clearTimeout(toastT);toastT=setTimeout(()=>{t.innerHTML=""},4500)}
-function meDone(){return me.mode==="courier"&&!!((me.name||"").trim()&&(me.phone||"").trim()&&(me.street||"").trim()&&me.carea!==""&&me.carea!=null)}
-function meMissing(){const m=[];if(!(me.name||"").trim())m.push("שם מלא");if(!(me.phone||"").trim())m.push("טלפון");if(me.mode==="courier"){if(!(me.street||"").trim())m.push("רחוב ומספר");if(me.carea===""||me.carea==null)m.push("נקודת האיסוף");}else if(!me.point)m.push("נקודת חלוקה");return m}
+function meDone(){return me.mode==="courier"&&!!((me.name||"").trim()&&(me.phone||"").trim()&&(me.street||"").trim()&&(me.city||"").trim()&&me.carea!==""&&me.carea!=null)}
+function meMissing(){const m=[];if(!(me.name||"").trim())m.push("שם מלא");if(!(me.phone||"").trim())m.push("טלפון");if(me.mode==="courier"){if(!(me.street||"").trim())m.push("רחוב ומספר");if(!(me.city||"").trim())m.push("עיר");if(me.carea===""||me.carea==null)m.push("נקודת האיסוף");}else if(!me.point)m.push("נקודת חלוקה");return m}
 function renderMeSum(){
   const L=meDone()&&me.locked!==false&&!EDITING;$("me-sum").hidden=!L;$("me-edit").hidden=L;if(!L)return;
-  const c=COURIERS[+me.carea],addr=[me.street,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", ");
+  const c=COURIERS[+me.carea],addr=[me.street,me.city,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", ");
   $("me-sum").innerHTML=`<b>הפרטים שלי למשלוח</b>`+`<p class="me-who"><b>${esc(me.name)}</b> · <span dir="ltr">${esc(me.phone)}</span></p>`+(me.mode==="courier"
     ?`<p>📍 נקודת האיסוף: <b>${c?esc(c.area):""}</b></p>${c?`<p>🛵 השליח: <b>${esc(c.name)}</b> · <a class="tel" dir="ltr" href="tel:+972${c.phone.replace(/\D/g,"").slice(1)}">${c.phone}</a></p>`:""}<p>🏠 ${esc(addr)}${me.code?" · קוד כניסה "+esc(me.code):""}</p>${me.cnote?`<p>📝 ${esc(me.cnote)}</p>`:""}`
     :`<p>📍 <b>איסוף עצמי</b> מ${esc(me.point)}</p>`)+`<p class="hint">הפרטים שמורים ויישארו כך גם בשבועות הבאים.</p><button class="btn ghost" type="button" id="me-change">שינוי פרטים</button>`;
@@ -1872,7 +1873,7 @@ $("showall").addEventListener("click",()=>{state.view="all";renderGrid()});
 $("f-name").addEventListener("input",e=>{me.name=e.target.value;saveMe();updateLinks()});
 $("f-phone").addEventListener("input",e=>{me.phone=e.target.value;saveMe()});
 $("f-point").addEventListener("change",e=>{me.point=e.target.value;saveMe();updateLinks()});
-["street","apt","floor","code","cnote","cphone"].forEach(k=>$("f-"+k).addEventListener("input",e=>{me[k]=e.target.value;saveMe();updateLinks()}));
+["street","city","apt","floor","code","cnote","cphone"].forEach(k=>$("f-"+k).addEventListener("input",e=>{me[k]=e.target.value;saveMe();updateLinks()}));
 document.addEventListener("change",e=>{if(e.target.id!=="f-carea")return;me.carea=e.target.value;const c=COURIERS[+me.carea];me.cphone=c?c.phone:"";saveMe();updateLinks()});
 document.querySelectorAll('input[name="mode"]').forEach(r=>r.addEventListener("change",e=>{me.mode=e.target.value;saveMe();fillMe();updateLinks()}));
 $("share-copy").addEventListener("click",()=>{
