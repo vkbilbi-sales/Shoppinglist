@@ -143,7 +143,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         <label>פתוח להזמנות עד יום<select id="na-cd"><option value="">לא נקבע</option><option value="0">ראשון</option><option value="1">שני</option><option value="2" selected>שלישי</option><option value="3">רביעי</option><option value="4">חמישי</option><option value="5">שישי</option></select></label>
         <label>בשעה<input id="na-ct" type="time" value="20:00"></label>
         <label>תיאור קצר<input id="na-d" type="text"></label>
-        <div class="na-pics"><div><span>לוגו</span><span id="na-img-pv" class="pv-none">אין</span><label class="nxbtn">העלאת לוגו<input type="file" accept="image/*" id="na-img" hidden></label></div>
+        <div class="na-pics">
           <div><span>תמונה (בראש הכרטיס)</span><span id="na-cov-pv" class="pv-none">אין</span><label class="nxbtn">העלאת תמונה<input type="file" accept="image/*" id="na-cov" hidden></label></div>
           <p class="lk-p" id="na-up-msg" aria-live="polite"></p></div>
         <label>אופן תשלום<select id="na-p"><option value="">כרטיס אשראי בחנות</option><option value="פייבוקס" selected>פייבוקס</option><option value="ביט">ביט</option><option value="העברה בנקאית">העברה בנקאית</option><option value="מזומן">מזומן</option></select></label>
@@ -834,7 +834,7 @@ function supsRender(){if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.sup
         <label>פירוט כשרות (נפתח בלחיצה על תווית הכשרות)<textarea data-ef="ksd" data-ei="${i}" rows="4" placeholder="למשל: בקר וטלה: שחיטה כשרה, לא מנוקר ולא מוכשר. עוף והודו: כשרים ומוכשרים.">${esc(s.ksd||"")}</textarea></label>
         <label>תגיות (מפרידים בפסיק)<input type="text" data-ef="tags" data-ei="${i}" value="${esc(s.tags||"")}" placeholder="טבעוני, ללא גלוטן"></label>
         <div class="sup-pics">
-          <div><span>לוגו</span>${picSrc(s.img)?`<img class="pv-logo" src="${esc(picSrc(s.img))}" alt="">`:`<span class="pv-none">אין</span>`}<label class="nxbtn">${s.img?"החלפה":"העלאת לוגו"}<input type="file" accept="image/*" data-up="img" data-ui="${i}" hidden></label></div>
+          
           <div><span>תמונה (בראש הכרטיס)</span>${picSrc(s.cov)?`<img class="pv-cov" src="${esc(picSrc(s.cov))}" alt="">`:`<span class="pv-none">אין</span>`}<label class="nxbtn">${s.cov?"החלפה":"העלאת תמונת כיסוי"}<input type="file" accept="image/*" data-up="cov" data-ui="${i}" hidden></label></div>
         </div>
         <p class="lk-p" id="up-msg-${i}" aria-live="polite"></p>
@@ -867,7 +867,7 @@ if(window.Sortable)Sortable.create($("sup-list"),{handle:".grip",forceFallback:t
 function naUrl(u){u=(u||"").trim();return u&&!/^https?:\/\//i.test(u)?"https://"+u:u}
 const NA_PIC={img:"",cov:""};
 function naPv(k){const el=$("na-"+k+"-pv");if(!el)return;const src=picSrc(NA_PIC[k]);el.outerHTML=src?`<img id="na-${k}-pv" class="${k==="img"?"pv-logo":"pv-cov"}" src="${esc(src)}" alt="">`:`<span id="na-${k}-pv" class="pv-none">אין</span>`}
-["img","cov"].forEach(k=>$("na-"+k).addEventListener("change",async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;$("na-up-msg").textContent="מעלה תמונה…";
+["cov"].forEach(k=>$("na-"+k).addEventListener("change",async e=>{const f=e.target.files&&e.target.files[0];if(!f)return;$("na-up-msg").textContent="מעלה תמונה…";
   try{NA_PIC[k]=await dUpload(f);naPv(k);$("na-up-msg").textContent="התמונה הועלתה ✓"}catch(err){$("na-up-msg").textContent=err&&err.message==="big"?"התמונה גדולה מדי. נסי תמונה קטנה יותר.":"ההעלאה לא הצליחה. נסי שוב, או תמונה אחרת (JPG או PNG)."}e.target.value=""}));
 function naKs(){const w=$("na-ks-w");if(w)w.innerHTML=ksField("",'id="na-ks"')}naKs();
 $("na-add").addEventListener("click",()=>{const n=$("na-n").value.trim();let url=$("na-url").value.trim();if(url&&!/^https?:\/\//.test(url))url="https://"+url;
