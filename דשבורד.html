@@ -883,7 +883,7 @@ $("sup-save").addEventListener("click",async()=>{$("sup-save").disabled=true;$("
       live.suppliers=live.suppliers.filter(s=>!SUPDEL.has(s.h));
       if(SUPORD){live.manualOrder=!!DATA.manualOrder;const pos=new Map(DATA.suppliers.map((s,i)=>[s.h,i]));live.suppliers.sort((a,b)=>(pos.has(a.h)?pos.get(a.h):1e9)-(pos.has(b.h)?pos.get(b.h):1e9))}
       DATA=live}
-    DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));SUPCH.clear();SUPADD.clear();SUPORD=false;SUPDEL.clear();
+    DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));SUPCH.clear();SUPADD.clear();SUPORD=false;SUPDEL.clear();SUPEDIT=null;
     supsRender();$("sup-msg").textContent="נשמר ✓ הלקוחות כבר רואים את השינוי.";render();lookInit()}
   catch(e){$("sup-msg").textContent="השמירה לא הצליחה ("+(e&&e.message?e.message:"שגיאה")+"). בדקי את החיבור ונסי שוב.";$("sup-save").disabled=false}});
 // drag & drop ordering (arrows stay for keyboard use)
