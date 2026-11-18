@@ -1017,6 +1017,11 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
 .gs-box{border:2.5px solid var(--leaf-deep)!important;box-shadow:0 2px 8px rgba(18,111,116,.18)!important;background:#fff!important}
 
 .wk-btn .wk-n{font-size:19px!important}
+
+.ml-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.ml-top .hint{margin:0}
+#wa-share2{background:var(--wa,#13804A)!important;color:#fff!important;justify-content:center;flex:1 1 100%}
+#wa-share2[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -1362,6 +1367,7 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
       <div><span class="ml-kicker">רשימת הקניות שלי</span><h2 id="ml-h">בחרו לכם מי עולה לעגלת הקניות 🛒</h2><p>הרשימה נשמרת אצלנו ומתעדכנת בכל טלפון שפותח אותה. אפשר לשתף אותה עם בן או בת הזוג, או עם מי שאוסף, וכל סימון מתעדכן אצל כולם.</p><p class="syncline busy" id="sync"><i></i><span id="sync-t">מתחבר…</span></p></div>
       <div class="progress" id="progress"></div>
     </div>
+    <div class="ml-top"><button class="btn ghost" id="reset" type="button">🔄 איפוס הרשימה</button><span class="hint">הרשימה מתאפסת לבד אחרי כל חלוקה.</span></div>
     <div class="ml-flow">
       <div class="ml-box ml-items">
         <h3>🛒 הספקים ברשימה שלי</h3>
@@ -1370,8 +1376,8 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
         <div class="pick-sup"><label class="field" for="pick-sup">הוספת ספק נוסף<select id="pick-sup"></select></label></div>
         <div class="paysum" id="paysum" hidden><h4>תשלום לספקים ברשימה</h4><ul id="paysum-l"></ul></div>
         <div class="ml-actions ml-small">
+          <a class="btn wa-go" id="wa-share2" href="#" target="_blank" rel="noopener">📤 שיתוף הרשימה למי שאוסף</a>
           <button class="btn alt" id="copy" type="button">העתקת הרשימה</button>
-          <button class="btn ghost" id="reset" type="button">איפוס הרשימה</button>
         </div>
         <p class="hint" id="ml-msg" aria-live="polite"></p>
       </div>
@@ -1812,6 +1818,7 @@ function updateShareSite(){const h="https://api.whatsapp.com/send?text="+encodeU
 function updateLinks(){renderCouriers();renderSelf();updateShareSite();
   const txt=encodeURIComponent(listText());
   $("wa-share").href="https://api.whatsapp.com/send?text="+txt;
+  {const w2=$("wa-share2");if(w2){w2.href="https://api.whatsapp.com/send?text="+txt;w2.hidden=!Object.keys(list).filter(h=>byH[h]).length}}
   const cp=digits(me.cphone);
   $("wa-cour").hidden=!(me.mode==="courier"&&cp.length>=11);
   $("wa-cour").href=`https://api.whatsapp.com/send?phone=${cp}&text=${txt}`;
@@ -1889,8 +1896,8 @@ $("copy").addEventListener("click",()=>{
 });
 let armed=false;
 $("reset").addEventListener("click",()=>{
-  if(!armed){armed=true;$("reset").textContent="לחצו שוב לאישור האיפוס";$("reset").classList.add("warn");setTimeout(()=>{armed=false;$("reset").textContent="איפוס הרשימה";$("reset").classList.remove("warn")},4000);return}
-  armed=false;list={};saveList();$("reset").textContent="איפוס הרשימה";$("reset").classList.remove("warn");$("ml-msg").textContent="הרשימה אופסה.";renderAll();
+  if(!armed){armed=true;$("reset").textContent="לחצו שוב לאישור האיפוס";$("reset").classList.add("warn");setTimeout(()=>{armed=false;$("reset").textContent="🔄 איפוס הרשימה";$("reset").classList.remove("warn")},4000);return}
+  armed=false;list={};saveList();$("reset").textContent="🔄 איפוס הרשימה";$("reset").classList.remove("warn");$("ml-msg").textContent="הרשימה אופסה.";renderAll();
 });
 
 // ---------- galleries & collaborations ----------
