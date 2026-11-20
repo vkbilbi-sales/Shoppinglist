@@ -1053,6 +1053,13 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
 /* כפתורי שמירת האפליקציה ו"ספקים מגיעים השבוע" בצהוב שמש */
 .tabs .tab-a2hs,.wk-btn,.wk-btn #wk-n,.wk-btn #wk-n b{background:#F5C542!important;border-color:#F5C542!important;color:#3A2400!important}
 .wk-btn #wk-n,.wk-btn #wk-n b{background:transparent!important}
+/* כותרת "הספקים שלנו" בולטת יותר: גדולה, עבה, עם מרקר צהוב */
+#sup-h{font-size:66px!important;color:#B3262B!important;-webkit-text-stroke:1.2px currentColor;letter-spacing:.02em}
+#sup-h .sup-t{background:linear-gradient(transparent 58%,#FFE066 58%,#FFE066 92%,transparent 92%);padding:0 8px;border-radius:4px}
+#sup-when{font-size:.46em!important;-webkit-text-stroke:.5px currentColor;margin-top:8px!important}
+@media (max-width:620px){#sup-h{font-size:54px!important}}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #sup-h{color:#FF8A8A!important}:root:not([data-theme="light"]) #sup-h .sup-t{background:linear-gradient(transparent 58%,#5A4A18 58%,#5A4A18 92%,transparent 92%)}}
+:root[data-theme="dark"] #sup-h{color:#FF8A8A!important}:root[data-theme="dark"] #sup-h .sup-t{background:linear-gradient(transparent 58%,#5A4A18 58%,#5A4A18 92%,transparent 92%)}
 </style>
 </head>
 <body>
@@ -1331,7 +1338,7 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
     </div>
   </section>
   <div class="section-head" id="suppliers">
-    <h2 id="sup-h">הספקים שלנו<span id="sup-when"></span></h2>
+    <h2 id="sup-h"><span class="sup-t">הספקים שלנו</span><span id="sup-when"></span></h2>
     <p id="count"></p>
   </div>
 
