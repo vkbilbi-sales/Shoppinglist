@@ -1807,9 +1807,9 @@ function renderList(){
   updateLinks();
 }
 const COURIERS_DEF=[
-  {area:"רמת השרון",name:"דרור",phone:"054-4321886",note:"איסוף מכל הספקים עד פתח הבית ב־40 ₪"},
+  {area:"רמת השרון והרצליה",name:"דרור",phone:"054-4321886",note:"איסוף מכל הספקים עד פתח הבית ב־40 ₪"},
   {area:"רעננה",name:"אוהד",phone:"054-5395446",note:"איסוף מכל הספקים עד פתח הבית"},
-  {area:"גליל ים, הרצליה",name:"דרור",phone:"054-4321886",note:"איסוף מכל הספקים עד פתח הבית"},
+  {area:"גליל ים, הרצליה",name:"דרור",phone:"054-4321886",note:"איסוף מכל הספקים עד פתח הבית",off:1},
   {area:"גני תקוה וקריית אונו",name:"כפיר",phone:"054-6850455",note:"איסוף מכל הספקים עד פתח הבית ב־40 ₪. יעדים נוספים בתיאום ובעלות אחרת"}
 ];
 let COURIERS=(Array.isArray(DATA.couriers)&&DATA.couriers.length)?DATA.couriers:COURIERS_DEF;

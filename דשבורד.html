@@ -126,6 +126,22 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
     </div>
   </div>
 
+  <!-- Courier pool -->
+  <div class="card" id="cour-card">
+    <div class="slabel">🛵 מאגר השליחים</div>
+    <p class="lk-p">כל השליחים שמורים כאן קבוע. מסמנים <b>"פעיל השבוע"</b> ליד מי שעובד השבוע. שליח לא מסומן נעלם מהלקוחות, הפרטים שלו נשמרים (באפור), ואפשר להחזיר אותו בלחיצה. אפשר לשים שני שליחים פעילים באותה נקודה, והלקוחות יבחרו ביניהם.</p>
+    <ol class="lk-p" style="margin:.2rem 1.2rem .6rem 0;padding:0;text-align:right">
+      <li><b>להוסיף שליח:</b> לוחצים למטה על "+ הוספת שליח למאגר" וממלאים שם וטלפון.</li>
+      <li><b>להוסיף נקודת שליחות חדשה:</b> ב"נקודת איסוף" של השליח בוחרים בסוף הרשימה "+ נקודה חדשה…" ורושמים את השם (למשל "רמת השרון והרצליה").</li>
+      <li><b>להעביר שליח לנקודה אחרת:</b> בוחרים נקודה אחרת ברשימה.</li>
+      <li>בסוף לוחצים "💾 שמירה".</li></ol>
+    <div class="st-sum" id="cr-sum" aria-live="polite"></div>
+    <div id="cr-list"></div>
+    <button class="btn bg bfull" type="button" id="cr-add">+ הוספת שליח למאגר</button>
+    <div class="sup-savebar"><button class="btn bt bfull" type="button" id="cr-save" disabled>💾 שמירה</button></div>
+    <div id="cr-msg" style="margin-top:.5rem;font-size:.85rem;color:var(--muted)" aria-live="polite"></div>
+  </div>
+
   <!-- Suppliers this week: status, search, quick add -->
   <div class="card" id="sups-card">
     <div class="slabel">🌱 ספקים השבוע — מי מגיע</div>
@@ -157,17 +173,6 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
     </details>
     <div class="sup-savebar" id="sup-savebar"><button class="btn bt bfull" type="button" id="sup-save" disabled>💾 שמירה</button></div>
     <div id="sup-msg" style="margin-top:.5rem;font-size:.85rem;color:var(--muted)" aria-live="polite"></div>
-  </div>
-
-  <!-- Courier pool -->
-  <div class="card" id="cour-card">
-    <div class="slabel">🛵 מאגר השליחים</div>
-    <p class="lk-p">כל השליחים שמורים כאן קבוע. מסמנים <b>"פעיל השבוע"</b> ליד מי שעובד השבוע. שליח לא מסומן נעלם מהלקוחות, הפרטים שלו נשמרים (באפור), ואפשר להחזיר אותו בלחיצה. אפשר לשים שני שליחים פעילים באותה נקודה, והלקוחות יבחרו ביניהם.</p>
-    <div class="st-sum" id="cr-sum" aria-live="polite"></div>
-    <div id="cr-list"></div>
-    <button class="btn bg bfull" type="button" id="cr-add">+ הוספת שליח למאגר</button>
-    <div class="sup-savebar"><button class="btn bt bfull" type="button" id="cr-save" disabled>💾 שמירה</button></div>
-    <div id="cr-msg" style="margin-top:.5rem;font-size:.85rem;color:var(--muted)" aria-live="polite"></div>
   </div>
 
   <!-- Visits: who just looked vs who made a list -->
