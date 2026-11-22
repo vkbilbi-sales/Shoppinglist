@@ -786,6 +786,8 @@ body[data-tab="about"] #h1-alt,body:not([data-tab]) #h1-alt{display:none}
 .cour-lock{margin:0;background:var(--bg);border:1px dashed var(--frame);border-radius:12px;padding:10px 12px;font-size:16px!important}
 .ed-cour{grid-template-columns:1fr 1fr 1fr auto!important}
 .ed-cour .wide{grid-column:1/-1}
+.ed-cour.ed-off{opacity:.6;background:#F1F1F1;border-radius:10px}
+.ed-act{flex-direction:row!important;align-items:center;gap:8px;font-weight:700}.ed-act input{width:22px;height:22px}
 @media (max-width:620px){.ed-cour{grid-template-columns:1fr 1fr auto!important}}
 /* bigger supplier pictures */
 .card .cover{height:210px!important}
@@ -983,6 +985,11 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
 .ct-pick:hover{box-shadow:0 6px 16px rgba(18,111,116,.15)}
 .ct-pick .ct-ic{width:72px;height:72px;font-size:42px}
 .ct-name{font-size:19px;font-weight:800;color:var(--leaf-deep);line-height:1.25}
+.ct-names{font-size:15px;font-weight:600;color:var(--ink);line-height:1.3}
+.ct-two{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.ct-who-b{font:inherit;font-size:15px;font-weight:700;min-height:44px;padding:8px 16px;border-radius:999px;border:2px solid var(--leaf);background:var(--surface);color:var(--leaf-deep);cursor:pointer}
+.ct-who-b[aria-pressed="true"]{background:var(--leaf);color:var(--on-leaf)}
+.ct-who-b:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 #ct-form{gap:14px!important;padding:18px 16px!important}
 #ct-form h3{font-size:20px!important;font-weight:800}
 #ct-form .cour-lead{font-size:16px;line-height:1.5}
@@ -1540,7 +1547,7 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
     </section>
     <section class="ed-sec">
       <div class="ed-sechead"><h3>שליחים</h3><button class="btn alt" id="ed-addcour" type="button">+ הוספת שליח</button></div>
-      <p class="hint">לכל נקודת איסוף, השליח שלה. הלקוחות רואים את זה ברשימת הקניות ובלשונית השליחים, וההודעה בוואטסאפ נשלחת למספר שכתוב כאן.</p>
+      <p class="hint">מאגר השליחים הקבוע. מסמנים "פעיל השבוע" לשליחים שעובדים השבוע; שליח לא מסומן נעלם מהלקוחות והפרטים שלו נשמרים. אפשר שני שליחים באותה נקודה. הלקוחות רואים את זה ברשימת הקניות ובלשונית השליחים, וההודעה בוואטסאפ נשלחת למספר שכתוב כאן.</p>
       <div id="ed-cours"></div>
     </section>
     <section class="ed-sec">
@@ -1628,7 +1635,7 @@ function persist(){
 const saveList=persist, saveMe=persist;
 function track(){
   if(!me.name)return;
-  set(ref(db,"tracking/"+CID),{name:me.name||"",phone:me.phone||"",point:me.mode==="courier"?("שליח · "+((COURIERS[+me.carea]||{}).area||"")):(me.point||""),street:me.mode==="courier"?(me.street||""):"",city:me.mode==="courier"?(me.city||""):"",apt:me.mode==="courier"?(me.apt||""):"",floor:me.mode==="courier"?(me.floor||""):"",code:me.mode==="courier"?(me.code||""):"",notes:me.mode==="courier"?(me.cnote||""):"",
+  set(ref(db,"tracking/"+CID),{name:me.name||"",phone:me.phone||"",point:me.mode==="courier"?("שליח · "+((COURIERS[+me.carea]||{}).area||"")+((COURIERS[+me.carea]||{}).name?" · "+COURIERS[+me.carea].name:"")):(me.point||""),street:me.mode==="courier"?(me.street||""):"",city:me.mode==="courier"?(me.city||""):"",apt:me.mode==="courier"?(me.apt||""):"",floor:me.mode==="courier"?(me.floor||""):"",code:me.mode==="courier"?(me.code||""):"",notes:me.mode==="courier"?(me.cnote||""):"",
     deliveryType:me.mode==="courier"?"courier":"self",
     suppliers:Object.keys(list).filter(h=>byH[h]).map(h=>byH[h].n),
     lastSeen:new Date().toLocaleDateString("he-IL"),
@@ -1806,10 +1813,12 @@ const COURIERS_DEF=[
   {area:"גני תקוה וקריית אונו",name:"כפיר",phone:"054-6850455",note:"איסוף מכל הספקים עד פתח הבית ב־40 ₪. יעדים נוספים בתיאום ובעלות אחרת"}
 ];
 let COURIERS=(Array.isArray(DATA.couriers)&&DATA.couriers.length)?DATA.couriers:COURIERS_DEF;
+function cOn(i){const c=COURIERS[+i];return i!==""&&i!=null&&!!c&&!c.off}
+function cGroups(){const g=[],at={};COURIERS.forEach((c,i)=>{if(c.off)return;const a=(c.area||"").trim();if(!(a in at)){at[a]=g.length;g.push({area:a,ix:[]})}g[at[a]].ix.push(i)});return g}
 function fillCourierArea(){
   const sel=$("f-carea");if(!sel)return;
-  if(document.activeElement!==sel)sel.innerHTML='<option value="">-- בחרו נקודת איסוף --</option>'+COURIERS.map((c,i)=>`<option value="${i}"${String(me.carea)===String(i)?" selected":""}>${esc(c.area)}</option>`).join("");
-  const c=COURIERS[+me.carea],who=$("cour-who"),box=$("cour-pick"),has=me.carea!==""&&me.carea!=null&&!!c;
+  if(document.activeElement!==sel)sel.innerHTML='<option value="">-- בחרו נקודת איסוף --</option>'+COURIERS.map((c,i)=>c.off?"":`<option value="${i}"${String(me.carea)===String(i)?" selected":""}>${esc(c.area)}${cGroups().some(g=>g.area===(c.area||"").trim()&&g.ix.length>1)?" ("+esc(c.name)+")":""}</option>`).join("");
+  const c=cOn(me.carea)?COURIERS[+me.carea]:null,who=$("cour-who"),box=$("cour-pick"),has=!!c;
   const ph=has?c.phone.replace(/\D/g,"").slice(1):"";
   who.hidden=!has;if(has)who.innerHTML=`🛵 השליח של ${esc(c.area)}: <b>${esc(c.name)}</b> · <a class="tel" dir="ltr" href="tel:+972${ph}">${c.phone}</a>`;
   if(me.mode!=="courier"){box.hidden=true;return}
@@ -1826,13 +1835,19 @@ function fillCourierArea(){
 }
 let CT_OPEN=-1;
 function renderCourTiles(){const g=$("ct-grid");if(!g)return;
-  const ci=(CT_OPEN>=0&&COURIERS[CT_OPEN]&&me.mode==="courier")?CT_OPEN:-1;
-  g.innerHTML=COURIERS.map((c,i)=>ci>=0&&i!==ci?"":i===ci
-    ?`<article class="ct-tile on"><span class="ct-ic" aria-hidden="true">🛵</span><h3>שליחות ${esc(c.area)}</h3><p class="ct-who">השליח שלכם: <b>${esc(c.name)}</b></p><a class="ct-phone" dir="ltr" href="tel:+972${c.phone.replace(/\D/g,"").slice(1)}">📞 ${esc(c.phone)}</a>${c.note?`<p class="ct-note">${esc(c.note)}</p>`:""}<button class="linkbtn" type="button" data-ctreset>החלפת נקודה</button></article>`
-    :`<button type="button" class="ct-tile ct-pick" data-ctile="${i}"><span class="ct-ic" aria-hidden="true">🛵</span><span class="ct-name">שליחות ${esc(c.area)}</span></button>`).join("");
+  const G=cGroups(),ci=(CT_OPEN>=0&&cOn(CT_OPEN)&&me.mode==="courier")?CT_OPEN:-1,ga=ci>=0?(COURIERS[ci].area||"").trim():null;
+  const tel=p=>`<a class="ct-phone" dir="ltr" href="tel:+972${String(p||"").replace(/\D/g,"").slice(1)}">📞 ${esc(p)}</a>`;
+  g.innerHTML=G.map(gr=>{const names=gr.ix.map(i=>COURIERS[i].name).filter(Boolean);
+    if(ga!==null&&gr.area!==ga)return "";
+    if(ga===null)return `<button type="button" class="ct-tile ct-pick" data-ctile="${gr.ix[0]}"><span class="ct-ic" aria-hidden="true">🛵</span><span class="ct-name">שליחות ${esc(gr.area)}</span>${names.length?`<span class="ct-names">${names.length>1?"השליחים":"השליח"}: ${names.map(esc).join(" · ")}</span>`:""}</button>`;
+    const c=COURIERS[ci];
+    const pick=gr.ix.length>1?`<p class="ct-who" id="ct-two">בנקודה הזאת יש ${gr.ix.length} שליחים. בוחרים למי לשלוח:</p><div class="ct-two" role="group" aria-labelledby="ct-two">${gr.ix.map(i=>`<button type="button" class="ct-who-b" data-ctwho="${i}" aria-pressed="${i===ci}">${i===ci?"✓ ":""}${esc(COURIERS[i].name)}</button>`).join("")}</div>`:"";
+    return `<article class="ct-tile on"><span class="ct-ic" aria-hidden="true">🛵</span><h3>שליחות ${esc(gr.area)}</h3>${pick}<p class="ct-who">השליח שלכם: <b>${esc(c.name)}</b></p>${tel(c.phone)}${c.note?`<p class="ct-note">${esc(c.note)}</p>`:""}<button class="linkbtn" type="button" data-ctreset>החלפת נקודה</button></article>`}).join("");
   g.classList.toggle("one",ci>=0);const f=$("ct-form");if(f)f.hidden=ci<0}
-document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ctile]");if(!b)return;const i=+b.dataset.ctile,c=COURIERS[i];if(!c)return;
-  CT_OPEN=i;me.mode="courier";me.carea=String(i);me.cphone=c.phone;saveMe();fillMe();updateLinks();renderCouriers();requestAnimationFrame(()=>{const f=$("ct-form");if(f)f.scrollIntoView({behavior:"smooth",block:"start"})})});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ctile],[data-ctwho]");if(!b)return;let i=+(b.dataset.ctile??b.dataset.ctwho);if(!cOn(i))return;
+  if(b.dataset.ctile!==undefined&&cOn(me.carea)&&(COURIERS[+me.carea].area||"").trim()===(COURIERS[i].area||"").trim())i=+me.carea;
+  const c=COURIERS[i],sw=b.dataset.ctwho!==undefined;
+  CT_OPEN=i;me.mode="courier";me.carea=String(i);me.cphone=c.phone;saveMe();fillMe();updateLinks();renderCouriers();requestAnimationFrame(()=>{if(sw){const x=document.querySelector(`[data-ctwho="${i}"]`);if(x)x.focus();return}const f=$("ct-form");if(f)f.scrollIntoView({behavior:"smooth",block:"start"})})});
 document.addEventListener("click",e=>{if(!(e.target.closest&&e.target.closest("[data-ctreset]")))return;CT_OPEN=-1;me.carea="";me.cphone="";saveMe();fillMe();updateLinks();renderCouriers();const g=$("ct-grid");if(g)g.scrollIntoView({behavior:"smooth",block:"start"})});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-copy]");if(!b)return;const v=b.dataset.copy;const done=()=>{const t=b.textContent;b.textContent="המספר הועתק ✓";setTimeout(()=>b.textContent=t,2000)};try{navigator.clipboard.writeText(v).then(done,done)}catch(_){done()}});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-bitcopy]");if(!b)return;const v=b.dataset.bitcopy,t=b.innerHTML;const done=()=>{b.innerHTML='<span class="ct-bt">המספר הועתק ✓</span><small>מדביקים בביט ומעבירים 40 ₪</small>';setTimeout(()=>b.innerHTML=t,4000)};try{navigator.clipboard.writeText(v).then(done,done)}catch(_){done()}});
@@ -1843,9 +1858,9 @@ function renderCouriers(){fillCourierArea();renderCourTiles();
     :hasAddr?`<p>📍 הכתובת שתישלח: <b>${esc([me.street,me.city,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", "))}</b>${me.code?" · קוד כניסה "+esc(me.code):""}. <button class="linkbtn" type="button" data-couraddr>שינוי</button></p>`
     :`<p>📍 חסרה כתובת למשלוח. <button class="btn alt" type="button" data-couraddr>מילוי כתובת</button></p>`;
   const txt=encodeURIComponent(listText(true));
-  let ci=(me.carea!==""&&me.carea!=null&&COURIERS[+me.carea])?+me.carea:-1;
-  if(ci<0&&me.point)ci=COURIERS.findIndex(c=>c.area.includes(me.point)||me.point.includes(c.area));
-  const mine=ci>=0?COURIERS[ci]:null,ord=COURIERS.map((c,i)=>[c,i]).sort((a,b)=>(b[1]===ci)-(a[1]===ci));
+  let ci=cOn(me.carea)?+me.carea:-1;
+  if(ci<0&&me.point)ci=COURIERS.findIndex(c=>!c.off&&(c.area.includes(me.point)||me.point.includes(c.area)));
+  const mine=ci>=0?COURIERS[ci]:null,ord=COURIERS.map((c,i)=>[c,i]).filter(([c])=>!c.off).sort((a,b)=>(b[1]===ci)-(a[1]===ci));
   $("cour-grid").innerHTML=ord.map(([c,i])=>`<article class="cour-card${i===ci?" mine":""}">${i===ci?'<span class="cour-mine">⭐ השליח של הנקודה שלכם</span>':""}<div class="cour-top"><span class="cour-ic" aria-hidden="true">🛵</span><div><b>${esc(c.area)}</b><span>${esc(c.name)} · <a class="tel" dir="ltr" href="tel:+972${c.phone.replace(/\D/g,"").slice(1)}">${c.phone}</a></span></div></div>
     <p>${esc(c.note)}</p>
     ${mine&&i!==ci?`<p class="cour-lock">הנקודה שלכם היא <b>${esc(mine.area)}</b>, ולכן שולחים רק ל${esc(mine.name)}. <button class="linkbtn" type="button" data-couraddr>החלפת נקודה</button></p>`
@@ -1883,7 +1898,7 @@ function migrateOld(){get(ref(db,"cust4/"+CID)).then(sn=>{const o=sn.val();if(!o
   const c=o.courier||{},pts=DATA.points||[],P=String(o.point||"");
   const pt=pts.find(p=>p.n===P)||pts.find(p=>P&&(P.includes(p.n)||p.n.includes(P)));
   me=Object.assign({},ME0,me,{name:o.name||"",phone:o.phone||c.phone||"",point:pt?pt.n:"",street:c.street||"",apt:c.apt||"",floor:c.floor||"",code:c.code||"",cnote:c.notes||""});
-  const cp=String(c.point||P);const ci=cp?COURIERS.findIndex(k=>k.area.includes(cp)||cp.includes(k.area)):-1;if(ci>=0)me.carea=String(ci);
+  const cp=String(c.point||P);const ci=cp?COURIERS.findIndex(k=>!k.off&&(k.area.includes(cp)||cp.includes(k.area))):-1;if(ci>=0)me.carea=String(ci);
   const nm=t=>srchNorm(t).replace(/\s+/g," ").trim();
   (o.collected||[]).forEach(it=>{if(!it||!it.name)return;const a=nm(it.name);const s=S.find(x=>nm(x.n)===a)||S.find(x=>{const b=nm(x.n);return b.includes(a)||a.includes(b)});if(s&&!list[s.h])list[s.h]={note:it.note||"",got:!!it.done}});
   persist();fillMe();renderAll();syncState("ok","מחובר ✓")}).catch(()=>syncState("ok","מחובר ✓"))}
@@ -1897,8 +1912,8 @@ function weeklyReset(){if(!DIST||!fbReady)return;const now=Date.now(),cur=wkKey(
   if(ch){saveList();if(rm){renderAll();$("ml-msg").textContent="הרשימה של השבוע שעבר התאפסה אוטומטית. הפרטים שלכם נשמרו."}}}
 let toastT=null;
 function toast(n){const t=$("toast");t.innerHTML=`✓ <b>${esc(n)}</b> נוסף ללשונית "רשימת הקניות" <a href="#mylist">לרשימה ←</a>`;{const tb=document.querySelector('[data-tabbtn="list"]');if(tb){tb.classList.remove("bump");void tb.offsetWidth;tb.classList.add("bump");setTimeout(()=>tb.classList.remove("bump"),2500)}};clearTimeout(toastT);toastT=setTimeout(()=>{t.innerHTML=""},4500)}
-function meDone(){return me.mode==="courier"&&!!((me.name||"").trim()&&(me.phone||"").trim()&&(me.street||"").trim()&&(me.city||"").trim()&&me.carea!==""&&me.carea!=null)}
-function meMissing(){const m=[];if(!(me.name||"").trim())m.push("שם מלא");if(!(me.phone||"").trim())m.push("טלפון");if(me.mode==="courier"){if(!(me.street||"").trim())m.push("רחוב ומספר");if(!(me.city||"").trim())m.push("עיר");if(me.carea===""||me.carea==null)m.push("נקודת האיסוף");}else if(!me.point)m.push("נקודת חלוקה");return m}
+function meDone(){return me.mode==="courier"&&!!((me.name||"").trim()&&(me.phone||"").trim()&&(me.street||"").trim()&&(me.city||"").trim()&&cOn(me.carea))}
+function meMissing(){const m=[];if(!(me.name||"").trim())m.push("שם מלא");if(!(me.phone||"").trim())m.push("טלפון");if(me.mode==="courier"){if(!(me.street||"").trim())m.push("רחוב ומספר");if(!(me.city||"").trim())m.push("עיר");if(!cOn(me.carea))m.push("נקודת האיסוף");}else if(!me.point)m.push("נקודת חלוקה");return m}
 function renderMeSum(){
   const L=meDone()&&me.locked!==false&&!EDITING;$("me-sum").hidden=!L;$("me-edit").hidden=L;if(!L)return;
   const c=COURIERS[+me.carea],addr=[me.street,me.city,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", ");
@@ -2120,8 +2135,10 @@ document.addEventListener("change",ev=>{const sel=ev.target.closest&&ev.target.c
   else{t.hidden=true;t.value=sel.value;t.dispatchEvent(new Event("input",{bubbles:true}))}});
 function opt(list,val){return list.map(([v,l])=>`<option value="${v}"${String(val??"")===v?" selected":""}>${l}</option>`).join("")}
 function edCours(){
-  $("ed-cours").innerHTML=draft.couriers.map((c,i)=>`<div class="ed-pt ed-cour">
-    <label class="field">נקודת איסוף<input data-cr="${i}" data-f="area" value="${esc(c.area||"")}"></label>
+  const PTS=[...new Set([...draft.couriers.map(c=>(c.area||"").trim()),...(draft.points||[]).map(p=>(p.n||"").trim())].filter(Boolean))];
+  $("ed-cours").innerHTML=draft.couriers.map((c,i)=>`<div class="ed-pt ed-cour${c.off?" ed-off":""}">
+    <label class="field wide ed-act"><input type="checkbox" data-cr="${i}" data-f="off"${c.off?"":" checked"}> פעיל השבוע${c.off?" <small>(לא מוצג ללקוחות. הפרטים שמורים)</small>":""}</label>
+    <label class="field">נקודת איסוף<select data-cr="${i}" data-f="area">${(c.area||"").trim()?"":'<option value="">בוחרים נקודה</option>'}${PTS.map(p=>`<option${p===(c.area||"").trim()?" selected":""}>${esc(p)}</option>`).join("")}<option value="__new">+ נקודה חדשה…</option></select></label>
     <label class="field">שם השליח<input data-cr="${i}" data-f="name" value="${esc(c.name||"")}"></label>
     <label class="field">טלפון<input data-cr="${i}" data-f="phone" value="${esc(c.phone||"")}" inputmode="tel" dir="ltr"></label>
     <button class="rm" type="button" data-rmcour="${i}" aria-label="מחיקת שליח">×</button>
@@ -2240,7 +2257,7 @@ function edBind(){
   $("ed-addsup").addEventListener("click",()=>{draft.suppliers.unshift({h:"s"+Date.now().toString(36),n:"",c:"veg",o:1,d:"",k:"",url:"",cd:2,ct:"19:00",p:"",pl:"",ks:"",f:0});edSups(0)});
   $("ed").addEventListener("input",e=>{const t=e.target,f=t.dataset.f;if(!f)return;
     if(t.dataset.pt!==undefined){draft.points[+t.dataset.pt][f]=t.value;return}
-    if(t.dataset.cr!==undefined){draft.couriers[+t.dataset.cr][f]=t.value;return}
+    if(t.dataset.cr!==undefined){const c=draft.couriers[+t.dataset.cr];if(f==="off"){if(t.checked)delete c.off;else c.off=1;edCours();return}if(f==="area"&&t.value==="__new"){const n=t.closest(".ed-cour");t.outerHTML=`<input data-cr="${t.dataset.cr}" data-f="area" placeholder="שם הנקודה החדשה" value="">`;const x=n.querySelector('[data-f="area"]');if(x)x.focus();return}c[f]=t.value;return}
     if(t.dataset.i===undefined)return;const s=draft.suppliers[+t.dataset.i];
     if(t.type==="checkbox")s[f]=t.checked?1:0;else if(f==="cd")s[f]=t.value===""?null:+t.value;else s[f]=t.value;
     if(f==="stt"){s.o=t.value==="on"?1:0;s.nx=t.value==="next"?1:0}
