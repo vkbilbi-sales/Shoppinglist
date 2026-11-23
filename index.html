@@ -1784,12 +1784,16 @@ function srchSub(a,b){let i=0;for(const ch of b){if(ch===a[i])i++;if(i===a.lengt
 function srchMatch(s,q){const hay=[s.n,s.d,s.k,s.tags,s.ks,(CATS[s.c]||{}).label].join(" "),H=srchNorm(hay);
   return srchNorm(q).split(/\s+/).filter(Boolean).every(w=>{if(H.includes(w))return true;const k=srchSkel(w);if(k.length<3)return false;
     return H.split(/\s+/).some(x=>{const xs=srchSkel(x);return xs.includes(k)||(xs[0]===k[0]&&xs.length<=k.length+2&&srchSub(k,xs))})})}
+// from 36h before the distribution starts, suppliers are ordered by order-closing time (earliest first)
+function distStart(){if(!DIST)return 0;let hh=16,mm=0;(DATA.points||[]).forEach(p=>{const m=String(p.t||"").match(/(\d{1,2}):(\d{2})/);if(m&&(+m[1]*60+ +m[2])<hh*60+mm){hh=+m[1];mm=+m[2]}});return ilDate(DIST.y,DIST.mo,DIST.d,hh,mm)}
+function closeSoon(){const t=distStart();return !!t&&Date.now()>=t-36*3600e3}
 function renderGrid(){
   renderWk();
   const q=state.q.trim();
   let L=S.filter(s=>!s.ps&&(s.o||s.nx||freqNext(s))&&(state.cat==="all"||s.c===state.cat)&&(!state.open||isOpen(s))&&(!q||srchMatch(s,q)));
   if(state.view==="favs")L=L.filter(s=>favs.has(s.h));
-  L.sort((a,b)=>(isOpen(b)-isOpen(a))||(state.sort==="mine"?S.indexOf(a)-S.indexOf(b):0)||(state.sort==="close"&&isOpen(a)?closeAt(a)-closeAt(b):0)||a.n.localeCompare(b.n,"he"));
+  const srt=(state.sort==="mine"&&closeSoon())?"close":state.sort;
+  L.sort((a,b)=>(isOpen(b)-isOpen(a))||(srt==="mine"?S.indexOf(a)-S.indexOf(b):0)||(srt==="close"&&isOpen(a)?closeAt(a)-closeAt(b):0)||a.n.localeCompare(b.n,"he"));
   $("grid").innerHTML=L.length?L.map(s=>{const C=CATS[s.c],inL=!!list[s.h];return `
   <article class="card${isOpen(s)?"":" closed"}"${s.f?" data-fri":""} style="--cc:${STALL[S.indexOf(s)%STALL.length]};--aw:${AWN[STALL[S.indexOf(s)%STALL.length]]||STALL[S.indexOf(s)%STALL.length]}">
     <div class="mini-awning" aria-hidden="true"></div>
@@ -2196,7 +2200,7 @@ onValue(ref(db,LISTS+"/"+CID),snap=>{
   }
   syncState("ok","מסונכרן ✓");
   if(v)applyList(v);
-},()=>syncState("err","אין חיבור לשרת. הרשימה נשמרת בינתיים בטלפון הזה"));setInterval(()=>{const before=DIST&&DIST.d;computeTimes();weeklyReset();if(DIST.d!==before){applyFreq();renderGrid();renderPoints();renderArrivals()}else tick()},1000);$("f-pts").textContent=DATA.points.length;
+},()=>syncState("err","אין חיבור לשרת. הרשימה נשמרת בינתיים בטלפון הזה"));let CSOON=null;setInterval(()=>{const before=DIST&&DIST.d;computeTimes();weeklyReset();const cs=closeSoon();if(DIST.d!==before){applyFreq();renderGrid();renderPoints();renderArrivals()}else if(CSOON!==null&&cs!==CSOON)renderGrid();else tick();CSOON=cs},1000);$("f-pts").textContent=DATA.points.length;
 
 // ---------- edit mode (owner only, republishes the page) ----------
 let draft=null;
