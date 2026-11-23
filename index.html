@@ -653,15 +653,12 @@ body{font-size:18.5px!important}
 .arr-board{margin:26px 0 0;background:#fff;border:2px solid #126F74;border-radius:16px;padding:16px}
 .arr-board h2{margin:0 0 4px;font-size:23px;font-weight:800;color:#0F5257}
 .arr-sub{margin:0 0 10px;color:#3D4B4C;font-size:15px}
-.arr-weekly{margin:0 0 10px;padding:8px 12px;background:#F3FAF9;border-radius:10px;font-size:15px;color:#1F2A2B}
-.arr-rows{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.arr-row{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:center;padding:10px 12px;border:1.5px solid #BFDCD9;border-radius:12px;background:#FBFEFD}
-.arr-row.now{border-color:#F28C28;border-inline-start-width:6px;background:#FFF8EC}
-.arr-d small{display:block;font-size:13px;color:#4F5D5E;font-weight:700}.arr-d b{font-size:17px;color:#0F5257}
-.arr-s{display:flex;flex-wrap:wrap;gap:6px}
-.arr-chip{display:inline-block;padding:4px 12px;border-radius:999px;background:#FFC93C;color:#3A2400;font-weight:800;font-size:15px}.arr-chip small{font-weight:600}
-.arr-none{color:#5E6566;font-size:14px}
-@media (max-width:520px){.arr-row{grid-template-columns:1fr;gap:6px}}
+.arr-rows{list-style:none;margin:0;padding:0;display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.arr-row{padding:10px 14px;border:1.5px solid #BFDCD9;border-inline-start:6px solid #126F74;border-radius:12px;background:#FBFEFD}
+.arr-row.now{border-inline-start-color:#F28C28;background:#FFF8EC}
+.arr-n{display:inline-block;margin:0 0 6px;padding:3px 14px;border-radius:999px;background:#FFC93C;color:#3A2400;font-size:19px;font-weight:800}
+.arr-l{margin:3px 0 0;font-size:16px;color:#1F2A2B}.arr-k{font-weight:700;color:#0F5257}.arr-l b{color:#0F5257}
+.arr-tag{display:inline-block;padding:1px 10px;border-radius:999px;background:#14532D;color:#fff;font-weight:800;font-size:14px}.arr-in{color:#4F5D5E;font-size:14px;white-space:nowrap}
 #dist-pts.pts{display:grid;gap:10px;margin-top:4px}
 .pts-box{background:#fff;border:2px solid #126F74;border-radius:16px;padding:14px 16px;box-shadow:0 8px 20px rgba(18,111,116,.12)}
 .pts-box h2{margin:0 0 8px;font-size:22px;font-weight:800;color:#0F5257}
@@ -1171,14 +1168,14 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
 
 <main class="wrap" id="main" tabindex="-1">
 <h1 class="sr-only" id="h1-alt">רכישות כדאיות</h1>
-  <section class="arr-board" id="arr-board" hidden aria-labelledby="arr-h">
-    <h2 id="arr-h"><span aria-hidden="true">📅</span> מתי מגיע כל ספק</h2>
-    <p class="arr-sub">יש ספקים שמגיעים פעם בשבועיים, בשלושה או בחודש. כאן רואים מי מגיע בכל אחת מהחלוקות הקרובות.</p>
-    <div id="arr-list"></div>
-  </section>
   <section class="posts" id="sec-news" hidden aria-labelledby="h-news">
     <div class="gal-head"><h2 id="h-news">הודעות ועדכונים</h2><p>מה חדש ומה חשוב השבוע</p></div>
     <div class="post-grid" id="pg-news"></div>
+  </section>
+  <section class="arr-board" id="arr-board" hidden aria-labelledby="arr-h">
+    <h2 id="arr-h"><span aria-hidden="true">🚚</span> עדכונים על הגעה של ספקים</h2>
+    <p class="arr-sub">ספקים שלא מגיעים כל שבוע: כל כמה זמן הם מגיעים ומתי התאריך הבא.</p>
+    <div id="arr-list"></div>
   </section>
 
   <section class="story story-intro"><div class="story-txt">
@@ -1723,13 +1720,14 @@ function freqLine(s){const r=freqNext(s);if(!r||+s.fq===1)return "";
 function nextLine(s){const r=freqNext(s);if(!r)return '<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>';
   const tp=ilParts(Date.now()),days=Math.round((r.date-Date.UTC(tp.y,tp.mo,tp.d))/864e5);
   return `<p class="c-status st-next"><i aria-hidden="true"></i>מגיע ${fqTxt(s.fq)}</p><p class="c-nextarr"><span aria-hidden="true">🗓️</span> ההגעה הבאה: <b class="nw">${dTxt(r.date,1)}</b>${days>0?` <span class="c-in">(בעוד ${days===1?"יום":days+" ימים"})</span>`:""}</p>`}
-function renderArrivals(){const box=$("arr-list");if(!box||!DIST)return;const A=(DATA.suppliers||[]).filter(s=>+s.fq>0&&freqNext(s));
+function renderArrivals(){const box=$("arr-list");if(!box||!DIST)return;const A=(DATA.suppliers||[]).filter(s=>+s.fq>1&&freqNext(s));
   const sec=$("arr-board");if(sec)sec.hidden=!A.length;if(!A.length){box.innerHTML="";return}
-  const weekly=A.filter(s=>+s.fq===1),rest=A.filter(s=>+s.fq>1),rows=[];
-  for(let k=0;k<6;k++){const wd=new Date(Date.UTC(DIST.y,DIST.mo,DIST.d+7*k)),D={y:wd.getUTCFullYear(),mo:wd.getUTCMonth(),d:wd.getUTCDate(),wd:k?3:DIST.wd};
-    const here=rest.filter(s=>freqNext(s,D).now);
-    rows.push(`<li class="arr-row${k?"":" now"}"><div class="arr-d"><small>${k===0?"השבוע":k===1?"בשבוע הבא":"בעוד "+k+" שבועות"}</small><b>${dTxt(wd,1)}</b></div><div class="arr-s">${here.length?here.map(s=>`<span class="arr-chip">${esc(s.n)}${s.f?" <small>(שישי)</small>":""}<small> · ${fqTxt(s.fq)}</small></span>`).join(""):'<span class="arr-none">רק הספקים השבועיים</span>'}</div></li>`)}
-  box.innerHTML=(weekly.length?`<p class="arr-weekly"><b>מגיעים כל שבוע:</b> ${weekly.map(s=>esc(s.n)).join(" · ")}</p>`:"")+`<ol class="arr-rows">${rows.join("")}</ol>`}
+  const tp=ilParts(Date.now()),today=Date.UTC(tp.y,tp.mo,tp.d);
+  A.sort((a,b)=>freqNext(a).date-freqNext(b).date);
+  box.innerHTML=`<ul class="arr-rows">${A.map(s=>{const r=freqNext(s),days=Math.round((r.date-today)/864e5);
+    return `<li class="arr-row${r.now?" now":""}"><h3 class="arr-n">${esc(s.n)}</h3>
+      <p class="arr-l"><span aria-hidden="true">🔁</span> <span class="arr-k">זמן הגעה:</span> ${fqTxt(s.fq)}${s.f?" (ביום שישי)":""}</p>
+      <p class="arr-l"><span aria-hidden="true">🗓️</span> <span class="arr-k">התאריך הבא:</span> <b>${dTxt(r.date,1)}</b> ${r.now?'<span class="arr-tag">השבוע!</span>':days>0?`<span class="arr-in">(בעוד ${days===1?"יום":days+" ימים"})</span>`:""}</p></li>`}).join("")}</ul>`}
 function isOpen(s){const t=closeAt(s);return !!t&&t>Date.now()}
 function closeLabel(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ${p.d}.${p.mo+1} בשעה ${f}`}
 function closeShort(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ב-${f}`}
