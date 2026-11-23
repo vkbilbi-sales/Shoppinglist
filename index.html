@@ -1174,7 +1174,7 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
   </section>
   <section class="arr-board" id="arr-board" hidden aria-labelledby="arr-h">
     <h2 id="arr-h"><span aria-hidden="true">🚚</span> עדכונים על הגעה של ספקים</h2>
-    <p class="arr-sub">ספקים שלא מגיעים כל שבוע: כל כמה זמן הם מגיעים ומתי התאריך הבא.</p>
+    <p class="arr-sub">ספקים שלא מגיעים כל שבוע, לפי האלף־בית: כל כמה זמן הם מגיעים ומתי התאריך הבא.</p>
     <div id="arr-list"></div>
   </section>
 
@@ -1709,25 +1709,26 @@ function closeAt(s){
 }
 // ---- arrival frequency (s.fq weeks, s.na = one known arrival date) ----
 function wkIdx(y,mo,d){return Math.floor((Date.UTC(y,mo,d)/864e5+4)/7)}
-function freqNext(s,D){if(s.ps)return null;D=D||DIST;const fq=+s.fq,m=String(s.na||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!(fq>0)||!m||!D)return null;
+function freqNext(s,D){if(s.ps)return null;D=D||DIST;const fq=+s.fq,m=String(s.na||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(fq===-1){if(!m)return{now:false,w:-1,date:null,after:null,irr:1};const a=wkIdx(+m[1],+m[2]-1,+m[3]),cur=wkIdx(D.y,D.mo,D.d);if(a<cur)return{now:false,w:-1,date:null,after:null,irr:1};return{now:a===cur,w:a-cur,date:new Date(Date.UTC(+m[1],+m[2]-1,+m[3])),after:null,irr:1}}if(!(fq>0)||!m||!D)return null;
   const a=wkIdx(+m[1],+m[2]-1,+m[3]),cur=wkIdx(D.y,D.mo,D.d),n=cur+(((a-cur)%fq)+fq)%fq,sun=n*7-4,off=s.f?5:(n===cur?D.wd:3);
   return{now:n===cur,w:n-cur,date:new Date((sun+off)*864e5),after:new Date((sun+off+fq*7)*864e5)}}
-function fqTxt(fq){fq=+fq;return fq===1?"כל שבוע":fq===2?"כל שבועיים":"כל "+fq+" שבועות"}
+function fqTxt(fq){fq=+fq;return fq===-1?"לא קבוע":fq===1?"כל שבוע":fq===2?"כל שבועיים":"כל "+fq+" שבועות"}
 function dTxt(dt,wd){return (wd?"יום "+DAYN[dt.getUTCDay()]+" ":"")+dt.getUTCDate()+"."+(dt.getUTCMonth()+1)}
 function applyFreq(){(DATA.suppliers||[]).forEach(s=>{if(s.ps){s.o=0;s.nx=0;return}const r=freqNext(s);if(r){s.o=r.now?1:0;s.nx=!r.now&&r.w===1?1:0}})}
-function freqLine(s){const r=freqNext(s);if(!r||+s.fq===1)return "";
+function freqLine(s){const r=freqNext(s);if(!r||+s.fq===1||r.irr)return "";
   return r.now?`<p class="c-freq"><span aria-hidden="true">🔁</span> מגיע ${fqTxt(s.fq)} · ההגעה שאחרי: ${dTxt(r.after)}</p>`:""}
 function nextLine(s){const r=freqNext(s);if(!r)return '<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>';
+  if(!r.date)return `<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בתדירות לא קבועה</p><p class="c-nextarr"><span aria-hidden="true">🗓️</span> התאריך הבא יעודכן בקרוב</p>`;
   const tp=ilParts(Date.now()),days=Math.round((r.date-Date.UTC(tp.y,tp.mo,tp.d))/864e5);
-  return `<p class="c-status st-next"><i aria-hidden="true"></i>מגיע ${fqTxt(s.fq)}</p><p class="c-nextarr"><span aria-hidden="true">🗓️</span> ההגעה הבאה: <b class="nw">${dTxt(r.date,1)}</b>${days>0?` <span class="c-in">(בעוד ${days===1?"יום":days+" ימים"})</span>`:""}</p>`}
-function renderArrivals(){const box=$("arr-list");if(!box||!DIST)return;const A=(DATA.suppliers||[]).filter(s=>+s.fq>1&&freqNext(s));
+  return `<p class="c-status st-next"><i aria-hidden="true"></i>${r.irr?"מגיע בתדירות לא קבועה":"מגיע "+fqTxt(s.fq)}</p><p class="c-nextarr"><span aria-hidden="true">🗓️</span> ההגעה הבאה: <b class="nw">${dTxt(r.date,1)}</b>${days>0?` <span class="c-in">(בעוד ${days===1?"יום":days+" ימים"})</span>`:""}</p>`}
+function renderArrivals(){const box=$("arr-list");if(!box||!DIST)return;const A=(DATA.suppliers||[]).filter(s=>(+s.fq>1||+s.fq===-1)&&freqNext(s));
   const sec=$("arr-board");if(sec)sec.hidden=!A.length;if(!A.length){box.innerHTML="";return}
   const tp=ilParts(Date.now()),today=Date.UTC(tp.y,tp.mo,tp.d);
-  A.sort((a,b)=>freqNext(a).date-freqNext(b).date);
+  A.sort((a,b)=>String(a.n||"").localeCompare(String(b.n||""),"he"));
   box.innerHTML=`<ul class="arr-rows">${A.map(s=>{const r=freqNext(s),days=Math.round((r.date-today)/864e5);
     return `<li class="arr-row${r.now?" now":""}"><h3 class="arr-n">${esc(s.n)}</h3>
-      <p class="arr-l"><span aria-hidden="true">🔁</span> <span class="arr-k">זמן הגעה:</span> ${fqTxt(s.fq)}${s.f?" (ביום שישי)":""}</p>
-      <p class="arr-l"><span aria-hidden="true">🗓️</span> <span class="arr-k">התאריך הבא:</span> <b>${dTxt(r.date,1)}</b> ${r.now?'<span class="arr-tag">השבוע!</span>':days>0?`<span class="arr-in">(בעוד ${days===1?"יום":days+" ימים"})</span>`:""}</p></li>`}).join("")}</ul>`}
+      <p class="arr-l"><span aria-hidden="true">🔁</span> <span class="arr-k">זמן הגעה:</span> ${fqTxt(s.fq)}${s.f&&!r.irr?" (ביום שישי)":""}</p>
+      <p class="arr-l"><span aria-hidden="true">🗓️</span> <span class="arr-k">התאריך הבא:</span> ${!r.date?"<b>יעודכן בקרוב</b>":`<b>${dTxt(r.date,1)}</b>`} ${!r.date?"":r.now?'<span class="arr-tag">השבוע!</span>':days>0?`<span class="arr-in">(בעוד ${days===1?"יום":days+" ימים"})</span>`:""}</p></li>`}).join("")}</ul>`}
 function isOpen(s){const t=closeAt(s);return !!t&&t>Date.now()}
 function closeLabel(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ${p.d}.${p.mo+1} בשעה ${f}`}
 function closeShort(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ב-${f}`}

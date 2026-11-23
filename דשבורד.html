@@ -854,10 +854,10 @@ function ilNowParts(){const f=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Je
   return{y:+g("year"),mo:+g("month")-1,d:+g("day"),hr:+g("hour")%24,wd:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(g("weekday"))}}
 function dDist(){const p=ilNowParts();let add=(3-p.wd+7)%7;if(add===0&&p.hr>=21)add=7;const dt=new Date(Date.UTC(p.y,p.mo,p.d+add));return{y:dt.getUTCFullYear(),mo:dt.getUTCMonth(),d:dt.getUTCDate(),wd:3}}
 function wkIdx(y,mo,d){return Math.floor((Date.UTC(y,mo,d)/864e5+4)/7)}
-function freqNext(s,D){if(s.ps)return null;D=D||dDist();const fq=+s.fq,m=String(s.na||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!(fq>0)||!m)return null;
+function freqNext(s,D){if(s.ps)return null;D=D||dDist();const fq=+s.fq,m=String(s.na||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(fq===-1){if(!m)return{now:false,w:-1,date:null,after:null,irr:1};const a=wkIdx(+m[1],+m[2]-1,+m[3]),cur=wkIdx(D.y,D.mo,D.d);if(a<cur)return{now:false,w:-1,date:null,after:null,irr:1};return{now:a===cur,w:a-cur,date:new Date(Date.UTC(+m[1],+m[2]-1,+m[3])),after:null,irr:1}}if(!(fq>0)||!m)return null;
   const a=wkIdx(+m[1],+m[2]-1,+m[3]),cur=wkIdx(D.y,D.mo,D.d),n=cur+(((a-cur)%fq)+fq)%fq,sun=n*7-4,off=s.f?5:3;
   return{now:n===cur,w:n-cur,date:new Date((sun+off)*864e5),after:new Date((sun+off+fq*7)*864e5)}}
-function fqTxt(fq){fq=+fq;return fq===1?"כל שבוע":fq===2?"כל שבועיים":"כל "+fq+" שבועות"}
+function fqTxt(fq){fq=+fq;return fq===-1?"לא קבוע":fq===1?"כל שבוע":fq===2?"כל שבועיים":"כל "+fq+" שבועות"}
 function dTxt(dt){return "יום "+DAYS[dt.getUTCDay()]+" "+dt.getUTCDate()+"."+(dt.getUTCMonth()+1)}
 function applyFreqD(){(DATA.suppliers||[]).forEach(s=>{if(s.ps){s.o=0;s.nx=0;return}const r=freqNext(s);if(r){s.o=r.now?1:0;s.nx=!r.now&&r.w===1?1:0}})}
 function supsRender(){applyFreqD();if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.suppliers||[];
@@ -866,7 +866,7 @@ function supsRender(){applyFreqD();if(!SUPEDIT)autoSort();const q=$("sup-q").val
       <span class="drag-handle grip" aria-hidden="true" title="גרירה לשינוי סדר">⠿</span>
       <label class="sw5"><input type="checkbox" data-on="${i}"${s.o?" checked":""}${freqNext(s)||s.ps?' disabled aria-describedby="fqn-'+i+'"':""}><span class="sw5-t" aria-hidden="true"></span><span class="sr">מגיע השבוע: ${esc(s.n)}</span></label>
       <span class="aitem-name">${esc(s.n||"ספק חדש")}<small class="sup-close">${s.cd!==null&&s.cd!==undefined&&s.cd!==""?" · נסגר "+DAYS[+s.cd]+(s.ct?" "+esc(s.ct):""):""}</small></span>
-      ${s.ps?`<span class="atag pstag" id="fqn-${i}">⏸ מושהה</span>`:freqNext(s)?(()=>{const r=freqNext(s);return `<span class="atag fqtag${r.now?" on":""}" id="fqn-${i}">🔁 ${fqTxt(s.fq)} · ${r.now?"מגיע השבוע":"הבא: "+dTxt(r.date)}</span>`})():s.o?'<span class="atag on">מגיע</span>':`<button type="button" class="nxbtn${s.nx?" on":""}" data-nx="${i}" aria-pressed="${s.nx?"true":"false"}">⏳ שבוע הבא</button>`}
+      ${s.ps?`<span class="atag pstag" id="fqn-${i}">⏸ מושהה</span>`:freqNext(s)?(()=>{const r=freqNext(s);return `<span class="atag fqtag${r.now?" on":""}" id="fqn-${i}">🔁 ${fqTxt(s.fq)} · ${r.now?"מגיע השבוע":r.date?"הבא: "+dTxt(r.date):"⚠ צריך לקבוע תאריך הבא"}</span>`})():s.o?'<span class="atag on">מגיע</span>':`<button type="button" class="nxbtn${s.nx?" on":""}" data-nx="${i}" aria-pressed="${s.nx?"true":"false"}">⏳ שבוע הבא</button>`}
       <button type="button" class="delbtn" data-edit="${i}" aria-expanded="${SUPEDIT===s.h}" aria-label="עריכת ${esc(s.n)}">✏️</button>
       <button type="button" class="delbtn${SUPDELASK===s.h?" ask":""}" data-del="${i}" aria-label="מחיקת ${esc(s.n)}">${SUPDELASK===s.h?"למחוק? לחצי שוב":"🗑"}</button>
       ${SUPEDIT===s.h?`<div class="sup-edit lk-pick">
@@ -877,9 +877,9 @@ function supsRender(){applyFreqD();if(!SUPEDIT)autoSort();const q=$("sup-q").val
         <label>בשעה<input type="time" data-ef="ct" data-ei="${i}" value="${esc(s.ct||"")}"></label>
         <fieldset class="fq-box"><legend>🔁 כל כמה זמן הספק מגיע</legend>
           <label class="ps-chk"><input type="checkbox" data-ef="ps" data-ei="${i}"${s.ps?" checked":""}> ⏸ מושהה, לא פעיל בינתיים (נעלם מהלקוחות, כל הפרטים נשמרים)</label>
-          <label>תדירות<select data-ef="fq" data-ei="${i}"><option value=""${+s.fq>0?"":" selected"}>לא קבוע (מסמנים ידנית כל שבוע)</option>${[1,2,3,4,5,6,8].map(n=>`<option value="${n}"${+s.fq===n?" selected":""}>${fqTxt(n)}</option>`).join("")}</select></label>
-          ${+s.fq>0?`<label>תאריך שבו הספק מגיע (הקרוב, או כל הגעה ידועה)<input type="date" data-ef="na" data-ei="${i}" value="${esc(s.na||"")}"></label>`:""}
-          <p class="lk-p fq-info">${(()=>{const r=freqNext(s);if(!(+s.fq>0))return "כשבוחרים תדירות, האתר מסמן לבד אם הספק מגיע השבוע ומראה ללקוחות את התאריך הבא.";if(!r)return "בוחרים תאריך שבו הספק מגיע, והאתר יחשב מכאן את כל ההגעות.";return (r.now?"✅ מגיע השבוע, "+dTxt(r.date)+". ":"ההגעה הבאה: <b>"+dTxt(r.date)+"</b>. ")+"ואחריה: "+dTxt(r.after)+". מתעדכן לבד אחרי כל חלוקה."})()}</p>
+          <label>תדירות<select data-ef="fq" data-ei="${i}"><option value=""${+s.fq>0||+s.fq===-1?"":" selected"}>רגיל: מסמנים ידנית "מגיע השבוע"</option>${[1,2,3,4,5,6,8].map(n=>`<option value="${n}"${+s.fq===n?" selected":""}>${fqTxt(n)}</option>`).join("")}<option value="-1"${+s.fq===-1?" selected":""}>לא קבוע (קובעים כל פעם את התאריך הבא)</option></select></label>
+          ${+s.fq===-1?`<label>התאריך הבא שבו הספק מגיע<input type="date" data-ef="na" data-ei="${i}" value="${esc(s.na||"")}"></label>`:""}${+s.fq>0?`<label>תאריך שבו הספק מגיע (הקרוב, או כל הגעה ידועה)<input type="date" data-ef="na" data-ei="${i}" value="${esc(s.na||"")}"></label>`:""}
+          <p class="lk-p fq-info">${(()=>{const r=freqNext(s);if(+s.fq===-1){if(!r||!r.date)return "בוחרים את התאריך הבא שבו הספק מגיע. אחרי שהוא מגיע, האתר יכתוב ללקוחות 'התאריך הבא יעודכן בקרוב' עד שתקבעי תאריך חדש.";return (r.now?"✅ מגיע השבוע, ":"ההגעה הבאה: ")+dTxt(r.date)+". אחרי ההגעה צריך לקבוע תאריך חדש."}if(!(+s.fq>0))return "כשבוחרים תדירות, האתר מסמן לבד אם הספק מגיע השבוע ומראה ללקוחות את התאריך הבא.";if(!r)return "בוחרים תאריך שבו הספק מגיע, והאתר יחשב מכאן את כל ההגעות.";return (r.now?"✅ מגיע השבוע, "+dTxt(r.date)+". ":"ההגעה הבאה: <b>"+dTxt(r.date)+"</b>. ")+"ואחריה: "+dTxt(r.after)+". מתעדכן לבד אחרי כל חלוקה."})()}</p>
         </fieldset>
         <label>תיאור<input type="text" data-ef="d" data-ei="${i}" value="${esc(s.d||"")}"></label>
         <label>אופן תשלום (למשל פייבוקס)<input type="text" data-ef="p" data-ei="${i}" value="${esc(s.p||"")}"></label>
