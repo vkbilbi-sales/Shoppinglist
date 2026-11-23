@@ -639,6 +639,10 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .sup-list{margin:0 0 .7rem;max-height:520px;overflow:auto}
 .sup-row.ch{background:#FFF6E8;border-radius:8px}
 .sup-list.searching .grip{visibility:hidden}
+.fq-box{border:1.5px solid #BFDCD9;border-radius:10px;padding:.5rem .7rem;margin:.3rem 0 .5rem;background:#F7FCFB}
+.fq-box legend{font-weight:800;padding:0 .3rem}
+.fq-box label{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:.25rem;text-align:right}.fq-box select,.fq-box input{width:100%!important;max-width:none!important;box-sizing:border-box;min-height:42px;font:inherit}
+.atag.fqtag{background:#E8F1FF;color:#1E3A8A;border-color:#BBD0F5}.atag.fqtag.on{background:#E3F6E8;color:#14532D}
 .cr-row{border:1.5px solid #D3E4E2;border-radius:12px;padding:.6rem .7rem;margin:0 0 .6rem;background:#fff}
 .cr-row.off{background:#F1F1F1;border-style:dashed}
 .cr-row.off .cr-name,.cr-row.off .cr-ph{color:#5E6566}
@@ -823,7 +827,7 @@ function ksField(val,attrs){val=val||"";const pre=KS_PRE.some(([v])=>v===val),e=
 document.addEventListener("change",ev=>{const sel=ev.target.closest&&ev.target.closest(".ks-sel");if(!sel)return;const t=sel.parentNode.querySelector(".ks-txt");
   if(sel.value==="__c"){t.hidden=false;if(KS_PRE.some(([v])=>v===t.value))t.value="";t.dispatchEvent(new Event("input",{bubbles:true}));t.focus()}
   else{t.hidden=true;t.value=sel.value;t.dispatchEvent(new Event("input",{bubbles:true}))}});
-const SUPFIELDS=["o","nx","n","url","c","cd","ct","d","p","pl","img","cov","ks","ksd","tags","spl"];
+const SUPFIELDS=["fq","na","o","nx","n","url","c","cd","ct","d","p","pl","img","cov","ks","ksd","tags","spl"];
 const DAYS=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
 const PICS=new Map();
 function picSrc(v){v=String(v||"");if(/^(https:\/\/|img\/)/.test(v))return v;const m=v.match(/^fb:([A-Za-z0-9_-]+)$/);if(!m)return "";
@@ -842,13 +846,25 @@ function supMatch(s,q){const b=sNorm(q).trim();if(!b)return true;const hay=[s.n,
   const k=sSkel(q);if(k.length<3)return false;const sub=(x,y)=>{let i=0;for(const ch of y){if(ch===x[i])i++;if(i===x.length)return true}return false};
   return a.split(/\s+/).some(w=>{const ws=sSkel(w);return ws.includes(k)||(ws[0]===k[0]&&ws.length<=k.length+2&&sub(k,ws))})}
 function supDirty(){const d=SUPCH.size||SUPADD.size||SUPORD||SUPDEL.size;$("sup-save").disabled=!d;$("sup-savebar").classList.toggle("dirty",!!d);if(d)$("sup-msg").textContent="יש שינויים שלא נשמרו.";$("sup-mode").textContent=DATA.manualOrder?"סדר ידני (שלך)":"מסודר לפי שעת סגירה";$("sup-auto").hidden=!DATA.manualOrder}
-function supsRender(){if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.suppliers||[];
+
+// ---- arrival frequency (same logic as the site) ----
+function ilNowParts(){const f=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jerusalem",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",hour12:false,weekday:"short"}).formatToParts(new Date()),g=t=>(f.find(x=>x.type===t)||{}).value;
+  return{y:+g("year"),mo:+g("month")-1,d:+g("day"),hr:+g("hour")%24,wd:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(g("weekday"))}}
+function dDist(){const p=ilNowParts();let add=(3-p.wd+7)%7;if(add===0&&p.hr>=21)add=7;const dt=new Date(Date.UTC(p.y,p.mo,p.d+add));return{y:dt.getUTCFullYear(),mo:dt.getUTCMonth(),d:dt.getUTCDate(),wd:3}}
+function wkIdx(y,mo,d){return Math.floor((Date.UTC(y,mo,d)/864e5+4)/7)}
+function freqNext(s,D){D=D||dDist();const fq=+s.fq,m=String(s.na||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!(fq>0)||!m)return null;
+  const a=wkIdx(+m[1],+m[2]-1,+m[3]),cur=wkIdx(D.y,D.mo,D.d),n=cur+(((a-cur)%fq)+fq)%fq,sun=n*7-4,off=s.f?5:3;
+  return{now:n===cur,w:n-cur,date:new Date((sun+off)*864e5),after:new Date((sun+off+fq*7)*864e5)}}
+function fqTxt(fq){fq=+fq;return fq===1?"כל שבוע":fq===2?"כל שבועיים":"כל "+fq+" שבועות"}
+function dTxt(dt){return "יום "+DAYS[dt.getUTCDay()]+" "+dt.getUTCDate()+"."+(dt.getUTCMonth()+1)}
+function applyFreqD(){(DATA.suppliers||[]).forEach(s=>{const r=freqNext(s);if(r){s.o=r.now?1:0;s.nx=!r.now&&r.w===1?1:0}})}
+function supsRender(){applyFreqD();if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.suppliers||[];
   const L=A.map((s,i)=>({s,i})).filter(x=>supMatch(x.s,q));
   $("sup-list").innerHTML=L.length?L.map(({s,i})=>`<div class="aitem sup-row${SUPCH.has(s.h)||SUPADD.has(s.h)?" ch":""}${!s.o?" off":""}" data-i="${i}" data-h="${s.h}">
       <span class="drag-handle grip" aria-hidden="true" title="גרירה לשינוי סדר">⠿</span>
-      <label class="sw5"><input type="checkbox" data-on="${i}"${s.o?" checked":""}><span class="sw5-t" aria-hidden="true"></span><span class="sr">מגיע השבוע: ${esc(s.n)}</span></label>
+      <label class="sw5"><input type="checkbox" data-on="${i}"${s.o?" checked":""}${freqNext(s)?' disabled aria-describedby="fqn-'+i+'"':""}><span class="sw5-t" aria-hidden="true"></span><span class="sr">מגיע השבוע: ${esc(s.n)}</span></label>
       <span class="aitem-name">${esc(s.n||"ספק חדש")}<small class="sup-close">${s.cd!==null&&s.cd!==undefined&&s.cd!==""?" · נסגר "+DAYS[+s.cd]+(s.ct?" "+esc(s.ct):""):""}</small></span>
-      ${s.o?'<span class="atag on">מגיע</span>':`<button type="button" class="nxbtn${s.nx?" on":""}" data-nx="${i}" aria-pressed="${s.nx?"true":"false"}">⏳ שבוע הבא</button>`}
+      ${freqNext(s)?(()=>{const r=freqNext(s);return `<span class="atag fqtag${r.now?" on":""}" id="fqn-${i}">🔁 ${fqTxt(s.fq)} · ${r.now?"מגיע השבוע":"הבא: "+dTxt(r.date)}</span>`})():s.o?'<span class="atag on">מגיע</span>':`<button type="button" class="nxbtn${s.nx?" on":""}" data-nx="${i}" aria-pressed="${s.nx?"true":"false"}">⏳ שבוע הבא</button>`}
       <button type="button" class="delbtn" data-edit="${i}" aria-expanded="${SUPEDIT===s.h}" aria-label="עריכת ${esc(s.n)}">✏️</button>
       <button type="button" class="delbtn${SUPDELASK===s.h?" ask":""}" data-del="${i}" aria-label="מחיקת ${esc(s.n)}">${SUPDELASK===s.h?"למחוק? לחצי שוב":"🗑"}</button>
       ${SUPEDIT===s.h?`<div class="sup-edit lk-pick">
@@ -857,6 +873,11 @@ function supsRender(){if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.sup
         <label>קטגוריה<select data-ef="c" data-ei="${i}">${[["veg","פירות, ירקות ומשקים"],["dairy","ביצים, גבינות ומעדנייה"],["meat","בשר ודגים"],["bake","מאפים ובצקים"],["cooked","אוכל מוכן"],["sweet","מתוקים"],["pantry","מזווה"],["well","טבע, בריאות וטיפוח"]].map(([v,l])=>`<option value="${v}"${s.c===v?" selected":""}>${l}</option>`).join("")}</select></label>
         <label>פתוח להזמנות עד יום<select data-ef="cd" data-ei="${i}"><option value="">לא נקבע</option>${DAYS.slice(0,6).map((d,k)=>`<option value="${k}"${String(s.cd)===String(k)?" selected":""}>${d}</option>`).join("")}</select></label>
         <label>בשעה<input type="time" data-ef="ct" data-ei="${i}" value="${esc(s.ct||"")}"></label>
+        <fieldset class="fq-box"><legend>🔁 כל כמה זמן הספק מגיע</legend>
+          <label>תדירות<select data-ef="fq" data-ei="${i}"><option value=""${+s.fq>0?"":" selected"}>לא קבוע (מסמנים ידנית כל שבוע)</option>${[1,2,3,4,5,6,8].map(n=>`<option value="${n}"${+s.fq===n?" selected":""}>${fqTxt(n)}</option>`).join("")}</select></label>
+          ${+s.fq>0?`<label>תאריך שבו הספק מגיע (הקרוב, או כל הגעה ידועה)<input type="date" data-ef="na" data-ei="${i}" value="${esc(s.na||"")}"></label>`:""}
+          <p class="lk-p fq-info">${(()=>{const r=freqNext(s);if(!(+s.fq>0))return "כשבוחרים תדירות, האתר מסמן לבד אם הספק מגיע השבוע ומראה ללקוחות את התאריך הבא.";if(!r)return "בוחרים תאריך שבו הספק מגיע, והאתר יחשב מכאן את כל ההגעות.";return (r.now?"✅ מגיע השבוע, "+dTxt(r.date)+". ":"ההגעה הבאה: <b>"+dTxt(r.date)+"</b>. ")+"ואחריה: "+dTxt(r.after)+". מתעדכן לבד אחרי כל חלוקה."})()}</p>
+        </fieldset>
         <label>תיאור<input type="text" data-ef="d" data-ei="${i}" value="${esc(s.d||"")}"></label>
         <label>אופן תשלום (למשל פייבוקס)<input type="text" data-ef="p" data-ei="${i}" value="${esc(s.p||"")}"></label>
         <label>לינק לתשלום<input type="url" dir="ltr" data-ef="pl" data-ei="${i}" value="${esc(s.pl||"")}"></label>
@@ -884,6 +905,7 @@ document.addEventListener("change",async e=>{const t=e.target;if(!t.dataset||!t.
   try{s[t.dataset.up]=await dUpload(f);SUPCH.add(s.h);supsRender();const m2=document.getElementById("up-msg-"+t.dataset.ui);if(m2)m2.textContent='התמונה הועלתה ✓ לא לשכוח ללחוץ "שמירה".'}
   catch(err){if(msg)msg.textContent=err&&err.message==="big"?"התמונה גדולה מדי. נסי תמונה קטנה יותר.":"ההעלאה לא הצליחה. נסי שוב, או תמונה אחרת (JPG או PNG)."}});
 document.addEventListener("input",e=>{const t=e.target.closest&&e.target.closest("[data-ef]");if(!t)return;const s=DATA.suppliers[+t.dataset.ei];if(!s)return;const f=t.dataset.ef;
+  if(f==="fq"||f==="na"){if(f==="fq"){if(t.value===""){delete s.fq}else s.fq=+t.value}else s.na=t.value;SUPCH.add(s.h);supsRender();render();const x=document.querySelector(`[data-ef="${f}"][data-ei="${t.dataset.ei}"]`);if(x)x.focus();return}
   s[f]=f==="cd"?(t.value===""?null:+t.value):t.value;if((f==="url"||f==="pl")&&s[f]&&!/^https?:\/\//.test(s[f])&&/^[\w.-]+\.[a-z]{2,}/i.test(s[f]))s[f]="https://"+s[f];SUPCH.add(s.h);supDirty();
   const nm=t.closest(".sup-row")&&t.closest(".sup-row").querySelector(".aitem-name");if(nm&&f==="n")nm.firstChild.textContent=t.value});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-del]");if(!b)return;const s=DATA.suppliers[+b.dataset.del];if(!s)return;

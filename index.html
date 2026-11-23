@@ -648,6 +648,20 @@ body{font-size:18.5px!important}
 .road-cap b{color:var(--sun)!important;text-shadow:0 1px 0 rgba(0,0,0,.18)}
 
 .dist-box{display:grid;gap:10px;margin-top:18px}
+.c-nextarr{margin:2px 0 0;font-size:15px;color:#1F2A2B}.c-nextarr b{color:#0F5257}.c-in{color:var(--muted);font-size:14px;white-space:nowrap}.c-nextarr .nw{white-space:nowrap}
+.c-freq{margin:2px 0 0;font-size:14px;color:var(--muted);font-weight:600}
+.arr-board{margin:26px 0 0;background:#fff;border:2px solid #126F74;border-radius:16px;padding:16px}
+.arr-board h2{margin:0 0 4px;font-size:23px;font-weight:800;color:#0F5257}
+.arr-sub{margin:0 0 10px;color:#3D4B4C;font-size:15px}
+.arr-weekly{margin:0 0 10px;padding:8px 12px;background:#F3FAF9;border-radius:10px;font-size:15px;color:#1F2A2B}
+.arr-rows{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.arr-row{display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:center;padding:10px 12px;border:1.5px solid #BFDCD9;border-radius:12px;background:#FBFEFD}
+.arr-row.now{border-color:#F28C28;border-inline-start-width:6px;background:#FFF8EC}
+.arr-d small{display:block;font-size:13px;color:#4F5D5E;font-weight:700}.arr-d b{font-size:17px;color:#0F5257}
+.arr-s{display:flex;flex-wrap:wrap;gap:6px}
+.arr-chip{display:inline-block;padding:4px 12px;border-radius:999px;background:#FFC93C;color:#3A2400;font-weight:800;font-size:15px}.arr-chip small{font-weight:600}
+.arr-none{color:#5E6566;font-size:14px}
+@media (max-width:520px){.arr-row{grid-template-columns:1fr;gap:6px}}
 #dist-pts.pts{display:grid;gap:10px;margin-top:4px}
 .pts-box{background:#fff;border:2px solid #126F74;border-radius:16px;padding:14px 16px;box-shadow:0 8px 20px rgba(18,111,116,.12)}
 .pts-box h2{margin:0 0 8px;font-size:22px;font-weight:800;color:#0F5257}
@@ -1157,6 +1171,11 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
 
 <main class="wrap" id="main" tabindex="-1">
 <h1 class="sr-only" id="h1-alt">רכישות כדאיות</h1>
+  <section class="arr-board" id="arr-board" hidden aria-labelledby="arr-h">
+    <h2 id="arr-h"><span aria-hidden="true">📅</span> מתי מגיע כל ספק</h2>
+    <p class="arr-sub">יש ספקים שמגיעים פעם בשבועיים, בשלושה או בחודש. כאן רואים מי מגיע בכל אחת מהחלוקות הקרובות.</p>
+    <div id="arr-list"></div>
+  </section>
   <section class="posts" id="sec-news" hidden aria-labelledby="h-news">
     <div class="gal-head"><h2 id="h-news">הודעות ועדכונים</h2><p>מה חדש ומה חשוב השבוע</p></div>
     <div class="post-grid" id="pg-news"></div>
@@ -1691,6 +1710,26 @@ function closeAt(s){
   if(off>0){const t0=ilDate(DIST.y,DIST.mo,DIST.d-7+off,hh,mm||0);if(t0>Date.now())return t0}
   return ilDate(DIST.y,DIST.mo,DIST.d+off,hh,mm||0);
 }
+// ---- arrival frequency (s.fq weeks, s.na = one known arrival date) ----
+function wkIdx(y,mo,d){return Math.floor((Date.UTC(y,mo,d)/864e5+4)/7)}
+function freqNext(s,D){D=D||DIST;const fq=+s.fq,m=String(s.na||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!(fq>0)||!m||!D)return null;
+  const a=wkIdx(+m[1],+m[2]-1,+m[3]),cur=wkIdx(D.y,D.mo,D.d),n=cur+(((a-cur)%fq)+fq)%fq,sun=n*7-4,off=s.f?5:(n===cur?D.wd:3);
+  return{now:n===cur,w:n-cur,date:new Date((sun+off)*864e5),after:new Date((sun+off+fq*7)*864e5)}}
+function fqTxt(fq){fq=+fq;return fq===1?"כל שבוע":fq===2?"כל שבועיים":"כל "+fq+" שבועות"}
+function dTxt(dt,wd){return (wd?"יום "+DAYN[dt.getUTCDay()]+" ":"")+dt.getUTCDate()+"."+(dt.getUTCMonth()+1)}
+function applyFreq(){(DATA.suppliers||[]).forEach(s=>{const r=freqNext(s);if(r){s.o=r.now?1:0;s.nx=!r.now&&r.w===1?1:0}})}
+function freqLine(s){const r=freqNext(s);if(!r||+s.fq===1)return "";
+  return r.now?`<p class="c-freq"><span aria-hidden="true">🔁</span> מגיע ${fqTxt(s.fq)} · ההגעה שאחרי: ${dTxt(r.after)}</p>`:""}
+function nextLine(s){const r=freqNext(s);if(!r)return '<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>';
+  const tp=ilParts(Date.now()),days=Math.round((r.date-Date.UTC(tp.y,tp.mo,tp.d))/864e5);
+  return `<p class="c-status st-next"><i aria-hidden="true"></i>מגיע ${fqTxt(s.fq)}</p><p class="c-nextarr"><span aria-hidden="true">🗓️</span> ההגעה הבאה: <b class="nw">${dTxt(r.date,1)}</b>${days>0?` <span class="c-in">(בעוד ${days===1?"יום":days+" ימים"})</span>`:""}</p>`}
+function renderArrivals(){const box=$("arr-list");if(!box||!DIST)return;const A=(DATA.suppliers||[]).filter(s=>+s.fq>0&&freqNext(s));
+  const sec=$("arr-board");if(sec)sec.hidden=!A.length;if(!A.length){box.innerHTML="";return}
+  const weekly=A.filter(s=>+s.fq===1),rest=A.filter(s=>+s.fq>1),rows=[];
+  for(let k=0;k<6;k++){const wd=new Date(Date.UTC(DIST.y,DIST.mo,DIST.d+7*k)),D={y:wd.getUTCFullYear(),mo:wd.getUTCMonth(),d:wd.getUTCDate(),wd:k?3:DIST.wd};
+    const here=rest.filter(s=>freqNext(s,D).now);
+    rows.push(`<li class="arr-row${k?"":" now"}"><div class="arr-d"><small>${k===0?"השבוע":k===1?"בשבוע הבא":"בעוד "+k+" שבועות"}</small><b>${dTxt(wd,1)}</b></div><div class="arr-s">${here.length?here.map(s=>`<span class="arr-chip">${esc(s.n)}${s.f?" <small>(שישי)</small>":""}<small> · ${fqTxt(s.fq)}</small></span>`).join(""):'<span class="arr-none">רק הספקים השבועיים</span>'}</div></li>`)}
+  box.innerHTML=(weekly.length?`<p class="arr-weekly"><b>מגיעים כל שבוע:</b> ${weekly.map(s=>esc(s.n)).join(" · ")}</p>`:"")+`<ol class="arr-rows">${rows.join("")}</ol>`}
 function isOpen(s){const t=closeAt(s);return !!t&&t>Date.now()}
 function closeLabel(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ${p.d}.${p.mo+1} בשעה ${f}`}
 function closeShort(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ב-${f}`}
@@ -1758,7 +1797,7 @@ function renderGrid(){
     ${blob(s.cov)?`<img class="cover" src="${esc(blob(s.cov))}" alt="" loading="lazy">`:""}
     <div class="top">${blob(s.img)?`<img class="mark logo-mark" src="${esc(blob(s.img))}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
       <div><div class="cat">${C.label}</div><h3>${esc(s.n)}</h3>
-      ${isOpen(s)?`<p class="c-status st-open"><i aria-hidden="true"></i>${closeAt(s)?"פתוח להזמנות עד "+closeShort(s):"פתוח להזמנות"}</p>`:s.o?'<p class="c-status st-closed"><i aria-hidden="true"></i>ההזמנות נסגרו לשבוע הזה</p>':'<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>'}
+      ${isOpen(s)?`<p class="c-status st-open"><i aria-hidden="true"></i>${closeAt(s)?"פתוח להזמנות עד "+closeShort(s):"פתוח להזמנות"}</p>`:s.o?'<p class="c-status st-closed"><i aria-hidden="true"></i>ההזמנות נסגרו לשבוע הזה</p>':nextLine(s)}${freqLine(s)}
       <div class="badges">${ksBadge(s)}${String(s.tags||"").split(/[,،]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="badge tag">${esc(x)}</span>`).join("")}${s.f?'<span class="badge fri">🚚 יום שישי, משלוח עד הבית</span>':""}${s.dd?`<span class="badge fri">📦 יחולק ב${esc(s.dd)}</span>`:""}</div></div></div>${s.ksd?`<div class="ksd-panel" id="ksd-${esc(s.h)}" hidden><b>כשרות</b><p>${esc(s.ksd).replace(/\n/g,"<br>")}</p></div>`:""}
     <dl class="rows">
       ${closeAt(s)?`<div class="cdrow"><dt class="sr-only">זמן שנשאר להזמנה</dt><dd><span class="cd" data-cd="${s.h}"></span></dd></div>`:""}
@@ -2048,7 +2087,7 @@ $("lb").addEventListener("click",e=>{if(e.target.id==="lb")$("lb").hidden=true})
 $("lb-prev").addEventListener("click",()=>lbMove(-1));$("lb-next").addEventListener("click",()=>lbMove(1));
 document.addEventListener("keydown",e=>{if($("lb").hidden)return;if(e.key==="Escape")$("lb").hidden=true;if(e.key==="ArrowLeft")lbMove(1);if(e.key==="ArrowRight")lbMove(-1)});
 // ---- tabs ----
-const TABMAP=[["#sec-news","news"],["#meet","about"],["#about-us","about"],[".story:not(.story-head)","about"],["#sec-reviews","reviews"],["#share-rev","reviews"],["#gal-people","gallery"],["#gal-intro","gallery"],["#share","recipes"],["#gal-products","gallery"],["#sec-recipes","recipes"],["#sec-gifts","news"],["#sec-perks","news"],["#share-perk","news"],["main .collab","about"],["main .howto","list"],["#dist-box","sup"],["main .info","sup"],["#contact","contact"],["#suppliers","sup"],["main .tools","sup"],["#grid","sup"],["#fri-sec","sup"],["#mylist","list"],["#couriers","couriers"]];
+const TABMAP=[["#arr-board","news"],["#sec-news","news"],["#meet","about"],["#about-us","about"],[".story:not(.story-head)","about"],["#sec-reviews","reviews"],["#share-rev","reviews"],["#gal-people","gallery"],["#gal-intro","gallery"],["#share","recipes"],["#gal-products","gallery"],["#sec-recipes","recipes"],["#sec-gifts","news"],["#sec-perks","news"],["#share-perk","news"],["main .collab","about"],["main .howto","list"],["#dist-box","sup"],["main .info","sup"],["#contact","contact"],["#suppliers","sup"],["main .tools","sup"],["#grid","sup"],["#fri-sec","sup"],["#mylist","list"],["#couriers","couriers"]];
 TABMAP.forEach(([sel,t])=>document.querySelectorAll(sel).forEach(el=>el.dataset.tab=t));
 let TAB="sup";
 function showTab(t,scroll){
@@ -2115,7 +2154,7 @@ document.addEventListener("change",async e=>{const t=e.target;if(!t.dataset||t.d
   const i=+t.dataset.supimg,w=t.dataset.which;await uploadFiles([f[0]],id=>{draft.suppliers[i][w]=id});edSups(i)});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-supimgdel]");if(!b||!draft)return;const i=+b.dataset.supimgdel;draft.suppliers[i][b.dataset.which]="";edSups(i)});
 $("f-name2").addEventListener("input",e=>{me.name=e.target.value;saveMe();updateLinks()});
-renderMedia();computeTimes();renderPoints();weeklyReset();chips();fillMe();renderAll();
+renderMedia();computeTimes();applyFreq();renderPoints();renderArrivals();weeklyReset();chips();fillMe();renderAll();
 // ---- live data from Firebase ----
 function lookHex(h){return /^#[0-9a-f]{6}$/i.test(h||"")?h:null}
 function lookMix(a,b,t){const A=[1,3,5].map(i=>parseInt(a.substr(i,2),16)),B=[1,3,5].map(i=>parseInt(b.substr(i,2),16));return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("")}
@@ -2137,7 +2176,7 @@ function applySite(d){
   DATA=Object.assign({people:[],products:[],collabs:[],posts:[],points:[]},d);
   DATA.suppliers=DATA.suppliers.map(s=>Object.assign({h:"",n:"",c:"veg",o:0,d:"",k:"",url:"",cd:null,ct:"",p:"",pl:"",ks:"",tags:"",f:0,nx:0,img:"",cov:""},s));
   S=DATA.suppliers;byH=Object.fromEntries(S.map(s=>[s.h,s]));
-  applyLook(DATA);renderMedia();computeTimes();renderPoints();fillMe();renderAll();
+  applyLook(DATA);renderMedia();computeTimes();applyFreq();renderPoints();renderArrivals();fillMe();renderAll();
   $("f-pts").textContent=(DATA.points||[]).length;
 }
 let SITE_LOADED=false,WANT_EDIT=false;
@@ -2158,7 +2197,7 @@ onValue(ref(db,LISTS+"/"+CID),snap=>{
   }
   syncState("ok","מסונכרן ✓");
   if(v)applyList(v);
-},()=>syncState("err","אין חיבור לשרת. הרשימה נשמרת בינתיים בטלפון הזה"));setInterval(()=>{const before=DIST&&DIST.d;computeTimes();weeklyReset();if(DIST.d!==before){renderGrid();renderPoints()}else tick()},1000);$("f-pts").textContent=DATA.points.length;
+},()=>syncState("err","אין חיבור לשרת. הרשימה נשמרת בינתיים בטלפון הזה"));setInterval(()=>{const before=DIST&&DIST.d;computeTimes();weeklyReset();if(DIST.d!==before){applyFreq();renderGrid();renderPoints();renderArrivals()}else tick()},1000);$("f-pts").textContent=DATA.points.length;
 
 // ---------- edit mode (owner only, republishes the page) ----------
 let draft=null;
