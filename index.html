@@ -719,6 +719,8 @@ main>[data-tab].tab-on:first-of-type{margin-top:18px}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--leaf:#4CC3C8;--cloud:#21495A;--leaf-deep:#2E9EA3;--heart:#FF6B6B;--sun:#F0B455;--c-veg:#A6CC54;--c-dairy:#5FCBD0;--c-meat:#FF7C7C;--c-bake:#EDB45A;--c-sweet:#F28DB0;--c-well:#A9A9F0;--road:#4F6C14;--on-heart:#1A0C0C;--on-sun:#1A1206;--on-leaf:#0E1C1E;--cd-ink:#7FD6DA;--closed-ink:#9BB7B7;--gold-ink:#F0B455;--kosher:#7DB5EA;--kosher-home:#B3A8F0;--wa:#0F7A3D;--who-red:#FF7C7C;--warm-bg:#2A2214}}
 :root[data-theme="dark"]{--leaf:#4CC3C8;--cloud:#21495A;--leaf-deep:#2E9EA3;--heart:#FF6B6B;--sun:#F0B455;--c-veg:#A6CC54;--c-dairy:#5FCBD0;--c-meat:#FF7C7C;--c-bake:#EDB45A;--c-sweet:#F28DB0;--c-well:#A9A9F0;--road:#4F6C14;--on-heart:#1A0C0C;--on-sun:#1A1206;--on-leaf:#0E1C1E;--cd-ink:#7FD6DA;--closed-ink:#9BB7B7;--gold-ink:#F0B455;--kosher:#7DB5EA;--kosher-home:#B3A8F0;--wa:#0F7A3D;--who-red:#FF7C7C;--warm-bg:#2A2214}
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.pt-cal{display:inline-flex;align-items:center;gap:4px;min-height:36px;margin-inline-start:6px;padding:4px 14px;border-radius:999px;background:#fff;border:2px solid #0A6E91;color:#0A3F55;font:inherit;font-weight:800;font-size:.95em;cursor:pointer;box-shadow:0 2px 0 #0A6E91}.pt-cal:focus-visible,.pt-calm a:focus-visible,.pt-calm button:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.pt-calm{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}.pt-calm[hidden]{display:none}.pt-calm a,.pt-calm button{display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border-radius:10px;background:#fff;color:#0A3F55!important;border:2px solid #0A6E91;font:inherit;font-weight:700;font-size:.92em;text-decoration:none;cursor:pointer}
 .pt-waze{display:inline-flex;align-items:center;gap:4px;min-height:36px;margin-inline-start:6px;padding:4px 14px;border-radius:999px;background:#33CCFF;border:2px solid #0A6E91;color:#062A3A!important;font-weight:800;font-size:.95em;text-decoration:none;box-shadow:0 2px 0 #0A6E91}.pt-waze:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 .skip{position:absolute;inset-inline-start:12px;top:-80px;z-index:100;background:var(--ink);color:var(--bg);font-weight:700;padding:10px 16px;border-radius:10px;text-decoration:none}
 .skip:focus{top:12px}
@@ -1677,7 +1679,7 @@ function isOpen(s){const t=closeAt(s);return !!t&&t>Date.now()}
 function closeLabel(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ${p.d}.${p.mo+1} בשעה ${f}`}
 function closeShort(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ב-${f}`}
 function cdText(t){let ms=t-Date.now();if(ms<=0)return["ההזמנות נסגרו","over"];const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),sec=s%60;const pad=n=>String(n).padStart(2,"0");
-  if(d>0){const D=d===1?"יום":d===2?"יומיים":d+" ימים",H=h===1?"שעה":h===2?"שעתיים":h+" שעות",M=m===1?"דקה":m+" דקות";return[`נשארו ${D} ו${h>0?"-"+H:m>0?"-"+M:"עוד קצת"} להזמנה`.replace("ו-שעה","ושעה").replace("ו-שעתיים","ושעתיים").replace("ו-דקה","ודקה"),""]}return[`נשארו ${pad(h)}:${pad(m)}:${pad(sec)} להזמנה`,ms<3*3600e3?"soon":""]}
+  if(d>0){const D=d===1?"יום":d+" ימים",H=h===1?"שעה":h+" שעות",M=m===1?"דקה":m+" דקות",pr=[D];if(h)pr.push(H);if(m)pr.push(M);const tx=pr.length>1?pr.slice(0,-1).join(", ")+" ו-"+pr[pr.length-1]:pr[0];return[`נשארו ${tx} להזמנה`,""]}return[`נשארו ${pad(h)}:${pad(m)}:${pad(sec)} להזמנה`,ms<3*3600e3?"soon":""]}
 function tick(){let flip=false;document.querySelectorAll("[data-cd]").forEach(el=>{const s=byH[el.dataset.cd],t=closeAt(s);const[tx,c]=cdText(t);el.textContent=tx;el.className="cd "+c;if(c==="over"&&!el.closest(".card").classList.contains("closed"))flip=true});if(flip)renderGrid()}
 
 function ksBadge(s){const k=s.ks||"",t=k==="לא כשר"?"":k;
@@ -1691,9 +1693,23 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
 window.addEventListener("resize",()=>{clearTimeout(window._mdT);window._mdT=setTimeout(markDescs,200)});
 function isForm(s){return /forms\.gle|docs\.google\.com\/forms/.test(s.url||"")}
 
+
+// ---- pickup reminder to calendar ----
+function ptTimes(p){const m=String(p.t||"").match(/(\d{1,2}):(\d{2})\D+(\d{1,2}):(\d{2})/);if(!m||!DIST)return null;
+  return [ilDate(DIST.y,DIST.mo,DIST.d,+m[1],+m[2]),ilDate(DIST.y,DIST.mo,DIST.d,+m[3],+m[4])]}
+function calStamp(ms){return new Date(ms).toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"")}
+function calInfo(p){return{title:"איסוף רכישות כדאיות · "+p.n,loc:[p.a,p.n].filter(Boolean).join(", "),det:"איסוף ההזמנות בנקודת "+p.n+(p.t?" בין "+p.t:"")+(p.a?"\nמקום: "+p.a:"")+(p.w?"\nניווט: "+p.w:"")+"\n"+location.origin+location.pathname}}
+function gcalUrl(p){const t=ptTimes(p);if(!t)return"#";const c=calInfo(p);
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(c.title)+"&dates="+calStamp(t[0])+"/"+calStamp(t[1])+"&ctz=Asia/Jerusalem&location="+encodeURIComponent(c.loc)+"&details="+encodeURIComponent(c.det)}
+function icsFor(p){const t=ptTimes(p),c=calInfo(p),e=s=>String(s).replace(/\\/g,"\\\\").replace(/([,;])/g,"\\$1").replace(/\n/g,"\\n");
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//rechishot-kedaiot//HE","CALSCALE:GREGORIAN","METHOD:PUBLISH","BEGIN:VEVENT","UID:pickup-"+calStamp(t[0])+"-"+encodeURIComponent(p.n).slice(0,40)+"@rechishot","DTSTAMP:"+calStamp(Date.now()),"DTSTART:"+calStamp(t[0]),"DTEND:"+calStamp(t[1]),"SUMMARY:"+e(c.title),"LOCATION:"+e(c.loc),"DESCRIPTION:"+e(c.det),
+    "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+e(c.title),"TRIGGER:-PT2H","END:VALARM","BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+e(c.title),"TRIGGER:-PT30M","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n")}
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ptcal]");if(b){const m=$("ptcal-"+b.dataset.ptcal);if(!m)return;const o=m.hidden;m.hidden=!o;b.setAttribute("aria-expanded",String(o));if(o){const f=m.querySelector("a");if(f)f.focus()}return}
+  const x=e.target.closest&&e.target.closest("[data-ptics]");if(!x)return;const p=(DATA.points||[])[+x.dataset.ptics];if(!p||!ptTimes(p))return;
+  const u=URL.createObjectURL(new Blob([icsFor(p)],{type:"text/calendar;charset=utf-8"})),a=document.createElement("a");a.href=u;a.download="pickup-reminder.ics";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)});
 function renderPoints(){
   const P=DATA.points||[], hasInfo=P.some(p=>p.t||p.a);
-  $("dist-pts").innerHTML=hasInfo?P.map(p=>`<p><b>${esc(p.n)}</b>${p.t?" · "+esc(p.t):""}${p.a?" · "+esc(p.a):""}${/^https:\/\/(www\.)?waze\.com\//.test(p.w||"")?` <a class="pt-waze" href="${esc(p.w)}" target="_blank" rel="noopener"><span aria-hidden="true">🚗</span>ניווט ב־Waze<span class="sr-only"> אל ${esc(p.n)} (נפתח בחלון חדש)</span></a>`:""}</p>`).join("")
+  $("dist-pts").innerHTML=hasInfo?P.map((p,i)=>`<p><b>${esc(p.n)}</b>${p.t?" · "+esc(p.t):""}${p.a?" · "+esc(p.a):""}${/^https:\/\/(www\.)?waze\.com\//.test(p.w||"")?` <a class="pt-waze" href="${esc(p.w)}" target="_blank" rel="noopener"><span aria-hidden="true">🚗</span>ניווט ב־Waze<span class="sr-only"> אל ${esc(p.n)} (נפתח בחלון חדש)</span></a>`:""}${ptTimes(p)?` <button type="button" class="pt-cal" data-ptcal="${i}" aria-expanded="false" aria-controls="ptcal-${i}"><span aria-hidden="true">📅</span> תזכורת ליומן<span class="sr-only"> לאיסוף ב${esc(p.n)}</span></button><span class="pt-calm" id="ptcal-${i}" hidden><a href="${esc(gcalUrl(p))}" target="_blank" rel="noopener">ליומן Google<span class="sr-only"> (נפתח בחלון חדש)</span></a><button type="button" data-ptics="${i}">ליומן באייפון או ביומן אחר</button></span>`:""}</p>`).join("")
     :`<p>${P.map(p=>esc(p.n)).join(" · ")}. ${esc(DATA.note||"")}</p>`;
   $("join-point").innerHTML=$("f-point").innerHTML='<option value="">-- בחרו נקודה --</option>'+P.map(p=>`<option>${esc(p.n)}</option>`).join("");
 }
@@ -2079,7 +2095,7 @@ document.addEventListener("change",async e=>{const t=e.target;if(!t.dataset||t.d
   const i=+t.dataset.supimg,w=t.dataset.which;await uploadFiles([f[0]],id=>{draft.suppliers[i][w]=id});edSups(i)});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-supimgdel]");if(!b||!draft)return;const i=+b.dataset.supimgdel;draft.suppliers[i][b.dataset.which]="";edSups(i)});
 $("f-name2").addEventListener("input",e=>{me.name=e.target.value;saveMe();updateLinks()});
-renderMedia();renderPoints();computeTimes();weeklyReset();chips();fillMe();renderAll();
+renderMedia();computeTimes();renderPoints();weeklyReset();chips();fillMe();renderAll();
 // ---- live data from Firebase ----
 function lookHex(h){return /^#[0-9a-f]{6}$/i.test(h||"")?h:null}
 function lookMix(a,b,t){const A=[1,3,5].map(i=>parseInt(a.substr(i,2),16)),B=[1,3,5].map(i=>parseInt(b.substr(i,2),16));return "#"+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,"0")).join("")}
@@ -2101,7 +2117,7 @@ function applySite(d){
   DATA=Object.assign({people:[],products:[],collabs:[],posts:[],points:[]},d);
   DATA.suppliers=DATA.suppliers.map(s=>Object.assign({h:"",n:"",c:"veg",o:0,d:"",k:"",url:"",cd:null,ct:"",p:"",pl:"",ks:"",tags:"",f:0,nx:0,img:"",cov:""},s));
   S=DATA.suppliers;byH=Object.fromEntries(S.map(s=>[s.h,s]));
-  applyLook(DATA);renderMedia();renderPoints();computeTimes();fillMe();renderAll();
+  applyLook(DATA);renderMedia();computeTimes();renderPoints();fillMe();renderAll();
   $("f-pts").textContent=(DATA.points||[]).length;
 }
 let SITE_LOADED=false,WANT_EDIT=false;
@@ -2122,7 +2138,7 @@ onValue(ref(db,LISTS+"/"+CID),snap=>{
   }
   syncState("ok","מסונכרן ✓");
   if(v)applyList(v);
-},()=>syncState("err","אין חיבור לשרת. הרשימה נשמרת בינתיים בטלפון הזה"));setInterval(()=>{const before=DIST&&DIST.d;computeTimes();weeklyReset();if(DIST.d!==before)renderGrid();else tick()},1000);$("f-pts").textContent=DATA.points.length;
+},()=>syncState("err","אין חיבור לשרת. הרשימה נשמרת בינתיים בטלפון הזה"));setInterval(()=>{const before=DIST&&DIST.d;computeTimes();weeklyReset();if(DIST.d!==before){renderGrid();renderPoints()}else tick()},1000);$("f-pts").textContent=DATA.points.length;
 
 // ---------- edit mode (owner only, republishes the page) ----------
 let draft=null;
