@@ -1859,8 +1859,10 @@ function fillCourierArea(){
   if(me.mode!=="courier"){box.hidden=true;return}
   box.hidden=false;if(!c){box.innerHTML="";return}
   const n=Object.keys(list).filter(h=>byH[h]).length,miss=meMissing();
-  const bitU=c.bit?(/^https?:\/\//i.test(c.bit)?c.bit:"https://"+c.bit):"";
-  const pm=c.pm==="פייבוקס"?"פייבוקס":"ביט";
+  const pm=(c.pm==="פייבוקס"||(!c.pm&&(c.name||"").trim()==="דרור"))?"פייבוקס":"ביט";
+  let bitU=c.bit?(/^https?:\/\//i.test(c.bit)?c.bit:"https://"+c.bit):"";
+  if(bitU&&pm==="פייבוקס"&&!/payboxapp|paybox/i.test(bitU))bitU="";
+  if(bitU&&pm==="ביט"&&/payboxapp|paybox/i.test(bitU))bitU="";
   const bitBtn=bitU?`<a class="btn ct-bit" href="${esc(bitU)}" target="_blank" rel="noopener"><span class="ct-bt">לתשלום 40 ₪ ב${pm} ל${esc(c.name)}</span><span class="sr-only"> (נפתח בחלון חדש)</span></a>`
     :`<button class="btn ct-bit" type="button" data-bitcopy="${esc(c.phone)}" data-pm="${pm}"><span class="ct-bt">לתשלום 40 ₪ ב${pm} ל${esc(c.name)}</span></button>`;
   const bitInfo="";

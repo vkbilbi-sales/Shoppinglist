@@ -931,7 +931,7 @@ $("edit-open").addEventListener("click",()=>{const w=$("edit-wrap");if(!w.hidden
 // ---- courier pool (site5.couriers) ----
 let CR=null,CRDIRTY=false,CREDIT=-1,CRDEL=-1,CRNEW=new Set(),COUR_DEF=[];
 function crInit(html){try{const m=(html||"").match(/const COURIERS_DEF=(\[[\s\S]*?\]);/);if(m)COUR_DEF=Function('"use strict";return '+m[1])()}catch(e){}
-  CR=JSON.parse(JSON.stringify(Array.isArray(DATA.couriers)&&DATA.couriers.length?DATA.couriers:COUR_DEF));CRDIRTY=false;crRender()}
+  CR=JSON.parse(JSON.stringify(Array.isArray(DATA.couriers)&&DATA.couriers.length?DATA.couriers:COUR_DEF));CR.forEach(c=>{if(!c.pm&&(c.name||"").trim()==="דרור")c.pm="פייבוקס"});CRDIRTY=false;crRender()}
 function crPts(){return [...new Set([...CR.map(c=>(c.area||"").trim()),...(DATA.points||[]).map(p=>(p.n||"").trim())].filter(Boolean))]}
 function crDirty(){CRDIRTY=true;$("cr-save").disabled=false;$("cr-msg").textContent="יש שינויים שלא נשמרו."}
 function crRender(){if(!CR)return;const P=crPts();
@@ -953,7 +953,7 @@ function crRender(){if(!CR)return;const P=crPts();
       <label>שם השליח<input type="text" data-crf="name" data-cri2="${i}" value="${esc(c.name||"")}"></label>
       <label>טלפון<input type="tel" dir="ltr" data-crf="phone" data-cri2="${i}" value="${esc(c.phone||"")}" placeholder="05X-XXXXXXX"></label>
       <label>תשלום לשליח ב<select data-crf="pm" data-cri2="${i}"><option${c.pm==="פייבוקס"?"":" selected"}>ביט</option><option${c.pm==="פייבוקס"?" selected":""}>פייבוקס</option></select></label>
-      <label>קישור לתשלום בביט או בפייבוקס (אם יש)<input type="url" dir="ltr" data-crf="bit" data-cri2="${i}" value="${esc(c.bit||"")}" placeholder="https://www.bitpay.co.il/app/me/…"></label>
+      <label>קישור לתשלום בביט או בפייבוקס (אם יש). בפייבוקס: מעתיקים את קישור התשלום מהאפליקציה של פייבוקס<input type="url" dir="ltr" data-crf="bit" data-cri2="${i}" value="${esc(c.bit||"")}" placeholder="https://www.bitpay.co.il/app/me/…"></label>
       <label>הסבר קצר ללקוחות<input type="text" data-crf="note" data-cri2="${i}" value="${esc(c.note||"")}" placeholder="איסוף מכל הספקים עד פתח הבית ב־40 ₪"></label>
       <button type="button" class="btn bg bsm" data-credit="${i}">סגירת הפרטים</button></div>`:""}
   </div>`}).join("")}
