@@ -1174,7 +1174,7 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
   </section>
   <section class="arr-board" id="arr-board" hidden aria-labelledby="arr-h">
     <h2 id="arr-h"><span aria-hidden="true">🚚</span> עדכונים על הגעה של ספקים</h2>
-    <p class="arr-sub">ספקים שלא מגיעים כל שבוע, לפי האלף־בית: כל כמה זמן הם מגיעים ומתי התאריך הבא.</p>
+    <p class="arr-sub">כל הספקים לפי האלף־בית: כל כמה זמן כל ספק מגיע ומתי התאריך הבא.</p>
     <div id="arr-list"></div>
   </section>
 
@@ -1721,13 +1721,15 @@ function nextLine(s){const r=freqNext(s);if(!r)return '<p class="c-status st-nex
   if(!r.date)return `<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בתדירות לא קבועה</p><p class="c-nextarr"><span aria-hidden="true">🗓️</span> התאריך הבא יעודכן בקרוב</p>`;
   const tp=ilParts(Date.now()),days=Math.round((r.date-Date.UTC(tp.y,tp.mo,tp.d))/864e5);
   return `<p class="c-status st-next"><i aria-hidden="true"></i>${r.irr?"מגיע בתדירות לא קבועה":"מגיע "+fqTxt(s.fq)}</p><p class="c-nextarr"><span aria-hidden="true">🗓️</span> ההגעה הבאה: <b class="nw">${dTxt(r.date,1)}</b>${days>0?` <span class="c-in">(בעוד ${days===1?"יום":days+" ימים"})</span>`:""}</p>`}
-function renderArrivals(){const box=$("arr-list");if(!box||!DIST)return;const A=(DATA.suppliers||[]).filter(s=>(+s.fq>1||+s.fq===-1)&&freqNext(s));
+function arrInfo(s){if(s.ps)return null;const r=freqNext(s);if(r)return r;if(+s.fq||!(s.o||s.nx))return null;
+  const w=s.o?0:1,dt=new Date(Date.UTC(DIST.y,DIST.mo,DIST.d+7*w+(s.f?2:0)));return{now:!w,w,date:dt,after:null,wk:1}}
+function renderArrivals(){const box=$("arr-list");if(!box||!DIST)return;const A=(DATA.suppliers||[]).filter(s=>arrInfo(s));
   const sec=$("arr-board");if(sec)sec.hidden=!A.length;if(!A.length){box.innerHTML="";return}
   const tp=ilParts(Date.now()),today=Date.UTC(tp.y,tp.mo,tp.d);
   A.sort((a,b)=>String(a.n||"").localeCompare(String(b.n||""),"he"));
-  box.innerHTML=`<ul class="arr-rows">${A.map(s=>{const r=freqNext(s),days=Math.round((r.date-today)/864e5);
+  box.innerHTML=`<ul class="arr-rows">${A.map(s=>{const r=arrInfo(s),days=Math.round((r.date-today)/864e5);
     return `<li class="arr-row${r.now?" now":""}"><h3 class="arr-n">${esc(s.n)}</h3>
-      <p class="arr-l"><span aria-hidden="true">🔁</span> <span class="arr-k">זמן הגעה:</span> ${fqTxt(s.fq)}${s.f&&!r.irr?" (ביום שישי)":""}</p>
+      <p class="arr-l"><span aria-hidden="true">🔁</span> <span class="arr-k">זמן הגעה:</span> ${r.wk?"כל שבוע":fqTxt(s.fq)}${s.f&&!r.irr?" (ביום שישי)":""}</p>
       <p class="arr-l"><span aria-hidden="true">🗓️</span> <span class="arr-k">התאריך הבא:</span> ${!r.date?"<b>יעודכן בקרוב</b>":`<b>${dTxt(r.date,1)}</b>`} ${!r.date?"":r.now?'<span class="arr-tag">השבוע!</span>':days>0?`<span class="arr-in">(בעוד ${days===1?"יום":days+" ימים"})</span>`:""}</p></li>`}).join("")}</ul>`}
 function isOpen(s){const t=closeAt(s);return !!t&&t>Date.now()}
 function closeLabel(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ${p.d}.${p.mo+1} בשעה ${f}`}
