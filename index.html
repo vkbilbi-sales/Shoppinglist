@@ -1677,7 +1677,7 @@ function isOpen(s){const t=closeAt(s);return !!t&&t>Date.now()}
 function closeLabel(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ${p.d}.${p.mo+1} בשעה ${f}`}
 function closeShort(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ב-${f}`}
 function cdText(t){let ms=t-Date.now();if(ms<=0)return["ההזמנות נסגרו","over"];const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),sec=s%60;const pad=n=>String(n).padStart(2,"0");
-  if(d>0)return[`נשארו ${d===1?"יום":d+" ימים"} ו-${h} שעות להזמנה`,""];return[`נשארו ${pad(h)}:${pad(m)}:${pad(sec)} להזמנה`,ms<3*3600e3?"soon":""]}
+  if(d>0){const D=d===1?"יום":d===2?"יומיים":d+" ימים",H=h===1?"שעה":h===2?"שעתיים":h+" שעות",M=m===1?"דקה":m+" דקות";return[`נשארו ${D} ו${h>0?"-"+H:m>0?"-"+M:"עוד קצת"} להזמנה`.replace("ו-שעה","ושעה").replace("ו-שעתיים","ושעתיים").replace("ו-דקה","ודקה"),""]}return[`נשארו ${pad(h)}:${pad(m)}:${pad(sec)} להזמנה`,ms<3*3600e3?"soon":""]}
 function tick(){let flip=false;document.querySelectorAll("[data-cd]").forEach(el=>{const s=byH[el.dataset.cd],t=closeAt(s);const[tx,c]=cdText(t);el.textContent=tx;el.className="cd "+c;if(c==="over"&&!el.closest(".card").classList.contains("closed"))flip=true});if(flip)renderGrid()}
 
 function ksBadge(s){const k=s.ks||"",t=k==="לא כשר"?"":k;
