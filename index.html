@@ -1709,12 +1709,12 @@ function closeAt(s){
 }
 // ---- arrival frequency (s.fq weeks, s.na = one known arrival date) ----
 function wkIdx(y,mo,d){return Math.floor((Date.UTC(y,mo,d)/864e5+4)/7)}
-function freqNext(s,D){D=D||DIST;const fq=+s.fq,m=String(s.na||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!(fq>0)||!m||!D)return null;
+function freqNext(s,D){if(s.ps)return null;D=D||DIST;const fq=+s.fq,m=String(s.na||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!(fq>0)||!m||!D)return null;
   const a=wkIdx(+m[1],+m[2]-1,+m[3]),cur=wkIdx(D.y,D.mo,D.d),n=cur+(((a-cur)%fq)+fq)%fq,sun=n*7-4,off=s.f?5:(n===cur?D.wd:3);
   return{now:n===cur,w:n-cur,date:new Date((sun+off)*864e5),after:new Date((sun+off+fq*7)*864e5)}}
 function fqTxt(fq){fq=+fq;return fq===1?"כל שבוע":fq===2?"כל שבועיים":"כל "+fq+" שבועות"}
 function dTxt(dt,wd){return (wd?"יום "+DAYN[dt.getUTCDay()]+" ":"")+dt.getUTCDate()+"."+(dt.getUTCMonth()+1)}
-function applyFreq(){(DATA.suppliers||[]).forEach(s=>{const r=freqNext(s);if(r){s.o=r.now?1:0;s.nx=!r.now&&r.w===1?1:0}})}
+function applyFreq(){(DATA.suppliers||[]).forEach(s=>{if(s.ps){s.o=0;s.nx=0;return}const r=freqNext(s);if(r){s.o=r.now?1:0;s.nx=!r.now&&r.w===1?1:0}})}
 function freqLine(s){const r=freqNext(s);if(!r||+s.fq===1)return "";
   return r.now?`<p class="c-freq"><span aria-hidden="true">🔁</span> מגיע ${fqTxt(s.fq)} · ההגעה שאחרי: ${dTxt(r.after)}</p>`:""}
 function nextLine(s){const r=freqNext(s);if(!r)return '<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>';
@@ -1786,7 +1786,7 @@ function srchMatch(s,q){const hay=[s.n,s.d,s.k,s.tags,s.ks,(CATS[s.c]||{}).label
 function renderGrid(){
   renderWk();
   const q=state.q.trim();
-  let L=S.filter(s=>(s.o||s.nx)&&(state.cat==="all"||s.c===state.cat)&&(!state.open||isOpen(s))&&(!q||srchMatch(s,q)));
+  let L=S.filter(s=>!s.ps&&(s.o||s.nx||freqNext(s))&&(state.cat==="all"||s.c===state.cat)&&(!state.open||isOpen(s))&&(!q||srchMatch(s,q)));
   if(state.view==="favs")L=L.filter(s=>favs.has(s.h));
   L.sort((a,b)=>(isOpen(b)-isOpen(a))||(state.sort==="mine"?S.indexOf(a)-S.indexOf(b):0)||(state.sort==="close"&&isOpen(a)?closeAt(a)-closeAt(b):0)||a.n.localeCompare(b.n,"he"));
   $("grid").innerHTML=L.length?L.map(s=>{const C=CATS[s.c],inL=!!list[s.h];return `

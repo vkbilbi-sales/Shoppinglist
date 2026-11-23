@@ -642,6 +642,8 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .fq-box{border:1.5px solid #BFDCD9;border-radius:10px;padding:.5rem .7rem;margin:.3rem 0 .5rem;background:#F7FCFB}
 .fq-box legend{font-weight:800;padding:0 .3rem}
 .fq-box label{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:.25rem;text-align:right}.fq-box select,.fq-box input{width:100%!important;max-width:none!important;box-sizing:border-box;min-height:42px;font:inherit}
+.atag.pstag{background:#ECECEC;color:#3F3F3F}.sup-row.ps{opacity:.65}
+.fq-box .ps-chk{flex-direction:row!important;align-items:center!important;gap:.5rem;font-weight:700;margin-bottom:.4rem}.fq-box .ps-chk input{width:22px!important;height:22px;min-height:0!important;flex:none}
 .atag.fqtag{background:#E8F1FF;color:#1E3A8A;border-color:#BBD0F5}.atag.fqtag.on{background:#E3F6E8;color:#14532D}
 .cr-row{border:1.5px solid #D3E4E2;border-radius:12px;padding:.6rem .7rem;margin:0 0 .6rem;background:#fff}
 .cr-row.off{background:#F1F1F1;border-style:dashed}
@@ -827,7 +829,7 @@ function ksField(val,attrs){val=val||"";const pre=KS_PRE.some(([v])=>v===val),e=
 document.addEventListener("change",ev=>{const sel=ev.target.closest&&ev.target.closest(".ks-sel");if(!sel)return;const t=sel.parentNode.querySelector(".ks-txt");
   if(sel.value==="__c"){t.hidden=false;if(KS_PRE.some(([v])=>v===t.value))t.value="";t.dispatchEvent(new Event("input",{bubbles:true}));t.focus()}
   else{t.hidden=true;t.value=sel.value;t.dispatchEvent(new Event("input",{bubbles:true}))}});
-const SUPFIELDS=["fq","na","o","nx","n","url","c","cd","ct","d","p","pl","img","cov","ks","ksd","tags","spl"];
+const SUPFIELDS=["ps","fq","na","o","nx","n","url","c","cd","ct","d","p","pl","img","cov","ks","ksd","tags","spl"];
 const DAYS=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
 const PICS=new Map();
 function picSrc(v){v=String(v||"");if(/^(https:\/\/|img\/)/.test(v))return v;const m=v.match(/^fb:([A-Za-z0-9_-]+)$/);if(!m)return "";
@@ -839,7 +841,7 @@ async function dUpload(file){const b=await dShrink(file);if(b.size>450000)throw 
   const url=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b)});
   const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);await set(ref(db,"img5/"+id),url);PICS.set(id,url);return "fb:"+id}
 function closeKey(s){if(s.cd===null||s.cd===undefined||s.cd==="")return 1e9;const t=String(s.ct||"23:59").split(":");return (((+s.cd)-4+7)%7)*1440+(+t[0]||0)*60+(+t[1]||0)}
-function autoSort(){const A=DATA.suppliers;if(!DATA.manualOrder)A.sort((a,b)=>closeKey(a)-closeKey(b));const g=s=>s.o?0:s.nx?1:2;A.sort((a,b)=>g(a)-g(b))}
+function autoSort(){const A=DATA.suppliers;if(!DATA.manualOrder)A.sort((a,b)=>closeKey(a)-closeKey(b));const g=s=>s.ps?4:s.o?0:s.nx?1:(+s.fq>0?2:3);A.sort((a,b)=>g(a)-g(b))}
 const sNorm=t=>String(t||"").toLowerCase().replace(/[֑-ׇ"'׳״\-]/g,"").replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ").replace(/ף/g,"פ").replace(/ץ/g,"צ");
 const sSkel=t=>sNorm(t).replace(/[ויא\s]/g,"");
 function supMatch(s,q){const b=sNorm(q).trim();if(!b)return true;const hay=[s.n,s.k,s.tags].join(" "),a=sNorm(hay);if(a.includes(b))return true;
@@ -852,19 +854,19 @@ function ilNowParts(){const f=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Je
   return{y:+g("year"),mo:+g("month")-1,d:+g("day"),hr:+g("hour")%24,wd:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(g("weekday"))}}
 function dDist(){const p=ilNowParts();let add=(3-p.wd+7)%7;if(add===0&&p.hr>=21)add=7;const dt=new Date(Date.UTC(p.y,p.mo,p.d+add));return{y:dt.getUTCFullYear(),mo:dt.getUTCMonth(),d:dt.getUTCDate(),wd:3}}
 function wkIdx(y,mo,d){return Math.floor((Date.UTC(y,mo,d)/864e5+4)/7)}
-function freqNext(s,D){D=D||dDist();const fq=+s.fq,m=String(s.na||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!(fq>0)||!m)return null;
+function freqNext(s,D){if(s.ps)return null;D=D||dDist();const fq=+s.fq,m=String(s.na||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!(fq>0)||!m)return null;
   const a=wkIdx(+m[1],+m[2]-1,+m[3]),cur=wkIdx(D.y,D.mo,D.d),n=cur+(((a-cur)%fq)+fq)%fq,sun=n*7-4,off=s.f?5:3;
   return{now:n===cur,w:n-cur,date:new Date((sun+off)*864e5),after:new Date((sun+off+fq*7)*864e5)}}
 function fqTxt(fq){fq=+fq;return fq===1?"כל שבוע":fq===2?"כל שבועיים":"כל "+fq+" שבועות"}
 function dTxt(dt){return "יום "+DAYS[dt.getUTCDay()]+" "+dt.getUTCDate()+"."+(dt.getUTCMonth()+1)}
-function applyFreqD(){(DATA.suppliers||[]).forEach(s=>{const r=freqNext(s);if(r){s.o=r.now?1:0;s.nx=!r.now&&r.w===1?1:0}})}
+function applyFreqD(){(DATA.suppliers||[]).forEach(s=>{if(s.ps){s.o=0;s.nx=0;return}const r=freqNext(s);if(r){s.o=r.now?1:0;s.nx=!r.now&&r.w===1?1:0}})}
 function supsRender(){applyFreqD();if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.suppliers||[];
   const L=A.map((s,i)=>({s,i})).filter(x=>supMatch(x.s,q));
-  $("sup-list").innerHTML=L.length?L.map(({s,i})=>`<div class="aitem sup-row${SUPCH.has(s.h)||SUPADD.has(s.h)?" ch":""}${!s.o?" off":""}" data-i="${i}" data-h="${s.h}">
+  $("sup-list").innerHTML=L.length?L.map(({s,i})=>`<div class="aitem sup-row${SUPCH.has(s.h)||SUPADD.has(s.h)?" ch":""}${!s.o?" off":""}${s.ps?" ps":""}" data-i="${i}" data-h="${s.h}">
       <span class="drag-handle grip" aria-hidden="true" title="גרירה לשינוי סדר">⠿</span>
-      <label class="sw5"><input type="checkbox" data-on="${i}"${s.o?" checked":""}${freqNext(s)?' disabled aria-describedby="fqn-'+i+'"':""}><span class="sw5-t" aria-hidden="true"></span><span class="sr">מגיע השבוע: ${esc(s.n)}</span></label>
+      <label class="sw5"><input type="checkbox" data-on="${i}"${s.o?" checked":""}${freqNext(s)||s.ps?' disabled aria-describedby="fqn-'+i+'"':""}><span class="sw5-t" aria-hidden="true"></span><span class="sr">מגיע השבוע: ${esc(s.n)}</span></label>
       <span class="aitem-name">${esc(s.n||"ספק חדש")}<small class="sup-close">${s.cd!==null&&s.cd!==undefined&&s.cd!==""?" · נסגר "+DAYS[+s.cd]+(s.ct?" "+esc(s.ct):""):""}</small></span>
-      ${freqNext(s)?(()=>{const r=freqNext(s);return `<span class="atag fqtag${r.now?" on":""}" id="fqn-${i}">🔁 ${fqTxt(s.fq)} · ${r.now?"מגיע השבוע":"הבא: "+dTxt(r.date)}</span>`})():s.o?'<span class="atag on">מגיע</span>':`<button type="button" class="nxbtn${s.nx?" on":""}" data-nx="${i}" aria-pressed="${s.nx?"true":"false"}">⏳ שבוע הבא</button>`}
+      ${s.ps?`<span class="atag pstag" id="fqn-${i}">⏸ מושהה</span>`:freqNext(s)?(()=>{const r=freqNext(s);return `<span class="atag fqtag${r.now?" on":""}" id="fqn-${i}">🔁 ${fqTxt(s.fq)} · ${r.now?"מגיע השבוע":"הבא: "+dTxt(r.date)}</span>`})():s.o?'<span class="atag on">מגיע</span>':`<button type="button" class="nxbtn${s.nx?" on":""}" data-nx="${i}" aria-pressed="${s.nx?"true":"false"}">⏳ שבוע הבא</button>`}
       <button type="button" class="delbtn" data-edit="${i}" aria-expanded="${SUPEDIT===s.h}" aria-label="עריכת ${esc(s.n)}">✏️</button>
       <button type="button" class="delbtn${SUPDELASK===s.h?" ask":""}" data-del="${i}" aria-label="מחיקת ${esc(s.n)}">${SUPDELASK===s.h?"למחוק? לחצי שוב":"🗑"}</button>
       ${SUPEDIT===s.h?`<div class="sup-edit lk-pick">
@@ -874,6 +876,7 @@ function supsRender(){applyFreqD();if(!SUPEDIT)autoSort();const q=$("sup-q").val
         <label>פתוח להזמנות עד יום<select data-ef="cd" data-ei="${i}"><option value="">לא נקבע</option>${DAYS.slice(0,6).map((d,k)=>`<option value="${k}"${String(s.cd)===String(k)?" selected":""}>${d}</option>`).join("")}</select></label>
         <label>בשעה<input type="time" data-ef="ct" data-ei="${i}" value="${esc(s.ct||"")}"></label>
         <fieldset class="fq-box"><legend>🔁 כל כמה זמן הספק מגיע</legend>
+          <label class="ps-chk"><input type="checkbox" data-ef="ps" data-ei="${i}"${s.ps?" checked":""}> ⏸ מושהה, לא פעיל בינתיים (נעלם מהלקוחות, כל הפרטים נשמרים)</label>
           <label>תדירות<select data-ef="fq" data-ei="${i}"><option value=""${+s.fq>0?"":" selected"}>לא קבוע (מסמנים ידנית כל שבוע)</option>${[1,2,3,4,5,6,8].map(n=>`<option value="${n}"${+s.fq===n?" selected":""}>${fqTxt(n)}</option>`).join("")}</select></label>
           ${+s.fq>0?`<label>תאריך שבו הספק מגיע (הקרוב, או כל הגעה ידועה)<input type="date" data-ef="na" data-ei="${i}" value="${esc(s.na||"")}"></label>`:""}
           <p class="lk-p fq-info">${(()=>{const r=freqNext(s);if(!(+s.fq>0))return "כשבוחרים תדירות, האתר מסמן לבד אם הספק מגיע השבוע ומראה ללקוחות את התאריך הבא.";if(!r)return "בוחרים תאריך שבו הספק מגיע, והאתר יחשב מכאן את כל ההגעות.";return (r.now?"✅ מגיע השבוע, "+dTxt(r.date)+". ":"ההגעה הבאה: <b>"+dTxt(r.date)+"</b>. ")+"ואחריה: "+dTxt(r.after)+". מתעדכן לבד אחרי כל חלוקה."})()}</p>
@@ -893,8 +896,8 @@ function supsRender(){applyFreqD();if(!SUPEDIT)autoSort();const q=$("sup-q").val
         </div>`:""}
     </div>`).join("")
     :`<p class="lk-p">לא נמצא ספק בשם הזה. אפשר להוסיף אותו ב"+ הוספת ספק חדש".</p>`;
-  const on=A.filter(s=>s.o).length,nx=A.filter(s=>!s.o&&s.nx).length;
-  $("sup-count").textContent=`${on} מגיעים השבוע מתוך ${A.length}`+(nx?` · ${nx} בשבוע הבא`:"");
+  const on=A.filter(s=>s.o).length,nx=A.filter(s=>!s.o&&s.nx).length,fqn=A.filter(s=>!s.o&&!s.nx&&freqNext(s)).length,ps=A.filter(s=>s.ps).length;
+  $("sup-count").textContent=`${on} מגיעים השבוע מתוך ${A.length}`+(nx?` · ${nx} בשבוע הבא`:"")+(fqn?` · ${fqn} בהמשך לפי תדירות`:"")+(ps?` · ${ps} מושהים`:"");
   $("sup-list").classList.toggle("searching",!!q.trim());supDirty()}
 $("sup-q").addEventListener("input",supsRender);
 $("sup-auto").addEventListener("click",()=>{DATA.manualOrder=false;SUPORD=true;supsRender();render()});
@@ -905,6 +908,7 @@ document.addEventListener("change",async e=>{const t=e.target;if(!t.dataset||!t.
   try{s[t.dataset.up]=await dUpload(f);SUPCH.add(s.h);supsRender();const m2=document.getElementById("up-msg-"+t.dataset.ui);if(m2)m2.textContent='התמונה הועלתה ✓ לא לשכוח ללחוץ "שמירה".'}
   catch(err){if(msg)msg.textContent=err&&err.message==="big"?"התמונה גדולה מדי. נסי תמונה קטנה יותר.":"ההעלאה לא הצליחה. נסי שוב, או תמונה אחרת (JPG או PNG)."}});
 document.addEventListener("input",e=>{const t=e.target.closest&&e.target.closest("[data-ef]");if(!t)return;const s=DATA.suppliers[+t.dataset.ei];if(!s)return;const f=t.dataset.ef;
+  if(f==="ps"){if(t.checked)s.ps=1;else{delete s.ps;s.ps=0}SUPCH.add(s.h);supsRender();render();const x=document.querySelector(`[data-ef="ps"][data-ei="${t.dataset.ei}"]`);if(x)x.focus();return}
   if(f==="fq"||f==="na"){if(f==="fq"){if(t.value===""){delete s.fq}else s.fq=+t.value}else s.na=t.value;SUPCH.add(s.h);supsRender();render();const x=document.querySelector(`[data-ef="${f}"][data-ei="${t.dataset.ei}"]`);if(x)x.focus();return}
   s[f]=f==="cd"?(t.value===""?null:+t.value):t.value;if((f==="url"||f==="pl")&&s[f]&&!/^https?:\/\//.test(s[f])&&/^[\w.-]+\.[a-z]{2,}/i.test(s[f]))s[f]="https://"+s[f];SUPCH.add(s.h);supDirty();
   const nm=t.closest(".sup-row")&&t.closest(".sup-row").querySelector(".aitem-name");if(nm&&f==="n")nm.firstChild.textContent=t.value});
