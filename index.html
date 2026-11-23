@@ -648,6 +648,21 @@ body{font-size:18.5px!important}
 .road-cap b{color:var(--sun)!important;text-shadow:0 1px 0 rgba(0,0,0,.18)}
 
 .dist-box{display:grid;gap:10px;margin-top:18px}
+#dist-pts.pts{display:grid;gap:10px;margin-top:4px}
+.pts-box{background:#fff;border:2px solid #126F74;border-radius:16px;padding:14px 16px;box-shadow:0 8px 20px rgba(18,111,116,.12)}
+.pts-box h2{margin:0 0 8px;font-size:22px;font-weight:800;color:#0F5257}
+.pt-card{background:#F3FAF9;border:1.5px solid #BFDCD9;border-inline-start:6px solid #F28C28;border-radius:12px;padding:10px 14px}
+.pt-n{display:inline-block;margin:0 0 6px;padding:3px 14px;border-radius:999px;background:#FFC93C;color:#3A2400;font-size:21px;font-weight:800;line-height:1.3}
+.pts .pt-l{margin:2px 0 0;font-size:16px!important;opacity:1;color:#1F2A2B}
+.pt-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.pt-waze,.pt-cal{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:40px;padding:4px 16px;border-radius:999px;font:inherit;font-weight:800;font-size:15px;text-decoration:none;cursor:pointer}
+.pt-waze{background:#33CCFF;border:2px solid #0A6E91;color:#062A3A!important}
+.pt-cal{background:#fff;border:2px solid #0A6E91;color:#0A3F55}
+.pt-waze:focus-visible,.pt-cal:focus-visible,.pt-calm a:focus-visible,.pt-calm button:focus-visible{outline:3px solid #0A6E91;outline-offset:2px}
+.pt-calm{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.pt-calm[hidden]{display:none}
+.pt-calm a,.pt-calm button{display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border-radius:10px;background:#fff;color:#0A3F55!important;border:2px solid #0A6E91;font:inherit;font-weight:700;font-size:14px;text-decoration:none;cursor:pointer}
+@media (min-width:900px){#dist-pts.pts{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}}
+
 .dist-box .next{margin:0}
 .list-count{display:flex!important;align-items:center;gap:10px;justify-self:start;text-decoration:none}
 .list-count b{display:inline!important;font-size:22px!important}
@@ -719,10 +734,7 @@ main>[data-tab].tab-on:first-of-type{margin-top:18px}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--leaf:#4CC3C8;--cloud:#21495A;--leaf-deep:#2E9EA3;--heart:#FF6B6B;--sun:#F0B455;--c-veg:#A6CC54;--c-dairy:#5FCBD0;--c-meat:#FF7C7C;--c-bake:#EDB45A;--c-sweet:#F28DB0;--c-well:#A9A9F0;--road:#4F6C14;--on-heart:#1A0C0C;--on-sun:#1A1206;--on-leaf:#0E1C1E;--cd-ink:#7FD6DA;--closed-ink:#9BB7B7;--gold-ink:#F0B455;--kosher:#7DB5EA;--kosher-home:#B3A8F0;--wa:#0F7A3D;--who-red:#FF7C7C;--warm-bg:#2A2214}}
 :root[data-theme="dark"]{--leaf:#4CC3C8;--cloud:#21495A;--leaf-deep:#2E9EA3;--heart:#FF6B6B;--sun:#F0B455;--c-veg:#A6CC54;--c-dairy:#5FCBD0;--c-meat:#FF7C7C;--c-bake:#EDB45A;--c-sweet:#F28DB0;--c-well:#A9A9F0;--road:#4F6C14;--on-heart:#1A0C0C;--on-sun:#1A1206;--on-leaf:#0E1C1E;--cd-ink:#7FD6DA;--closed-ink:#9BB7B7;--gold-ink:#F0B455;--kosher:#7DB5EA;--kosher-home:#B3A8F0;--wa:#0F7A3D;--who-red:#FF7C7C;--warm-bg:#2A2214}
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.pt-cal{display:inline-flex;align-items:center;gap:4px;min-height:36px;margin-inline-start:6px;padding:4px 14px;border-radius:999px;background:#fff;border:2px solid #0A6E91;color:#0A3F55;font:inherit;font-weight:800;font-size:.95em;cursor:pointer;box-shadow:0 2px 0 #0A6E91}.pt-cal:focus-visible,.pt-calm a:focus-visible,.pt-calm button:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
-.pt-calw{display:block;margin:6px 0 10px}.pt-calw .pt-cal{margin-inline-start:0}
-.pt-calm{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}.pt-calm[hidden]{display:none}.pt-calm a,.pt-calm button{display:inline-flex;align-items:center;min-height:40px;padding:6px 14px;border-radius:10px;background:#fff;color:#0A3F55!important;border:2px solid #0A6E91;font:inherit;font-weight:700;font-size:.92em;text-decoration:none;cursor:pointer}
-.pt-waze{display:inline-flex;align-items:center;gap:4px;min-height:36px;margin-inline-start:6px;padding:4px 14px;border-radius:999px;background:#33CCFF;border:2px solid #0A6E91;color:#062A3A!important;font-weight:800;font-size:.95em;text-decoration:none;box-shadow:0 2px 0 #0A6E91}.pt-waze:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.pt-waze:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 .skip{position:absolute;inset-inline-start:12px;top:-80px;z-index:100;background:var(--ink);color:var(--bg);font-weight:700;padding:10px 16px;border-radius:10px;text-decoration:none}
 .skip:focus{top:12px}
 main:focus,#suppliers:focus{outline:none}
@@ -1293,10 +1305,13 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
       <div class="date"><small id="dist-day">יום רביעי</small><b id="dist-date">--.--</b></div>
       <div>
         <h2>החלוקה הקרובה</h2>
-        <div id="dist-pts" class="pts"></div>
       </div>
       <a class="btn btn-light wk-btn" href="#suppliers"><span class="wk-n" id="wk-n" hidden></span></a>
     </div>
+    <section class="pts-box" aria-labelledby="pts-h">
+      <h2 id="pts-h"><span aria-hidden="true">📍</span> נקודות החלוקה</h2>
+      <div id="dist-pts" class="pts"></div>
+    </section>
     <a class="counter list-count" id="btn-ord" href="#mylist"><b id="n-ord">0</b><span>🛒 ברשימת הקניות שלי</span></a>
     <button type="button" id="btn-favs" hidden><b id="n-favs">0</b></button>
   </section>
@@ -1708,9 +1723,11 @@ function icsFor(p){const t=ptTimes(p),c=calInfo(p),e=s=>String(s).replace(/\\/g,
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ptcal]");if(b){const m=$("ptcal-"+b.dataset.ptcal);if(!m)return;const o=m.hidden;m.hidden=!o;b.setAttribute("aria-expanded",String(o));if(o){const f=m.querySelector("a");if(f)f.focus()}return}
   const x=e.target.closest&&e.target.closest("[data-ptics]");if(!x)return;const p=(DATA.points||[])[+x.dataset.ptics];if(!p||!ptTimes(p))return;
   const u=URL.createObjectURL(new Blob([icsFor(p)],{type:"text/calendar;charset=utf-8"})),a=document.createElement("a");a.href=u;a.download="pickup-reminder.ics";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)});
+const PT_WAZE={"רמת השרון":"https://waze.com/ul/hsv8ybfw2s","רעננה":"https://waze.com/ul/hsv8z11xxt","גני תקוה":"https://waze.com/ul/hsv8y3esmf","גני תקווה":"https://waze.com/ul/hsv8y3esmf"};
+function ptWaze(p){const w=(p.w||"").trim();if(/^https:\/\/(www\.)?waze\.com\//.test(w))return w;return PT_WAZE[(p.n||"").trim()]||""}
 function renderPoints(){
   const P=DATA.points||[], hasInfo=P.some(p=>p.t||p.a);
-  $("dist-pts").innerHTML=hasInfo?P.map((p,i)=>`<p><b>${esc(p.n)}</b>${p.t?" · "+esc(p.t):""}${p.a?" · "+esc(p.a):""}${/^https:\/\/(www\.)?waze\.com\//.test(p.w||"")?` <a class="pt-waze" href="${esc(p.w)}" target="_blank" rel="noopener"><span aria-hidden="true">🚗</span>ניווט ב־Waze<span class="sr-only"> אל ${esc(p.n)} (נפתח בחלון חדש)</span></a>`:""}${ptTimes(p)?`<span class="pt-calw"><button type="button" class="pt-cal" data-ptcal="${i}" aria-expanded="false" aria-controls="ptcal-${i}"><span aria-hidden="true">📅</span> תזכורת ליומן<span class="sr-only"> לאיסוף ב${esc(p.n)}</span></button><span class="pt-calm" id="ptcal-${i}" hidden><a href="${esc(gcalUrl(p))}" target="_blank" rel="noopener">ליומן Google<span class="sr-only"> (נפתח בחלון חדש)</span></a><button type="button" data-ptics="${i}">ליומן באייפון או ביומן אחר</button></span></span>`:""}</p>`).join("")
+  $("dist-pts").innerHTML=hasInfo?P.map((p,i)=>{const w=ptWaze(p),tt=ptTimes(p);return `<div class="pt-card"><h3 class="pt-n">${esc(p.n)}</h3>${p.t?`<p class="pt-l"><span aria-hidden="true">🕓</span> <span dir="ltr">${esc(p.t)}</span></p>`:""}${p.a?`<p class="pt-l"><span aria-hidden="true">📍</span> ${esc(p.a)}</p>`:""}${w||tt?`<div class="pt-btns">${w?`<a class="pt-waze" href="${esc(w)}" target="_blank" rel="noopener"><span aria-hidden="true">🚗</span> Waze<span class="sr-only"> ניווט אל ${esc(p.n)} (נפתח בחלון חדש)</span></a>`:""}${tt?`<button type="button" class="pt-cal" data-ptcal="${i}" aria-expanded="false" aria-controls="ptcal-${i}"><span aria-hidden="true">📅</span> ליומן<span class="sr-only"> תזכורת לאיסוף ב${esc(p.n)}</span></button>`:""}</div>${tt?`<div class="pt-calm" id="ptcal-${i}" hidden><a href="${esc(gcalUrl(p))}" target="_blank" rel="noopener">יומן Google<span class="sr-only"> (נפתח בחלון חדש)</span></a><button type="button" data-ptics="${i}">אייפון או יומן אחר</button></div>`:""}`:""}</div>`}).join("")
     :`<p>${P.map(p=>esc(p.n)).join(" · ")}. ${esc(DATA.note||"")}</p>`;
   $("join-point").innerHTML=$("f-point").innerHTML='<option value="">-- בחרו נקודה --</option>'+P.map(p=>`<option>${esc(p.n)}</option>`).join("");
 }
