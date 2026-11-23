@@ -1808,9 +1808,9 @@ function renderList(){
   updateLinks();
 }
 const COURIERS_DEF=[
-  {area:"רמת השרון והרצליה",name:"דרור",phone:"054-4321886",note:"איסוף מכל הספקים עד פתח הבית ב־40 ₪"},
+  {area:"רמת השרון והרצליה",name:"דרור",phone:"054-4321886",pm:"פייבוקס",note:"איסוף מכל הספקים עד פתח הבית ב־40 ₪"},
   {area:"רעננה",name:"אוהד",phone:"054-5395446",note:"איסוף מכל הספקים עד פתח הבית"},
-  {area:"גליל ים, הרצליה",name:"דרור",phone:"054-4321886",note:"איסוף מכל הספקים עד פתח הבית",off:1},
+  {area:"גליל ים, הרצליה",name:"דרור",phone:"054-4321886",pm:"פייבוקס",note:"איסוף מכל הספקים עד פתח הבית",off:1},
   {area:"גני תקוה וקריית אונו",name:"כפיר",phone:"054-6850455",note:"איסוף מכל הספקים עד פתח הבית ב־40 ₪. יעדים נוספים בתיאום ובעלות אחרת"}
 ];
 let COURIERS=(Array.isArray(DATA.couriers)&&DATA.couriers.length)?DATA.couriers:COURIERS_DEF;
@@ -1826,8 +1826,9 @@ function fillCourierArea(){
   box.hidden=false;if(!c){box.innerHTML="";return}
   const n=Object.keys(list).filter(h=>byH[h]).length,miss=meMissing();
   const bitU=c.bit?(/^https?:\/\//i.test(c.bit)?c.bit:"https://"+c.bit):"";
-  const bitBtn=bitU?`<a class="btn ct-bit" href="${esc(bitU)}" target="_blank" rel="noopener"><span class="ct-bt">לתשלום 40 ₪ בביט ל${esc(c.name)} ←</span></a>`
-    :`<button class="btn ct-bit" type="button" data-bitcopy="${esc(c.phone)}"><span class="ct-bt">לתשלום 40 ₪ בביט ל${esc(c.name)} ←</span></button>`;
+  const pm=c.pm==="פייבוקס"?"פייבוקס":"ביט";
+  const bitBtn=bitU?`<a class="btn ct-bit" href="${esc(bitU)}" target="_blank" rel="noopener"><span class="ct-bt">לתשלום 40 ₪ ב${pm} ל${esc(c.name)}</span><span class="sr-only"> (נפתח בחלון חדש)</span></a>`
+    :`<button class="btn ct-bit" type="button" data-bitcopy="${esc(c.phone)}" data-pm="${pm}"><span class="ct-bt">לתשלום 40 ₪ ב${pm} ל${esc(c.name)}</span></button>`;
   const bitInfo="";
   const waBtn=n&&!miss.length?`<a class="btn wa-go" id="cour-send" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=972${ph}&text=${encodeURIComponent(listText(true))}">לשליחת הרשימה בוואטסאפ ל${esc(c.name)} ←</a>`
     :`<span class="btn wa-go ct-off" aria-disabled="true">לשליחת הרשימה בוואטסאפ ל${esc(c.name)} ←</span>`;
@@ -1851,7 +1852,7 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
   CT_OPEN=i;me.mode="courier";me.carea=String(i);me.cphone=c.phone;saveMe();fillMe();updateLinks();renderCouriers();requestAnimationFrame(()=>{if(sw){const x=document.querySelector(`[data-ctwho="${i}"]`);if(x)x.focus();return}const f=$("ct-form");if(f)f.scrollIntoView({behavior:"smooth",block:"start"})})});
 document.addEventListener("click",e=>{if(!(e.target.closest&&e.target.closest("[data-ctreset]")))return;CT_OPEN=-1;me.carea="";me.cphone="";saveMe();fillMe();updateLinks();renderCouriers();const g=$("ct-grid");if(g)g.scrollIntoView({behavior:"smooth",block:"start"})});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-copy]");if(!b)return;const v=b.dataset.copy;const done=()=>{const t=b.textContent;b.textContent="המספר הועתק ✓";setTimeout(()=>b.textContent=t,2000)};try{navigator.clipboard.writeText(v).then(done,done)}catch(_){done()}});
-document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-bitcopy]");if(!b)return;const v=b.dataset.bitcopy,t=b.innerHTML;const done=()=>{b.innerHTML='<span class="ct-bt">המספר הועתק ✓</span><small>מדביקים בביט ומעבירים 40 ₪</small>';setTimeout(()=>b.innerHTML=t,4000)};try{navigator.clipboard.writeText(v).then(done,done)}catch(_){done()}});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-bitcopy]");if(!b)return;const v=b.dataset.bitcopy,t=b.innerHTML;const done=()=>{b.innerHTML='<span class="ct-bt">המספר הועתק ✓</span><small>מדביקים ב'+(b.dataset.pm||'ביט')+' ומעבירים 40 ₪</small>';setTimeout(()=>b.innerHTML=t,4000)};try{navigator.clipboard.writeText(v).then(done,done)}catch(_){done()}});
 function renderCouriers(){fillCourierArea();renderCourTiles();
   if(!$("cour-grid"))return;
   const n=Object.keys(list).filter(h=>byH[h]).length, hasAddr=!!(me.street||"").trim();
@@ -2143,7 +2144,8 @@ function edCours(){
     <label class="field">שם השליח<input data-cr="${i}" data-f="name" value="${esc(c.name||"")}"></label>
     <label class="field">טלפון<input data-cr="${i}" data-f="phone" value="${esc(c.phone||"")}" inputmode="tel" dir="ltr"></label>
     <button class="rm" type="button" data-rmcour="${i}" aria-label="מחיקת שליח">×</button>
-    <label class="field wide">קישור לתשלום בביט של השליח (אם יש)<input data-cr="${i}" data-f="bit" value="${esc(c.bit||"")}" dir="ltr" placeholder="https://www.bitpay.co.il/app/me/…"></label>
+    <label class="field">תשלום לשליח ב<select data-cr="${i}" data-f="pm"><option${c.pm==="פייבוקס"?"":" selected"}>ביט</option><option${c.pm==="פייבוקס"?" selected":""}>פייבוקס</option></select></label>
+    <label class="field wide">קישור לתשלום לשליח בביט או בפייבוקס (אם יש)<input data-cr="${i}" data-f="bit" value="${esc(c.bit||"")}" dir="ltr" placeholder="https://www.bitpay.co.il/app/me/…"></label>
     <label class="field wide">הסבר קצר<input data-cr="${i}" data-f="note" value="${esc(c.note||"")}" placeholder="איסוף מכל הספקים עד פתח הבית ב־40 ₪"></label></div>`).join("")}
 function edPoints(){
   $("ed-points").innerHTML=draft.points.map((p,i)=>`<div class="ed-pt">

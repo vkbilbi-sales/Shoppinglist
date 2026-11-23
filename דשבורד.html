@@ -650,7 +650,7 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .cr-off-t{flex:1 1 100%;font-size:.8rem;color:#5E6566;margin:.1rem 0 0}
 .cr-pt{display:flex;align-items:center;gap:.4rem;flex:1 1 100%;font-size:.88rem;font-weight:700;margin-top:.3rem}
 .cr-pt select,.cr-pt input{flex:1;font:inherit;min-height:40px;border:1px solid #C9D6D4;border-radius:8px;padding:.3rem .5rem;background:#fff}
-.cr-edit label{display:flex;flex-direction:column;gap:.25rem;font-weight:700;font-size:.85rem;margin-bottom:.45rem}.cr-edit input{width:100%;box-sizing:border-box;font:inherit;font-weight:400;min-height:40px;border:1px solid #C9D6D4;border-radius:8px;padding:.3rem .5rem;background:#fff}
+.cr-edit label{display:flex;flex-direction:column;gap:.25rem;font-weight:700;font-size:.85rem;margin-bottom:.45rem}.cr-edit select,.cr-edit input{width:100%;box-sizing:border-box;font:inherit;font-weight:400;min-height:40px;border:1px solid #C9D6D4;border-radius:8px;padding:.3rem .5rem;background:#fff}
 .cr-name{flex:1 1 100%!important}
 .cr-edit{margin-top:.5rem;padding:.6rem;border:1px dashed #C9D6D4;border-radius:10px;background:#FAFDFC}
 .cr-row.ch{box-shadow:inset 4px 0 0 #E0A040}
@@ -940,7 +940,7 @@ function crRender(){if(!CR)return;const P=crPts();
   $("cr-list").innerHTML=CR.map((c,i)=>{const a=(c.area||"").trim(),nm=esc(c.name||"שליח חדש");
     return `<div class="cr-row${c.off?" off":""}${CRNEW.has(i)?" ch":""}" data-cri="${i}">
     <div class="cr-top">
-      <span class="cr-name">🛵 ${nm}</span><span class="cr-ph" dir="ltr">${esc(c.phone||"")}</span>
+      <span class="cr-name">🛵 ${nm}</span><span class="cr-ph" dir="ltr">${esc(c.phone||"")}</span><span class="cr-ph">· תשלום ב${c.pm==="פייבוקס"?"פייבוקס":"ביט"}</span>
       <label class="cr-act"><input type="checkbox" data-cron="${i}"${c.off?"":" checked"}> פעיל השבוע<span class="sr">: ${nm}</span></label>
       <button type="button" class="delbtn" data-credit="${i}" aria-expanded="${CREDIT===i}" aria-label="עריכת הפרטים של ${nm}">✏️</button>
       <button type="button" class="delbtn${CRDEL===i?" ask":""}" data-crdel="${i}" aria-label="מחיקת ${nm} מהמאגר">${CRDEL===i?"למחוק לגמרי? לחצי שוב":"🗑"}</button>
@@ -952,12 +952,14 @@ function crRender(){if(!CR)return;const P=crPts();
     ${CREDIT===i?`<div class="cr-edit">
       <label>שם השליח<input type="text" data-crf="name" data-cri2="${i}" value="${esc(c.name||"")}"></label>
       <label>טלפון<input type="tel" dir="ltr" data-crf="phone" data-cri2="${i}" value="${esc(c.phone||"")}" placeholder="05X-XXXXXXX"></label>
-      <label>קישור לתשלום בביט (אם יש)<input type="url" dir="ltr" data-crf="bit" data-cri2="${i}" value="${esc(c.bit||"")}" placeholder="https://www.bitpay.co.il/app/me/…"></label>
+      <label>תשלום לשליח ב<select data-crf="pm" data-cri2="${i}"><option${c.pm==="פייבוקס"?"":" selected"}>ביט</option><option${c.pm==="פייבוקס"?" selected":""}>פייבוקס</option></select></label>
+      <label>קישור לתשלום בביט או בפייבוקס (אם יש)<input type="url" dir="ltr" data-crf="bit" data-cri2="${i}" value="${esc(c.bit||"")}" placeholder="https://www.bitpay.co.il/app/me/…"></label>
       <label>הסבר קצר ללקוחות<input type="text" data-crf="note" data-cri2="${i}" value="${esc(c.note||"")}" placeholder="איסוף מכל הספקים עד פתח הבית ב־40 ₪"></label>
       <button type="button" class="btn bg bsm" data-credit="${i}">סגירת הפרטים</button></div>`:""}
   </div>`}).join("")}
 $("cr-list").addEventListener("change",e=>{const t=e.target;
   if(t.dataset.cron!==undefined){const i=+t.dataset.cron,c=CR[i];if(t.checked)delete c.off;else c.off=1;crDirty();crRender();const x=document.querySelector(`[data-cron="${i}"]`);if(x)x.focus();return}
+  if(t.dataset.crf==="pm"){const i=+t.dataset.cri2;CR[i].pm=t.value;crDirty();crRender();const x=document.querySelector(`select[data-crf="pm"][data-cri2="${i}"]`);if(x)x.focus();return}
   if(t.dataset.crf==="area"&&t.tagName==="SELECT"){const i=+t.dataset.cri2;if(t.value==="__new"){CR[i]._newpt=1;crRender();const x=document.querySelector(`input[data-crf="area"][data-cri2="${i}"]`);if(x)x.focus();return}CR[i].area=t.value;crDirty();crRender();const x=document.querySelector(`select[data-crf="area"][data-cri2="${i}"]`);if(x)x.focus()}});
 $("cr-list").addEventListener("input",e=>{const t=e.target,f=t.dataset.crf;if(!f||t.tagName==="SELECT")return;const i=+t.dataset.cri2;CR[i][f]=t.value;crDirty();
   if(f==="name"){const n=t.closest(".cr-row").querySelector(".cr-name");if(n)n.textContent=t.value||"שליח חדש"}if(f==="phone"){const n=t.closest(".cr-row").querySelector(".cr-ph");if(n)n.textContent=t.value}});
