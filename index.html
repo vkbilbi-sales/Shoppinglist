@@ -2314,6 +2314,25 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-mv]");if(!
   if(j<0||j>=arr.length)return;[arr[i],arr[j]]=[arr[j],arr[i]];
   if(k==="posts"){arr.forEach(p=>p._open=0);edPosts()}else edSups(-1);
   $("ed-msg").textContent='הסדר השתנה. לחצי "שמירה" כדי לפרסם.';},true);
+// ---- iPhone home-screen app: open mypips stores in Safari, so the customer stays logged in ----
+// A site saved to the iPhone home screen opens outside links in a separate window that does not keep
+// the mypips login, so customers were asked to log in again at every store. Open those links in Safari itself.
+(function(){
+  const IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  const APP=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+  if(!IOS||!APP)return;
+  document.addEventListener("click",e=>{
+    const a=e.target.closest&&e.target.closest("a[href]");if(!a)return;
+    let u;try{u=new URL(a.href)}catch(_){return}
+    if(u.protocol!=="https:"||!/(^|\.)mypips\.app$/i.test(u.hostname))return;
+    e.preventDefault();
+    let left=false;const off=()=>{if(document.hidden)left=true};
+    document.addEventListener("visibilitychange",off);
+    location.href="x-safari-"+u.href; /* iOS 17 and later: opens the link in Safari */
+    setTimeout(()=>{document.removeEventListener("visibilitychange",off);
+      if(!left&&!document.hidden)window.open(u.href,"_blank","noopener")},1500); /* older iPhones: open as before */
+  },true);
+})();
 // ---- save to home screen ----
 let A2P=null;const STANDALONE=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
 function markInstall(how){try{set(ref(db,"installs/"+CID),{how,name:(me&&me.name)||"",date:new Date().toLocaleDateString("he-IL"),ts:Date.now()}).catch(()=>{})}catch(e){}}
