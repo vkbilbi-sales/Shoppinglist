@@ -1894,7 +1894,9 @@ function listText(fc){
     t+=`🚚 משלוח לכתובת: ${[me.street,me.city,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", ")||"..."}\n`;
     if(me.code)t+=`קוד כניסה: ${me.code}\n`;
     if(me.cnote)t+=`הערות: ${me.cnote}\n`;
-  } else t+=`📍 איסוף מ${me.point||"..."}\n`;
+  } else {t+=`📍 איסוף מ${me.point||"..."}\n`;
+    const mp=String(me.point||"").trim(),pt=mp&&(DATA.points||[]).find(p=>p.n&&(mp.includes(p.n.trim())||p.n.trim().includes(mp)));
+    if(pt){if(DIST||pt.t)t+=`🕓 ${DIST?dTxt(new Date(Date.UTC(DIST.y,DIST.mo,DIST.d)),1):""}${DIST&&pt.t?", ":""}${pt.t||""}\n`;if(pt.a)t+=`📌 מקום: ${pt.a}\n`;const w=ptWaze(pt);if(w)t+=`🚗 ניווט ב־Waze: ${w}\n`}}
   t+="\n";
   hs.filter(h=>byH[h]).forEach((h,i)=>{const it=list[h];t+=`${it.got?"✅":"⬜"} ${i+1}. ${byH[h].n}${byH[h].f?" (משלוח עד הבית ביום שישי)":""}${it.note?" – "+it.note:""}\n`});
   t+=`\n🔗 הרשימה המשותפת: ${shareLink()}\n`;
