@@ -659,9 +659,12 @@ body{font-size:18.5px!important}
 .arr-n{display:inline-block;margin:0 0 6px;padding:3px 14px;border-radius:999px;background:#FFC93C;color:#3A2400;font-size:19px;font-weight:800}
 .arr-l{margin:3px 0 0;font-size:16px;color:#1F2A2B}.arr-k{font-weight:700;color:#0F5257}.arr-l b{color:#0F5257}
 .arr-tag{display:inline-block;padding:1px 10px;border-radius:999px;background:#14532D;color:#fff;font-weight:800;font-size:14px}.arr-in{color:#4F5D5E;font-size:14px;white-space:nowrap}
-.join-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:16px 0 0;padding:12px 16px;background:#FFF4D6;border:2px solid #E0A040;border-radius:14px}
-.join-bar[hidden]{display:none}.join-bar p{margin:0;font-size:17px;font-weight:800;color:#3A2400}
-.join-go{min-height:44px;padding:8px 22px;border-radius:999px;background:#126F74;color:#fff;font-weight:800;font-size:16px;border:0;cursor:pointer}.join-go:focus-visible{outline:3px solid #3A2400;outline-offset:2px}
+.join-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:16px 0 0;padding:12px 16px;background:#FCE4EF;border:2px solid #C2185B;border-radius:14px}
+.join-bar[hidden]{display:none}.join-bar p{margin:0;font-size:17px;font-weight:800;color:#5A0B2E}
+.join-go{min-height:44px;padding:8px 22px;border-radius:999px;background:#AD1457;color:#fff;font-weight:800;font-size:16px;border:0;cursor:pointer}.join-go:hover{background:#880E4F}.join-go:focus-visible{outline:3px solid #5A0B2E;outline-offset:2px}
+.join-card{border-top-color:#C2185B!important}
+#join{scroll-margin-top:190px}
+.join-form .join-go{width:100%}
 #dist-pts.pts{display:grid;gap:10px;margin-top:4px}
 .pts-box{background:#fff;border:2px solid #126F74;border-radius:16px;padding:14px 16px;box-shadow:0 8px 20px rgba(18,111,116,.12)}
 .pts-box h2{margin:0 0 8px;font-size:22px;font-weight:800;color:#0F5257}
@@ -1337,17 +1340,18 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
 
   <section class="join" id="join" data-tab="contact" aria-labelledby="join-h">
     <div class="join-card">
-      <h2 id="join-h">📬 רוצים להירשם למאגר הלקוחות של רכישות כדאיות?</h2>
-      <p>מצטרפים לרשימת הלקוחות של רכישות כדאיות, ומקבלים בוואטסאפ את היצרנים של השבוע, מבצעים והטבות.</p>
+      <h2 id="join-h">📬 מוזמנים להצטרף למאגר הלקוחות של רכישות כדאיות</h2>
+      <p>מצטרפים ומקבלים בוואטסאפ ובמייל את היצרנים של השבוע, מבצעים והטבות.</p>
       <form id="join-form" class="join-form" novalidate>
         <p class="hint">שדות עם <b>*</b> הם חובה.</p>
-        <label class="field" for="join-name">שם מלא *<input id="join-name" type="text" autocomplete="name" required aria-required="true"></label>
+        <label class="field" for="join-name">שם מלא בעברית *<input id="join-name" type="text" autocomplete="name" lang="he" dir="rtl" placeholder="שם פרטי ושם משפחה" required aria-required="true"></label>
+        <label class="field" for="join-mail">מייל *<input id="join-mail" type="email" inputmode="email" autocomplete="email" dir="ltr" placeholder="name@gmail.com" required aria-required="true"></label>
         <label class="field" for="join-phone">טלפון *<input id="join-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05X-XXXXXXX" required aria-required="true"></label>
         <label class="field" for="join-point">נקודת חלוקה קרובה (לא חובה)<select id="join-point"></select></label>
-        <label class="chk join-ok"><input type="checkbox" id="join-ok" required aria-required="true"> אני מסכים/ה שרכישות כדאיות תשמור את השם והטלפון שלי ותשלח לי עדכונים בוואטסאפ. *</label>
-        <button class="btn go" type="submit">הצטרפות לעדכונים</button>
+        <label class="chk join-ok"><input type="checkbox" id="join-ok" required aria-required="true"> אני מסכים/ה שרכישות כדאיות תשמור את השם, הטלפון והמייל שלי ותשלח לי עדכונים בוואטסאפ ובמייל. *</label>
+        <button class="btn go join-go" type="submit">הצטרפות למאגר הלקוחות</button>
         <p class="hint" id="join-msg" role="status" aria-live="polite"></p>
-        <p class="hint">הפרטים נשמרים רק כדי לשלוח לכם עדכונים, ולא מועברים לאף אחד אחר. אפשר לבקש הסרה בכל עת בהודעת וואטסאפ לורד (054-4462223).</p>
+        <p class="hint">הפרטים נשמרים רק כדי לשלוח לכם עדכונים, ולא מועברים לאף אחד אחר. אפשר לבקש הסרה בכל עת בהודעת וואטסאפ לורד (<span dir="ltr">054-4462223</span>).</p>
       </form>
     </div>
   </section>
@@ -1390,7 +1394,7 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
       <a class="btn go" href="https://wa.me/972544462223?text=%D7%94%D7%99%D7%99%20%D7%95%D7%A8%D7%93%2C%20%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%94%D7%A6%D7%99%D7%A2%20%D7%94%D7%98%D7%91%D7%94%20%D7%9C%D7%9C%D7%A7%D7%95%D7%97%D7%95%D7%AA%20%D7%A8%D7%9B%D7%99%D7%A9%D7%95%D7%AA%20%D7%9B%D7%93%D7%90%D7%99%D7%95%D7%AA%20%F0%9F%8E%81%0A%0A%D7%A9%D7%9D%20%D7%94%D7%A2%D7%A1%D7%A7%3A%0A%D7%AA%D7%97%D7%95%D7%9D%3A%0A%D7%90%D7%96%D7%95%D7%A8%3A%0A%D7%94%D7%94%D7%98%D7%91%D7%94%20%28%D7%9E%D7%94%20%D7%91%D7%93%D7%99%D7%95%D7%A7%20%D7%9E%D7%A7%D7%91%D7%9C%D7%99%D7%9D%29%3A%0A%D7%AA%D7%A0%D7%90%D7%99%D7%9D%20%D7%95%D7%AA%D7%95%D7%A7%D7%A3%3A%0A%D7%90%D7%99%D7%9A%20%D7%9E%D7%9E%D7%9E%D7%A9%D7%99%D7%9D%3A%0A%D7%A7%D7%99%D7%A9%D7%95%D7%A8%20%D7%9C%D7%90%D7%AA%D7%A8%20%D7%90%D7%95%20%D7%9C%D7%90%D7%99%D7%A0%D7%A1%D7%98%D7%92%D7%A8%D7%9D%3A" target="_blank" rel="noopener">שליחת הצעה לורד בוואטסאפ ←</a>
     </div>
   </section>
-  <div class="join-bar" id="join-bar" data-tab="sup"><p><span aria-hidden="true">📬</span> רוצים להירשם למאגר הלקוחות של רכישות כדאיות?</p><button type="button" class="btn join-go" data-gojoin>להרשמה</button></div>
+  <div class="join-bar" id="join-bar" data-tab="sup"><p><span aria-hidden="true">💗</span> מוזמנים להצטרף למאגר הלקוחות של רכישות כדאיות</p><button type="button" class="btn join-go" data-gojoin>להצטרפות</button></div>
   <div class="section-head" id="suppliers">
     <h2 id="sup-h"><span class="sup-t">הספקים שלנו</span><span id="sup-when"></span></h2>
     <p id="count"></p>
@@ -1435,7 +1439,7 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
             <p class="hint">שדות עם <b>*</b> הם חובה. ממלאים פעם אחת, והפרטים נשמרים גם לשבועות הבאים.</p>
             <label class="field" for="f-carea">נקודת האיסוף שלכם *<select id="f-carea" required aria-required="true"></select></label>
             <div class="cour-who" id="cour-who" hidden></div>
-            <label class="field" for="f-name">שם מלא *<input id="f-name" type="text" autocomplete="name" placeholder="השם שיופיע לשליח" required aria-required="true"></label>
+            <label class="field" for="f-name">שם מלא בעברית *<input id="f-name" type="text" autocomplete="name" lang="he" dir="rtl" placeholder="שם פרטי ושם משפחה" required aria-required="true"></label>
             <label class="field" for="f-phone">טלפון *<input id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05X-XXXXXXX" required aria-required="true"></label>
             <label class="field" for="f-street">רחוב ומספר בית *<input id="f-street" type="text" autocomplete="address-line1" placeholder="למשל: הרימון 7" required aria-required="true"></label>
             <label class="field" for="f-city">עיר *<input id="f-city" type="text" autocomplete="address-level2" placeholder="למשל: גני תקוה" required aria-required="true"></label>
@@ -1478,7 +1482,7 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
       <div class="ml-box ml-self" id="pick-fields">
         <h3>📍 איסוף עצמי, או מישהו שאוסף בשבילי</h3>
         <p class="hint">שדות עם <b>*</b> הם חובה.</p>
-        <label class="field" for="f-name2">שם מלא *<input id="f-name2" type="text" autocomplete="name" required aria-required="true"></label>
+        <label class="field" for="f-name2">שם מלא בעברית *<input id="f-name2" type="text" autocomplete="name" lang="he" dir="rtl" placeholder="שם פרטי ושם משפחה" required aria-required="true"></label>
         <label class="field" for="f-point">נקודת החלוקה *<select id="f-point" required aria-required="true"></select></label>
         <p class="hint">שעה ומיקום מדויקים מופיעים בהודעה המרכזת של השבוע.</p>
         <p class="cour-miss" id="self-miss" hidden></p>
@@ -1999,7 +2003,8 @@ function weeklyReset(){if(!DIST||!fbReady)return;const now=Date.now(),cur=wkKey(
 let toastT=null;
 function toast(n){const t=$("toast");t.innerHTML=`✓ <b>${esc(n)}</b> נוסף ללשונית "רשימת הקניות" <a href="#mylist">לרשימה ←</a>`;{const tb=document.querySelector('[data-tabbtn="list"]');if(tb){tb.classList.remove("bump");void tb.offsetWidth;tb.classList.add("bump");setTimeout(()=>tb.classList.remove("bump"),2500)}};clearTimeout(toastT);toastT=setTimeout(()=>{t.innerHTML=""},4500)}
 function meDone(){return me.mode==="courier"&&!!((me.name||"").trim()&&(me.phone||"").trim()&&(me.street||"").trim()&&(me.city||"").trim()&&cOn(me.carea))}
-function meMissing(){const m=[];if(!(me.name||"").trim())m.push("שם מלא");if(!(me.phone||"").trim())m.push("טלפון");if(me.mode==="courier"){if(!(me.street||"").trim())m.push("רחוב ומספר");if(!(me.city||"").trim())m.push("עיר");if(!cOn(me.carea))m.push("נקודת האיסוף");}else if(!me.point)m.push("נקודת חלוקה");return m}
+function heFull(n){n=String(n||"").trim().replace(/\s+/g," ");return /^[\u05D0-\u05EA'"׳״\-]+( [\u05D0-\u05EA'"׳״\-]+)+$/.test(n)}
+function meMissing(){const m=[];if(!heFull(me.name))m.push("שם מלא בעברית (שם פרטי ומשפחה)");if(!(me.phone||"").trim())m.push("טלפון");if(me.mode==="courier"){if(!(me.street||"").trim())m.push("רחוב ומספר");if(!(me.city||"").trim())m.push("עיר");if(!cOn(me.carea))m.push("נקודת האיסוף");}else if(!me.point)m.push("נקודת חלוקה");return m}
 function renderMeSum(){
   const L=meDone()&&me.locked!==false&&!EDITING;$("me-sum").hidden=!L;$("me-edit").hidden=L;if(!L)return;
   const c=COURIERS[+me.carea],addr=[me.street,me.city,me.apt&&"דירה "+me.apt,me.floor&&"קומה "+me.floor].filter(Boolean).join(", ");
@@ -2151,10 +2156,10 @@ try{const day=new Date().toLocaleDateString("en-CA",{timeZone:"Asia/Jerusalem"})
 try{if(LS.get("rk-joined",""))$("join-bar").hidden=true}catch(e){}
 document.addEventListener("click",e=>{if(!(e.target.closest&&e.target.closest("[data-gojoin]")))return;showTab("contact",false);requestAnimationFrame(()=>{const j=$("join");if(j)j.scrollIntoView({behavior:"smooth",block:"start"});const n=$("join-name");if(n)setTimeout(()=>n.focus({preventScroll:true}),350)})});
 $("join-form").addEventListener("submit",e=>{e.preventDefault();
-  const n=$("join-name").value.trim(),ph=$("join-phone").value.trim(),ok=$("join-ok").checked,miss=[];
-  if(!n)miss.push("שם מלא");if(ph.replace(/\D/g,"").length<9)miss.push("טלפון");if(!ok)miss.push("סימון ההסכמה");
+  const n=$("join-name").value.trim().replace(/\s+/g," "),ml=$("join-mail").value.trim(),ph=$("join-phone").value.trim(),ok=$("join-ok").checked,miss=[];
+  if(!heFull(n))miss.push("שם מלא בעברית (שם פרטי ומשפחה)");if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(ml))miss.push("מייל תקין");if(ph.replace(/\D/g,"").length<9)miss.push("טלפון");if(!ok)miss.push("סימון ההסכמה");
   if(miss.length){$("join-msg").textContent="חסר: "+miss.join(", ");return}
-  const rec={name:n,phone:ph,point:$("join-point").value||"",consent:true,date:new Date().toLocaleDateString("he-IL"),ts:Date.now()};
+  const rec={name:n,email:ml,phone:ph,point:$("join-point").value||"",consent:true,date:new Date().toLocaleDateString("he-IL"),ts:Date.now()};
   $("join-msg").textContent="שומרת…";
   Promise.resolve().then(()=>set(ref(db,"members/"+CID),rec)).then(()=>{$("join-msg").textContent="תודה! נרשמת למאגר הלקוחות ✓";$("join-form").reset();try{LS.set("rk-joined","1")}catch(e){}$("join-bar").hidden=true})
     .catch(()=>{$("join-msg").textContent="ההרשמה לא נשמרה. נסו שוב, או כתבו לורד בוואטסאפ."});

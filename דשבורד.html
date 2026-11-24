@@ -812,11 +812,11 @@ async function statsLoad(){
     $("st-sum").textContent=days.length?`ב־${days.length} הימים האחרונים: ${tv} כניסות, ${tl} מהן עם רשימת קניות.`:"";
     MEMBERS=Object.values(M).filter(x=>x&&x.consent).sort((a,b)=>(b.ts||0)-(a.ts||0));
     $("mb-sum").textContent=`${MEMBERS.length} לקוחות במאגר`;
-    $("mb-list").innerHTML=MEMBERS.length?MEMBERS.map(x=>`<li><b>${esc(x.name)}</b> · <span dir="ltr">${esc(x.phone)}</span>${x.point?" · "+esc(x.point):""} · <span class="st">${esc(x.date||"")}</span></li>`).join(""):"<li>עוד אין נרשמים.</li>";
+    $("mb-list").innerHTML=MEMBERS.length?MEMBERS.map(x=>`<li><b>${esc(x.name)}</b> · <span dir="ltr">${esc(x.phone)}</span>${x.email?` · <a dir="ltr" href="mailto:${esc(x.email)}">${esc(x.email)}</a>`:""}${x.point?" · "+esc(x.point):""} · <span class="st">${esc(x.date||"")}</span></li>`).join(""):"<li>עוד אין נרשמים.</li>";
   }catch(e){$("st-rows").innerHTML='<tr><td colspan="3">לא הצלחתי לטעון. נסי לרענן.</td></tr>';$("mb-list").innerHTML="<li>לא הצלחתי לטעון.</li>"}
 }
 $("mb-export").addEventListener("click",()=>{const q=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
-  const csv="\uFEFF"+[["שם","טלפון","נקודה","תאריך הרשמה"],...MEMBERS.map(x=>[x.name,x.phone,x.point,x.date])].map(r=>r.map(q).join(",")).join("\r\n");
+  const csv="\uFEFF"+[["שם","מייל","טלפון","נקודה","תאריך הרשמה"],...MEMBERS.map(x=>[x.name,x.email||"",x.phone,x.point,x.date])].map(r=>r.map(q).join(",")).join("\r\n");
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="מאגר-לקוחות.csv";document.body.appendChild(a);a.click();a.remove()});
 statsLoad();
 // ---- suppliers this week (switch per supplier, drag to reorder, search, quick add) ----
