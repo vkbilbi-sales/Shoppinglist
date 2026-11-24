@@ -9,7 +9,7 @@
 <title>דשבורד מנהלת — רכישות כדאיות</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-:root{--teal:#2AACA0;--teal-dark:#1D8A80;--teal-light:#E0F7F4;--coral:#F0525A;--orange:#F5A623;--green:#7AB648;--cream:#FAFDF8;--border:#C8E8E4;--muted:#6A9E9A;--ink:#1A3A38;}
+:root{--teal:#13756D;--teal-dark:#0E5A54;--teal-light:#E0F7F4;--coral:#F0525A;--orange:#F5A623;--green:#7AB648;--cream:#FAFDF8;--border:#C8E8E4;--muted:#6A9E9A;--ink:#1A3A38;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(150deg,#E5F7F5,#FFF8EE 55%,#EDF7E4);color:var(--ink);min-height:100vh;direction:rtl;}
 .wrap{max-width:680px;margin:0 auto;padding:1.4rem 1rem 5rem;}
@@ -98,9 +98,15 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
   <div class="login-wrap">
     <div style="font-size:3rem;">🔐</div>
     <h2>כניסת מנהלת</h2>
-    <input type="password" id="apass" placeholder="סיסמא" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="btn bt" onclick="doLogin()">כניסה</button>
-    <div class="lerr" id="lerr" style="display:none;">סיסמא שגויה ❌</div>
+    <form id="login-form" novalidate>
+      <label class="lg-l" for="aemail">מייל</label>
+      <input type="email" id="aemail" dir="ltr" autocomplete="username" value="vkbilbi@gmail.com" required>
+      <label class="lg-l" for="apass">סיסמה</label>
+      <input type="password" id="apass" autocomplete="current-password" required>
+      <button class="btn bt" type="submit" id="login-btn">כניסה</button>
+      <button class="lg-reset" type="button" id="login-reset">שכחתי סיסמה</button>
+      <div class="lerr" id="lerr" role="alert" style="display:none;"></div>
+    </form>
   </div>
 </div>
 
@@ -545,11 +551,27 @@ var _fns = {};
 });
 </script>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+// Real sign-in (Firebase Authentication). The database rules allow reading customer data only to this signed-in account.
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+const FBCFG={apiKey:"__APIKEY__",authDomain:"saleslist-vered.firebaseapp.com",databaseURL:"https://saleslist-vered-default-rtdb.firebaseio.com",projectId:"saleslist-vered",appId:"__APPID__"};
+const app=getApps().length?getApps()[0]:initializeApp(FBCFG);
+const auth=getAuth(app);auth.languageCode="he";
+let ok;window.__authReady=new Promise(r=>ok=r);
+const $=id=>document.getElementById(id),err=t=>{const e=$("lerr");e.textContent=t;e.style.display=t?"block":"none"};
+onAuthStateChanged(auth,u=>{if(u){$("alogin").style.display="none";$("adash").style.display="block";ok(u)}else{$("alogin").style.display="block";$("adash").style.display="none"}});
+$("login-form").addEventListener("submit",async e=>{e.preventDefault();err("");const m=$("aemail").value.trim(),p=$("apass").value;if(!m||!p){err("צריך למלא מייל וסיסמה");return}
+  $("login-btn").disabled=true;try{await signInWithEmailAndPassword(auth,m,p);$("apass").value=""}catch(x){const c=String(x&&x.code||"");err(/invalid-credential|wrong-password|user-not-found|invalid-email/.test(c)?"המייל או הסיסמה לא נכונים ❌":/too-many-requests/.test(c)?"יותר מדי ניסיונות. חכי כמה דקות ונסי שוב.":"הכניסה לא הצליחה. בדקי את החיבור לאינטרנט.")}finally{$("login-btn").disabled=false}});
+$("login-reset").addEventListener("click",async()=>{const m=$("aemail").value.trim();if(!m){err("כתבי את המייל ואז לחצי שוב");return}try{await sendPasswordResetEmail(auth,m);err("נשלח מייל לאיפוס סיסמה ל־"+m)}catch(x){err("לא הצלחתי לשלוח מייל איפוס. בדקי שהמייל נכון.")}});
+window._doLogout=async()=>{await signOut(auth);location.reload()};
+</script>
+<script type="module">
+import { getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-const app = initializeApp({ databaseURL:"https://saleslist-vered-default-rtdb.firebaseio.com" });
+const app = getApps()[0];
 const db = getDatabase(app);
+await window.__authReady;
 const gRef = ref(db,'global4');
 
 let G = { producers:[], points:[], couriers:[] };
@@ -817,21 +839,7 @@ window._waLink=function(){
 };
 
 // Login
-window._doLogin=function(){
-  if(document.getElementById('apass').value==='1234'){
-    document.getElementById('alogin').style.display='none';
-    document.getElementById('adash').style.display='block';
-    document.getElementById('clink').textContent=customerLink;
-  } else {
-    document.getElementById('lerr').style.display='block';
-  }
-};
-window._doLogout=function(){
-  document.getElementById('alogin').style.display='block';
-  document.getElementById('adash').style.display='none';
-  document.getElementById('apass').value='';
-  document.getElementById('lerr').style.display='none';
-};
+document.getElementById('clink').textContent=customerLink;
 
 // Register functions in _fns
 ['doLogin','doLogout','addProd','saveProd','cancelProd','showAddPoint','savePoint','cancelPoint','loadReport','exportExcel','copyLink','waLink','showAddCourier','saveCourier','cancelCourier'].forEach(fn=>{
@@ -875,6 +883,8 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .atag.pstag{background:#ECECEC;color:#3F3F3F}.sup-row.ps{opacity:.65}
 .fq-box .ps-chk{flex-direction:row!important;align-items:center!important;gap:.5rem;font-weight:700;margin-bottom:.4rem}.fq-box .ps-chk input{width:22px!important;height:22px;min-height:0!important;flex:none}
 .atag.fqtag{background:#E8F1FF;color:#1E3A8A;border-color:#BBD0F5}.atag.fqtag.on{background:#E3F6E8;color:#14532D}
+#login-form{display:flex;flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto;text-align:right}#login-form input{width:100%;box-sizing:border-box;margin:0}#login-form .btn{margin-top:.9rem;width:100%}
+.lg-l{display:block;text-align:right;font-weight:700;margin:.7rem 0 .3rem}.lg-reset{background:none;border:0;color:#0F5257;text-decoration:underline;font:inherit;margin-top:.6rem;cursor:pointer;min-height:40px}
 .cr-row{border:1.5px solid #D3E4E2;border-radius:12px;padding:.6rem .7rem;margin:0 0 .6rem;background:#fff}
 .cr-row.off{background:#F1F1F1;border-style:dashed}
 .cr-row.off .cr-name,.cr-row.off .cr-ph{color:#5E6566}
@@ -941,10 +951,11 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <script type="module">
 // Order of suppliers and posts on the customer page: reads/writes the same "site5" data as new.html#admin
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-const app=initializeApp({databaseURL:"https://saleslist-vered-default-rtdb.firebaseio.com"},"order-panel");
+const app=getApps()[0];
 const db=getDatabase(app);
+await window.__authReady;
 const $=id=>document.getElementById(id);
 const esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let DATA=null,K="suppliers",dirty=false,moved=new Set();
