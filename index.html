@@ -1850,7 +1850,7 @@ function closeSoon(){const t=distStart();return !!t&&Date.now()>=t-36*3600e3}
 function renderGrid(){
   renderWk();
   const q=state.q.trim();
-  let L=S.filter(s=>!s.ps&&(s.o||s.nx)&&(state.cat==="all"||s.c===state.cat)&&(!state.open||isOpen(s))&&(!q||srchMatch(s,q)));
+  let L=S.filter(s=>!s.ps&&s.o&&(state.cat==="all"||s.c===state.cat)&&(!state.open||isOpen(s))&&(!q||srchMatch(s,q)));
   if(state.view==="favs")L=L.filter(s=>favs.has(s.h));
   const srt=(state.sort==="mine"&&closeSoon())?"close":state.sort;
   L.sort((a,b)=>(isOpen(b)-isOpen(a))||(srt==="mine"?S.indexOf(a)-S.indexOf(b):0)||(srt==="close"&&isOpen(a)?closeAt(a)-closeAt(b):0)||a.n.localeCompare(b.n,"he"));
