@@ -2063,7 +2063,7 @@ DATA.posts=DATA.posts||[];
 function phones(h){return h.replace(/(0\d{1,2})[\u2011-]?(\d{7})/g,(m,a,b)=>`<a class="tel" href="tel:+972${a.slice(1)}${b}" dir="ltr">${a}-${b}</a>`)}
 function renderPosts(){
   PSECS.forEach(([k])=>{
-    const L=DATA.posts.filter(p=>p.sec===k);
+    const L=DATA.posts.filter(p=>p.sec===k&&!p.hid);
     $("sec-"+k).hidden=!L.length&&!OWNER;
     $("pg-"+k).innerHTML=L.length?L.map(p=>`<article class="post post-${k}${p.c?" pc-"+esc(p.c):""}">${p.img?`<img src="${blob(p.img)}" alt="" loading="lazy">`:""}
       <div class="post-body">${p.t?`<h3>${esc(p.t)}</h3>`:""}${p.b?`<p>${phones(esc(p.b)).replace(/\n/g,"<br>")}</p>`:""}${p.who?`<span class="who">${esc(p.who)}</span>`:""}${/^https?:\/\//.test(p.url||"")?`<a class="co-link" href="${esc(p.url)}" target="_blank" rel="noopener">לפרטים ←</a>`:p.url==="#contact"?`<a class="co-link" href="#contact">לטופס התקשרות עם ורד ←</a>`:""}</div></article>`).join("")
@@ -2306,8 +2306,9 @@ function edMediaBind(){
 }
 
 function edPosts(){
-  $("ed-posts").innerHTML=(draft.posts||[]).map((p,i)=>`<details class="ed-sup"${p._open?" open":""}><summary><span class="mv"><button type="button" class="mvb" data-mv="posts:${i}:-1" aria-label="להזיז למעלה">↑</button><button type="button" class="mvb" data-mv="posts:${i}:1" aria-label="להזיז למטה">↓</button></span><b>${esc(p.t||p.b?.slice(0,40)||"פריט חדש")}</b><span class="hint">${(PSECS.find(x=>x[0]===p.sec)||["",""])[1]}</span></summary>
+  $("ed-posts").innerHTML=(draft.posts||[]).map((p,i)=>`<details class="ed-sup"${p._open?" open":""}><summary><span class="mv"><button type="button" class="mvb" data-mv="posts:${i}:-1" aria-label="להזיז למעלה">↑</button><button type="button" class="mvb" data-mv="posts:${i}:1" aria-label="להזיז למטה">↓</button></span><b>${p.hid?"🙈 ":""}${esc(p.t||p.b?.slice(0,40)||"פריט חדש")}</b><span class="hint">${p.hid?"מוסתר מהלקוחות · ":""}${(PSECS.find(x=>x[0]===p.sec)||["",""])[1]}</span></summary>
     <div class="ed-grid">
+      <label class="field wide ed-act"><input type="checkbox" data-po="${i}" data-f="hid"${p.hid?" checked":""}> 🙈 להסתיר מהלקוחות (ההודעה נשמרת, ואפשר להחזיר אותה בהורדת הסימון)</label>
       <label class="field">אזור בדף<select data-po="${i}" data-f="sec">${PSECS.map(([k,t])=>`<option value="${k}"${p.sec===k?" selected":""}>${t}</option>`).join("")}</select></label>
       <label class="field">צבע הכרטיס<select data-po="${i}" data-f="c">${[["","רגיל"],["gold","כתום־זהב (הצבע של הלוגו)"],["blue","כחול"],["red","אדום"],["green","ירוק"],["lime","ירוק־צהוב"],["yellow","צהוב"],["purple","סגול"],["teal","טורקיז"]].map(([v,l])=>`<option value="${v}"${(p.c||"")===v?" selected":""}>${l}</option>`).join("")}</select></label>
       <label class="field">כותרת<input data-po="${i}" data-f="t" value="${esc(p.t||"")}"></label>
@@ -2320,7 +2321,7 @@ function edPosts(){
 }
 function edPostsBind(){
   $("ed-addpost").addEventListener("click",()=>{draft.posts.unshift({sec:"news",t:"",b:"",who:"",url:"",img:"",_open:1});edPosts()});
-  $("ed").addEventListener("input",e=>{const t=e.target;if(t.dataset.po===undefined)return;const p=draft.posts[+t.dataset.po];p[t.dataset.f]=t.value;
+  $("ed").addEventListener("input",e=>{const t=e.target;if(t.dataset.po===undefined)return;const p=draft.posts[+t.dataset.po];if(t.dataset.f==="hid"){if(t.checked)p.hid=1;else delete p.hid;p._open=1;edPosts();const x=document.querySelector(`[data-po="${t.dataset.po}"][data-f="hid"]`);if(x)x.focus();return}p[t.dataset.f]=t.value;
     if(t.dataset.f==="sec")p._open=1,edPosts();});
   $("ed").addEventListener("change",async e=>{const t=e.target;if(t.dataset.poimg===undefined||!t.files.length)return;const i=+t.dataset.poimg;await uploadFiles([t.files[0]],id=>{draft.posts[i].img=id;draft.posts[i]._open=1;edPosts()})});
   let arm=null;
@@ -2445,7 +2446,7 @@ function gsFind(q){
   const R=[];
   (S||[]).forEach(s=>{const name=s.n||"";const hay=[name,s.d,s.k,s.ks,s.p,s.more].join(" ");
     if(hit(hay,ws))R.push({sc:(hit(name,ws)?30:10)+(s.o?5:0),i:"🛒",t:name,d:(s.o?"":"לא מגיע השבוע · ")+(s.d||"").slice(0,90),go:{sup:s.n}})});
-  (DATA.posts||[]).forEach((p,ix)=>{if(!PTAB[p.sec])return;const hay=[p.t,p.b,p.who].join(" ");
+  (DATA.posts||[]).forEach((p,ix)=>{if(!PTAB[p.sec]||p.hid)return;const hay=[p.t,p.b,p.who].join(" ");
     if(hit(hay,ws))R.push({sc:hit(p.t,ws)?20:8,i:PICO[p.sec],t:p.t||(p.b||"").slice(0,40),d:(p.b||"").replace(/\s+/g," ").slice(0,90),go:{post:p}})});
   GS_TOPICS.forEach(([i,t,d,k,go])=>{if(hit(t+" "+k,ws))R.push({sc:hit(t,ws)?25:15,i,t,d,go:{to:go}})});
   return R.sort((a,b)=>b.sc-a.sc).slice(0,10);
@@ -2459,7 +2460,7 @@ function gsGo(r){gsClose();const g=r.go;
   if(g.sup){showTab("sup",false);const q=$("q");if(q){q.value=g.sup;q.dispatchEvent(new Event("input",{bubbles:true}))}
     const oo=$("openonly");if(oo&&oo.checked){oo.checked=false;oo.dispatchEvent(new Event("change",{bubbles:true}))}
     setTimeout(()=>gsJump(document.querySelector("#grid .card")||$("suppliers")),60);return}
-  if(g.post){const p=g.post,L=DATA.posts.filter(x=>x.sec===p.sec),n=L.indexOf(p);showTab(PTAB[p.sec],false);
+  if(g.post){const p=g.post,L=DATA.posts.filter(x=>x.sec===p.sec&&!x.hid),n=L.indexOf(p);showTab(PTAB[p.sec],false);
     setTimeout(()=>gsJump(document.querySelectorAll("#pg-"+p.sec+" .post")[n]||$("sec-"+p.sec)),60);return}
   if(g.to==="share"){const a=document.querySelector("[data-share-site]");if(a)a.click();return}
   if(g.to==="a2hs"){if(typeof STANDALONE!=="undefined"&&STANDALONE){$("gs-st").textContent="האתר כבר שמור אצלכם במסך הבית 🎉";return}
