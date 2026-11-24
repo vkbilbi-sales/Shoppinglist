@@ -659,6 +659,9 @@ body{font-size:18.5px!important}
 .arr-n{display:inline-block;margin:0 0 6px;padding:3px 14px;border-radius:999px;background:#FFC93C;color:#3A2400;font-size:19px;font-weight:800}
 .arr-l{margin:3px 0 0;font-size:16px;color:#1F2A2B}.arr-k{font-weight:700;color:#0F5257}.arr-l b{color:#0F5257}
 .arr-tag{display:inline-block;padding:1px 10px;border-radius:999px;background:#14532D;color:#fff;font-weight:800;font-size:14px}.arr-in{color:#4F5D5E;font-size:14px;white-space:nowrap}
+.join-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:16px 0 0;padding:12px 16px;background:#FFF4D6;border:2px solid #E0A040;border-radius:14px}
+.join-bar[hidden]{display:none}.join-bar p{margin:0;font-size:17px;font-weight:800;color:#3A2400}
+.join-go{min-height:44px;padding:8px 22px;border-radius:999px;background:#126F74;color:#fff;font-weight:800;font-size:16px;border:0;cursor:pointer}.join-go:focus-visible{outline:3px solid #3A2400;outline-offset:2px}
 #dist-pts.pts{display:grid;gap:10px;margin-top:4px}
 .pts-box{background:#fff;border:2px solid #126F74;border-radius:16px;padding:14px 16px;box-shadow:0 8px 20px rgba(18,111,116,.12)}
 .pts-box h2{margin:0 0 8px;font-size:22px;font-weight:800;color:#0F5257}
@@ -1334,7 +1337,7 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
 
   <section class="join" id="join" data-tab="contact" aria-labelledby="join-h">
     <div class="join-card">
-      <h2 id="join-h">📬 רוצים לקבל עדכונים כל שבוע?</h2>
+      <h2 id="join-h">📬 רוצים להירשם למאגר הלקוחות של רכישות כדאיות?</h2>
       <p>מצטרפים לרשימת הלקוחות של רכישות כדאיות, ומקבלים בוואטסאפ את היצרנים של השבוע, מבצעים והטבות.</p>
       <form id="join-form" class="join-form" novalidate>
         <p class="hint">שדות עם <b>*</b> הם חובה.</p>
@@ -1387,6 +1390,7 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
       <a class="btn go" href="https://wa.me/972544462223?text=%D7%94%D7%99%D7%99%20%D7%95%D7%A8%D7%93%2C%20%D7%90%D7%A9%D7%9E%D7%97%20%D7%9C%D7%94%D7%A6%D7%99%D7%A2%20%D7%94%D7%98%D7%91%D7%94%20%D7%9C%D7%9C%D7%A7%D7%95%D7%97%D7%95%D7%AA%20%D7%A8%D7%9B%D7%99%D7%A9%D7%95%D7%AA%20%D7%9B%D7%93%D7%90%D7%99%D7%95%D7%AA%20%F0%9F%8E%81%0A%0A%D7%A9%D7%9D%20%D7%94%D7%A2%D7%A1%D7%A7%3A%0A%D7%AA%D7%97%D7%95%D7%9D%3A%0A%D7%90%D7%96%D7%95%D7%A8%3A%0A%D7%94%D7%94%D7%98%D7%91%D7%94%20%28%D7%9E%D7%94%20%D7%91%D7%93%D7%99%D7%95%D7%A7%20%D7%9E%D7%A7%D7%91%D7%9C%D7%99%D7%9D%29%3A%0A%D7%AA%D7%A0%D7%90%D7%99%D7%9D%20%D7%95%D7%AA%D7%95%D7%A7%D7%A3%3A%0A%D7%90%D7%99%D7%9A%20%D7%9E%D7%9E%D7%9E%D7%A9%D7%99%D7%9D%3A%0A%D7%A7%D7%99%D7%A9%D7%95%D7%A8%20%D7%9C%D7%90%D7%AA%D7%A8%20%D7%90%D7%95%20%D7%9C%D7%90%D7%99%D7%A0%D7%A1%D7%98%D7%92%D7%A8%D7%9D%3A" target="_blank" rel="noopener">שליחת הצעה לורד בוואטסאפ ←</a>
     </div>
   </section>
+  <div class="join-bar" id="join-bar" data-tab="sup"><p><span aria-hidden="true">📬</span> רוצים להירשם למאגר הלקוחות של רכישות כדאיות?</p><button type="button" class="btn join-go" data-gojoin>להרשמה</button></div>
   <div class="section-head" id="suppliers">
     <h2 id="sup-h"><span class="sup-t">הספקים שלנו</span><span id="sup-when"></span></h2>
     <p id="count"></p>
@@ -2144,13 +2148,15 @@ document.addEventListener("click",e=>{if(e.target.id!=="me-change")return;EDITIN
 try{const day=new Date().toLocaleDateString("en-CA",{timeZone:"Asia/Jerusalem"});
   if(!/admin/.test(location.hash)&&LS.get("rk-visit","")!==day){LS.set("rk-visit",day);Promise.resolve().then(()=>set(ref(db,"visits/"+day+"/"+CID),{t:Date.now()})).catch(()=>{})}}catch(e){}
 // optional sign-up for weekly updates (with consent)
+try{if(LS.get("rk-joined",""))$("join-bar").hidden=true}catch(e){}
+document.addEventListener("click",e=>{if(!(e.target.closest&&e.target.closest("[data-gojoin]")))return;showTab("contact",false);requestAnimationFrame(()=>{const j=$("join");if(j)j.scrollIntoView({behavior:"smooth",block:"start"});const n=$("join-name");if(n)setTimeout(()=>n.focus({preventScroll:true}),350)})});
 $("join-form").addEventListener("submit",e=>{e.preventDefault();
   const n=$("join-name").value.trim(),ph=$("join-phone").value.trim(),ok=$("join-ok").checked,miss=[];
   if(!n)miss.push("שם מלא");if(ph.replace(/\D/g,"").length<9)miss.push("טלפון");if(!ok)miss.push("סימון ההסכמה");
   if(miss.length){$("join-msg").textContent="חסר: "+miss.join(", ");return}
   const rec={name:n,phone:ph,point:$("join-point").value||"",consent:true,date:new Date().toLocaleDateString("he-IL"),ts:Date.now()};
   $("join-msg").textContent="שומרת…";
-  Promise.resolve().then(()=>set(ref(db,"members/"+CID),rec)).then(()=>{$("join-msg").textContent="תודה! נרשמת לעדכונים ✓";$("join-form").reset()})
+  Promise.resolve().then(()=>set(ref(db,"members/"+CID),rec)).then(()=>{$("join-msg").textContent="תודה! נרשמת למאגר הלקוחות ✓";$("join-form").reset();try{LS.set("rk-joined","1")}catch(e){}$("join-bar").hidden=true})
     .catch(()=>{$("join-msg").textContent="ההרשמה לא נשמרה. נסו שוב, או כתבו לורד בוואטסאפ."});
   if(!(me.name||"").trim())me.name=n;if(!(me.phone||"").trim())me.phone=ph;saveMe();
 });
