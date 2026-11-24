@@ -920,7 +920,7 @@ document.addEventListener("change",e=>{const t=e.target.closest&&e.target.closes
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-nx]");if(!b)return;const s=DATA.suppliers[+b.dataset.nx];if(!s)return;
   s.nx=s.nx?0:1;SUPCH.add(s.h);supsRender();const row=document.querySelector(`.sup-row[data-h="${s.h}"]`);if(row){const a=row.querySelector("[data-nx]");if(a)a.focus()}});
 if(window.Sortable)Sortable.create($("sup-list"),{handle:".grip",forceFallback:true,fallbackTolerance:3,animation:150,ghostClass:"sort-ghost",dragClass:"sort-drag",
-  filter:".searching *",onEnd:e=>{if(e.oldIndex===e.newIndex||$("sup-q").value.trim())return supsRender();const A=DATA.suppliers;const [it]=A.splice(e.oldIndex,1);A.splice(e.newIndex,0,it);DATA.manualOrder=true;SUPORD=true;supsRender();render()}});
+  filter:".searching .grip",preventOnFilter:false,onEnd:e=>{if(e.oldIndex===e.newIndex||$("sup-q").value.trim())return supsRender();const A=DATA.suppliers;const [it]=A.splice(e.oldIndex,1);A.splice(e.newIndex,0,it);DATA.manualOrder=true;SUPORD=true;supsRender();render()}});
 function naUrl(u){u=(u||"").trim();return u&&!/^https?:\/\//i.test(u)?"https://"+u:u}
 const NA_PIC={img:"",cov:""};
 function naPv(k){const el=$("na-"+k+"-pv");if(!el)return;const src=picSrc(NA_PIC[k]);el.outerHTML=src?`<img id="na-${k}-pv" class="${k==="img"?"pv-logo":"pv-cov"}" src="${esc(src)}" alt="">`:`<span id="na-${k}-pv" class="pv-none">אין</span>`}
