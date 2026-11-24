@@ -902,6 +902,14 @@ button.badge.ksd-btn{font:inherit;font-size:inherit;font-weight:inherit;backgrou
 .motion-btn{position:absolute;top:8px;inset-inline-end:12px;z-index:30;font-size:14px;font-weight:700;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:4px 12px;display:none}
 @media (prefers-reduced-motion:no-preference){.motion-btn{display:inline-flex}}
 html.no-motion *,html.no-motion *::before,html.no-motion *::after{animation:none!important;transition:none!important}
+.ck-bar{position:fixed;inset-inline:12px;bottom:12px;z-index:60;max-width:760px;margin:0 auto;background:#fff;color:#1F2A2B;border:2px solid #126F74;border-radius:16px;padding:12px 16px;box-shadow:0 10px 30px rgba(0,0,0,.25);display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.ck-bar[hidden]{display:none}.ck-bar p{margin:0;flex:1 1 320px;font-size:15.5px;line-height:1.5}.ck-bar a{color:#0F5257;text-decoration:underline;font-weight:700}
+.ck-btns{display:flex;gap:8px;flex-wrap:wrap}
+.ck-btns button{min-height:44px;padding:8px 18px;border-radius:999px;font:inherit;font-weight:800;font-size:15px;cursor:pointer}
+.ck-yes{background:#126F74;color:#fff;border:2px solid #126F74}.ck-no{background:#fff;color:#0F5257;border:2px solid #126F74}
+.ck-btns button:focus-visible,.flink-btn:focus-visible{outline:3px solid #3A2400;outline-offset:2px}
+.flink-btn{background:none;border:0;padding:0;font:inherit;font-weight:600;color:var(--leaf);cursor:pointer}
+.priv-note{font-size:14.5px!important;color:var(--muted)}.priv-note a{text-decoration:underline}
 .a11y{margin-top:14px;border-top:1px solid rgba(127,127,127,.35);padding-top:10px}
 .a11y summary{cursor:pointer;font-weight:700;display:inline-block}
 .a11y-body{max-width:72ch;font-size:16.5px;line-height:1.65;margin-top:8px;color:var(--ink)}
@@ -1350,7 +1358,7 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
         <label class="chk join-ok"><input type="checkbox" id="join-ok" required aria-required="true"> אני מסכים/ה שרכישות כדאיות תשמור את השם, הטלפון והמייל שלי ותשלח לי עדכונים בוואטסאפ ובמייל. *</label>
         <button class="btn go join-go" type="submit">הצטרפות למאגר הלקוחות</button>
         <p class="hint" id="join-msg" role="status" aria-live="polite"></p>
-        <p class="hint">הפרטים נשמרים רק כדי לשלוח לכם עדכונים, ולא מועברים לאף אחד אחר. אפשר לבקש הסרה בכל עת בהודעת וואטסאפ לורד (<span dir="ltr">054-4462223</span>).</p>
+        <p class="hint priv-note">הפרטים נשמרים רק כדי לשלוח לכם עדכונים, ולא מועברים לאף אחד אחר. אין חובה למסור אותם. אפשר לבקש הסרה בכל עת בהודעת וואטסאפ לורד (<span dir="ltr">054-4462223</span>). פרטים ב<a href="#privacy" data-privacy>מדיניות הפרטיות</a>.</p>
       </form>
     </div>
   </section>
@@ -1435,7 +1443,8 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
         <div id="cour-fields" hidden>
           <div class="me-sum" id="me-sum" hidden></div>
           <div id="me-edit">
-            <p class="hint">שדות עם <b>*</b> הם חובה. ממלאים פעם אחת, והפרטים נשמרים גם לשבועות הבאים.</p>
+            <p class="hint">שדות עם <b>*</b> הם חובה. ממלאים פעם אחת, והפרטים נשמרים במכשיר שלכם גם לשבועות הבאים.</p>
+            <p class="hint priv-note">הפרטים משמשים רק לתיאום המשלוח. הכתובת נשמרת במכשיר שלכם, ומגיעה לשליח ולורד רק כשלוחצים על שליחת הרשימה לשליח. פרטים ב<a href="#privacy" data-privacy>מדיניות הפרטיות</a>.</p>
             <label class="field" for="f-carea">נקודת האיסוף שלכם *<select id="f-carea" required aria-required="true"></select></label>
             <div class="cour-who" id="cour-who" hidden></div>
             <label class="field" for="f-name">שם מלא בעברית *<input id="f-name" type="text" autocomplete="name" lang="he" dir="rtl" placeholder="שם פרטי ושם משפחה" required aria-required="true"></label>
@@ -1481,6 +1490,7 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
       <div class="ml-box ml-self" id="pick-fields">
         <h3>📍 איסוף עצמי, או מישהו שאוסף בשבילי</h3>
         <p class="hint">שדות עם <b>*</b> הם חובה.</p>
+        <p class="hint priv-note">השם ונקודת החלוקה נשמרים כדי שנדע מי מגיע לאיזו נקודה ואילו ספקים הזמנתם. פרטים ב<a href="#privacy" data-privacy>מדיניות הפרטיות</a>.</p>
         <label class="field" for="f-name2">שם מלא בעברית *<input id="f-name2" type="text" autocomplete="name" lang="he" dir="rtl" placeholder="שם פרטי ושם משפחה" required aria-required="true"></label>
         <label class="field" for="f-point">נקודת החלוקה *<select id="f-point" required aria-required="true"></select></label>
         <p class="hint">שעה ומיקום מדויקים מופיעים בהודעה המרכזת של השבוע.</p>
@@ -1496,6 +1506,10 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
   </section>
 </main>
 
+<div class="ck-bar" id="ck-bar" role="region" aria-label="פרטיות ועוגיות" hidden>
+  <p><span aria-hidden="true">🍪</span> האתר שומר מידע במכשיר שלך כדי שרשימת הקניות והפרטים שלך יישמרו. בנוסף, אם תאשר/י, נספור ביקורים באתר בלי לזהות אותך. <a href="#privacy" data-privacy>מדיניות הפרטיות</a></p>
+  <div class="ck-btns"><button type="button" class="ck-yes" data-ck="all">מאשר/ת</button><button type="button" class="ck-no" data-ck="ess">רק הכרחי</button></div>
+</div>
 <footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <a class="floatbar" id="floatbar" href="#mylist" hidden><span id="fb-txt"></span><b>לרשימה ↓</b></a>
@@ -1511,8 +1525,41 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
       <a href="https://www.facebook.com/groups/250286642976195/" target="_blank" rel="noopener">קבוצת הפייסבוק</a>
       <a href="https://wa.me/972544462223" target="_blank" rel="noopener">וואטסאפ לורד</a>
       <a href="#a11y" id="a11y-link">הצהרת נגישות</a>
+      <a href="#privacy" data-privacy>מדיניות הפרטיות</a>
+      <button type="button" class="flink-btn" data-cookieset>הגדרות פרטיות ועוגיות</button>
     </div>
   </div>
+  <div class="wrap"><details class="a11y" id="privacy"><summary>מדיניות פרטיות ושימוש במידע</summary><div class="a11y-body">
+    <p>אנחנו ב"רכישות כדאיות" מכבדים את הפרטיות שלכם. כאן מוסבר בשפה פשוטה איזה מידע נאסף באתר, למה, ומה הזכויות שלכם, בהתאם לחוק הגנת הפרטיות, התשמ"א-1981 ותקנותיו.</p>
+    <h3>מי אחראית על המידע</h3>
+    <p>ורד קיסר, "רכישות כדאיות" (עוסק מורשה). יצירת קשר: וואטסאפ <a href="https://wa.me/972544462223" target="_blank" rel="noopener" dir="ltr">054-4462223</a>, מייל <a href="mailto:vkbilbi@gmail.com" dir="ltr">vkbilbi@gmail.com</a>.</p>
+    <h3>איזה מידע נאסף ולמה</h3>
+    <ul>
+      <li><b>רשימת הקניות שלכם:</b> אילו ספקים בחרתם והערות. נשמרת כדי שהרשימה תחכה לכם בכל כניסה, ותסונכרן בין המכשירים שלכם ועם מי שקיבל מכם קישור לרשימה.</li>
+      <li><b>פרטים לאיסוף או למשלוח:</b> שם מלא, טלפון, נקודת חלוקה או שליח, ועיר. משמשים כדי שנדע מי מגיע לאיזו נקודה ואילו ספקים הוזמנו, וכדי ליצור איתכם קשר לגבי ההזמנה.</li>
+      <li><b>כתובת מלאה (רחוב, דירה, קומה, קוד כניסה, הערות לשליח):</b> נשמרת רק במכשיר שלכם. היא מגיעה לשליח ולורד רק כשאתם בוחרים לשלוח את הרשימה לשליח, לצורך המשלוח בלבד.</li>
+      <li><b>הצטרפות למאגר הלקוחות:</b> שם מלא, מייל, טלפון ונקודת חלוקה (לא חובה), בהסכמה מפורשת. משמשים לשליחת עדכונים על היצרנים של השבוע, מבצעים והטבות.</li>
+      <li><b>המלצות, מתכונים ותמונות ששולחים לנו:</b> השם, הטקסט והתמונה. מתפרסמים באתר רק אחרי אישור.</li>
+      <li><b>סטטיסטיקת ביקורים:</b> ספירה של מספר הביקורים ביום והתקנות של האפליקציה, לפי מזהה אקראי ובלי שם. נאספת רק אם אישרתם זאת בהגדרות הפרטיות.</li>
+    </ul>
+    <p>אין חובה חוקית למסור את המידע. בלי פרטי איסוף או משלוח לא נוכל לתאם את ההזמנה, ובלי הסכמה לא נשלח לכם עדכונים.</p>
+    <h3>עוגיות ומידע שנשמר במכשיר</h3>
+    <p>האתר לא משתמש בעוגיות פרסום ולא בכלי מעקב של גוגל, פייסבוק או גורמים אחרים. כדי שהאתר יעבוד, נשמרים במכשיר שלכם (ב"אחסון מקומי" של הדפדפן) רשימת הקניות, הפרטים שמילאתם ומזהה אקראי של הרשימה. זה הכרחי לפעולת האתר. ספירת הביקורים האנונימית פועלת רק אם בחרתם "מאשר/ת" בהגדרות הפרטיות, ואפשר לשנות את הבחירה בכל עת בכפתור "הגדרות פרטיות ועוגיות" בתחתית הדף.</p>
+    <h3>למי המידע מועבר</h3>
+    <ul>
+      <li><b>השליח:</b> מקבל את הפרטים שאתם שולחים לו בוואטסאפ, לצורך המשלוח.</li>
+      <li><b>שירותי Google (Firebase ו־Google Fonts):</b> המידע נשמר בשרתים של Firebase, שעשויים להיות מחוץ לישראל. Google Fonts מספק את הגופן של האתר.</li>
+      <li>אנחנו לא מוכרים מידע ולא מעבירים אותו לגורמים אחרים למטרות פרסום.</li>
+    </ul>
+    <p>הקישורים להזמנה ולתשלום מובילים לאתרים של גורמים אחרים (חנויות mypips, טפסי Google, פייבוקס, ביט, וואטסאפ ו־Waze). לכל אחד מהם מדיניות פרטיות משלו.</p>
+    <h3>כמה זמן שומרים</h3>
+    <p>פרטי הזמנה ומשלוח נשמרים כל עוד יש בהם צורך לתפעול ההזמנות. פרטי מאגר הלקוחות נשמרים עד שתבקשו הסרה. אפשר לבקש מחיקה בכל עת.</p>
+    <h3>אבטחת מידע</h3>
+    <p>המידע נשמר בשרתים מאובטחים, והגישה אליו מוגבלת לבעלת העסק בלבד.</p>
+    <h3>הזכויות שלכם</h3>
+    <p>אתם רשאים לבקש לעיין במידע שנשמר עליכם, לתקן אותו או למחוק אותו, ולהפסיק לקבל עדכונים בכל עת. שלחו בקשה בוואטסאפ או במייל לכתובות שלמעלה, ונענה תוך 30 ימים.</p>
+    <p class="hint">עודכן לאחרונה: נובמבר 2026.</p>
+  </div></details></div>
   <div class="wrap"><details class="a11y" id="a11y"><summary>הצהרת נגישות</summary><div class="a11y-body">
     <p>חשוב לנו שכל אחד ואחת יוכלו להשתמש באתר בקלות, כולל אנשים עם מוגבלות. האתר הונגש בהתאם לתקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), התשע"ג-2013, ולתקן הישראלי ת"י 5568 ברמה AA, המבוסס על הנחיות WCAG 2.0.</p>
     <h3>מה עשינו באתר</h3>
@@ -1544,10 +1591,11 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
       <label><input type="radio" name="sub-type" value="photo"> 📸 תמונה</label>
       <label><input type="radio" name="sub-type" value="perk"> 🎁 הטבה</label>
     </div>
-    <label class="field">השם שלך<input id="sub-name" type="text" autocomplete="name" required></label>
+    <label class="field">שם מלא בעברית *<input id="sub-name" type="text" autocomplete="name" lang="he" dir="rtl" placeholder="שם פרטי ושם משפחה" required aria-required="true"></label>
     <label class="field" id="sub-t-l">כותרת<input id="sub-t" type="text" placeholder="למשל: הקובה של משה, או שם המתכון"></label>
     <label class="field" id="sub-b-l">הטקסט<textarea id="sub-b" rows="6"></textarea></label>
     <label class="field">תמונה (לא חובה)<input id="sub-img" type="file" accept="image/*"></label>
+    <p class="hint priv-note">מה ששולחים כאן (השם, הטקסט והתמונה) עלול להתפרסם באתר אחרי אישור של ורד. פרטים ב<a href="#privacy" data-privacy>מדיניות הפרטיות</a>.</p>
     <p class="hint" id="sub-msg" aria-live="polite"></p>
     <button class="btn go" type="submit" id="sub-send">שליחה</button>
   </form>
@@ -1663,13 +1711,16 @@ const heart='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-
 // ---- saving to Firebase (debounced) ----
 let saveT=null, lastSent="", fbReady=false;
 function syncState(c,t){const el=$("sync");if(!el)return;el.className="syncline "+c;$("sync-t").textContent=t}
-function snapshot(){return JSON.stringify({me,list})}
+// privacy: home-address details stay on the customer's device; they reach the dashboard only after the customer sends the courier message
+const PRIV=["street","apt","floor","code","cnote"];
+function cloudMe(m){const o=Object.assign({},m||me);PRIV.forEach(k=>delete o[k]);return o}
+function snapshot(){return JSON.stringify({me:cloudMe(),list})}
 function persist(){
   LS.set(CACHE,{me,list});
   clearTimeout(saveT);syncState("busy","שומר…");
   saveT=setTimeout(()=>{
     const s=snapshot();lastSent=s;
-    set(ref(db,LISTS+"/"+CID),{me,list,updated:Date.now()})
+    set(ref(db,LISTS+"/"+CID),{me:cloudMe(),list,updated:Date.now()})
       .then(()=>{syncState("ok","נשמר ומסונכרן ✓");track()})
       .catch(()=>syncState("err","לא נשמר. בדקו את החיבור לאינטרנט"));
   },600);
@@ -1677,7 +1728,7 @@ function persist(){
 const saveList=persist, saveMe=persist;
 function track(){
   if(!me.name)return;
-  set(ref(db,"tracking/"+CID),{name:me.name||"",phone:me.phone||"",point:me.mode==="courier"?("שליח · "+((COURIERS[+me.carea]||{}).area||"")+((COURIERS[+me.carea]||{}).name?" · "+COURIERS[+me.carea].name:"")):(me.point||""),street:me.mode==="courier"?(me.street||""):"",city:me.mode==="courier"?(me.city||""):"",apt:me.mode==="courier"?(me.apt||""):"",floor:me.mode==="courier"?(me.floor||""):"",code:me.mode==="courier"?(me.code||""):"",notes:me.mode==="courier"?(me.cnote||""):"",
+  set(ref(db,"tracking/"+CID),{name:me.name||"",phone:me.phone||"",point:me.mode==="courier"?("שליח · "+((COURIERS[+me.carea]||{}).area||"")+((COURIERS[+me.carea]||{}).name?" · "+COURIERS[+me.carea].name:"")):(me.point||""),street:me.mode==="courier"&&me.csent?(me.street||""):"",city:me.mode==="courier"&&me.csent?(me.city||""):"",apt:me.mode==="courier"&&me.csent?(me.apt||""):"",floor:me.mode==="courier"&&me.csent?(me.floor||""):"",code:me.mode==="courier"&&me.csent?(me.code||""):"",notes:me.mode==="courier"&&me.csent?(me.cnote||""):"",
     deliveryType:me.mode==="courier"?"courier":"self",
     suppliers:Object.keys(list).filter(h=>byH[h]).map(h=>byH[h].n),
     lastSeen:new Date().toLocaleDateString("he-IL"),
@@ -2131,6 +2182,14 @@ renderList=keepFocus(renderList);chips=keepFocus(chips);
 {const b=$("motion-btn"),set=on=>{document.documentElement.classList.toggle("no-motion",on);b.setAttribute("aria-pressed",on);b.textContent=on?"▶ הפעלת אנימציה":"⏸ עצירת אנימציה";try{localStorage.setItem("rk-nomotion",on?"1":"")}catch(e){}};
   let on=false;try{on=localStorage.getItem("rk-nomotion")==="1"}catch(e){}set(on);b.addEventListener("click",()=>set(!document.documentElement.classList.contains("no-motion")))}
 $("a11y-link").addEventListener("click",()=>{$("a11y").open=true});
+document.addEventListener("click",e=>{const a=e.target.closest&&e.target.closest("[data-privacy]");if(!a)return;e.preventDefault();const d=$("privacy");d.open=true;d.scrollIntoView({behavior:"smooth",block:"start"});const s=d.querySelector("summary");if(s)s.focus({preventScroll:true})});
+// ---- privacy consent (essential storage always; anonymous stats only with consent) ----
+function ckGet(){try{return localStorage.getItem("rk-consent")||""}catch(e){return ""}}
+function statsOk(){return ckGet()==="all"}
+function ckShow(){const b=$("ck-bar");if(b){b.hidden=false;const y=b.querySelector(".ck-yes");if(y)setTimeout(()=>y.focus({preventScroll:true}),50)}}
+if(!ckGet()&&!/admin/.test(location.hash)){const b=$("ck-bar");if(b)b.hidden=false}
+document.addEventListener("click",e=>{const c=e.target.closest&&e.target.closest("[data-ck]");if(c){try{localStorage.setItem("rk-consent",c.dataset.ck)}catch(x){}$("ck-bar").hidden=true;return}
+  if(e.target.closest&&e.target.closest("[data-cookieset]"))ckShow()});
 // dialogs: move focus in, keep it inside, Escape closes, return focus on close
 {const DLG=[...document.querySelectorAll('[role="dialog"]')],ret=new Map();
  const foc=d=>[...d.querySelectorAll('a[href],button,input,select,textarea,summary,[tabindex]:not([tabindex="-1"])')].filter(x=>!x.disabled&&x.getClientRects().length);
@@ -2145,12 +2204,12 @@ $("a11y-link").addEventListener("click",()=>{$("a11y").open=true});
 $("me-edit").addEventListener("focusin",()=>{EDITING=true});
 $("cour-open").addEventListener("click",()=>{me.mode="courier";saveMe();fillMe();updateLinks();requestAnimationFrame(()=>{const t=$("me-edit").hidden?$("me-sum"):$("f-carea");t.scrollIntoView({behavior:"smooth",block:"center"});if(t.id==="me-sum")t.tabIndex=-1;t.focus({preventScroll:true})})});
 $("cour-close").addEventListener("click",()=>{CT_OPEN=-1;me.mode="pickup";saveMe();fillMe();updateLinks();renderCouriers();const g=$("ct-grid");if(g)g.scrollIntoView({behavior:"smooth",block:"start"})});
-document.addEventListener("click",e=>{if(!e.target.closest("#cour-send"))return;EDITING=false;me.locked=true;saveMe();setTimeout(renderMeSum,400)});
+document.addEventListener("click",e=>{if(!e.target.closest("#cour-send"))return;EDITING=false;me.locked=true;me.csent=Date.now();saveMe();setTimeout(renderMeSum,400)});
 document.addEventListener("input",e=>{if(e.target.tagName!=="SELECT"&&e.target.closest&&e.target.closest("#me-edit"))fillCourierArea()});
 document.addEventListener("click",e=>{if(e.target.id!=="me-change")return;EDITING=true;me.locked=false;saveMe();renderMeSum();$("f-name").focus()});
 // anonymous daily visit count (one per device per day; owner's #admin visits are not counted)
 try{const day=new Date().toLocaleDateString("en-CA",{timeZone:"Asia/Jerusalem"});
-  if(!/admin/.test(location.hash)&&LS.get("rk-visit","")!==day){LS.set("rk-visit",day);Promise.resolve().then(()=>set(ref(db,"visits/"+day+"/"+CID),{t:Date.now()})).catch(()=>{})}}catch(e){}
+  if(!/admin/.test(location.hash)&&statsOk()&&LS.get("rk-visit","")!==day){LS.set("rk-visit",day);Promise.resolve().then(()=>set(ref(db,"visits/"+day+"/"+CID),{t:Date.now()})).catch(()=>{})}}catch(e){}
 // optional sign-up for weekly updates (with consent)
 try{if(LS.get("rk-joined",""))$("join-bar").hidden=true}catch(e){}
 document.addEventListener("click",e=>{if(!(e.target.closest&&e.target.closest("[data-gojoin]")))return;showTab("contact",false);requestAnimationFrame(()=>{const j=$("join");if(j)j.scrollIntoView({behavior:"smooth",block:"start"});const n=$("join-name");if(n)setTimeout(()=>n.focus({preventScroll:true}),350)})});
@@ -2198,11 +2257,12 @@ let SITE_LOADED=false,WANT_EDIT=false;
 onValue(ref(db,SITE),snap=>{applySite(snap.val());SITE_LOADED=true;if(WANT_EDIT){WANT_EDIT=false;edOpen()}},()=>{});
 let held=null;
 function applyList(v){
-  const s=JSON.stringify({me:Object.assign({},ME0,v.me||{}),list:v.list||{}});
+  const m2=Object.assign({},ME0,v.me||{});PRIV.forEach(k=>{m2[k]=me[k]||""});
+  const s=JSON.stringify({me:cloudMe(m2),list:v.list||{}});
   if(s===snapshot()||s===lastSent)return;
   const a=document.activeElement;
   if(a&&a.matches("[data-note]")){held=v;return}
-  me=Object.assign({},ME0,v.me||{});list=v.list||{};LS.set(CACHE,{me,list});fillMe();renderAll();
+  me=m2;list=v.list||{};LS.set(CACHE,{me,list});fillMe();renderAll();
 }
 document.addEventListener("focusout",()=>setTimeout(()=>{const a=document.activeElement;if(held&&!(a&&a.matches("[data-note]"))){const v=held;held=null;applyList(v)}},0));
 onValue(ref(db,LISTS+"/"+CID),snap=>{
@@ -2409,7 +2469,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-mv]");if(!
 })();
 // ---- save to home screen ----
 let A2P=null;const STANDALONE=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
-function markInstall(how){try{set(ref(db,"installs/"+CID),{how,name:(me&&me.name)||"",date:new Date().toLocaleDateString("he-IL"),ts:Date.now()}).catch(()=>{})}catch(e){}}
+function markInstall(how){if(!statsOk())return;try{set(ref(db,"installs/"+CID),{how,name:(me&&me.name)||"",date:new Date().toLocaleDateString("he-IL"),ts:Date.now()}).catch(()=>{})}catch(e){}}
 if(STANDALONE)setTimeout(()=>markInstall("home"),1500);
 addEventListener("appinstalled",()=>markInstall("android"));
 if(STANDALONE)document.querySelectorAll("[data-a2hs]").forEach(b=>b.hidden=true);
@@ -2510,7 +2570,7 @@ function subClose(){$("sub").hidden=true;document.body.style.overflow=""}
 $("sub-x").addEventListener("click",subClose);$("sub").addEventListener("click",e=>{if(e.target.id==="sub")subClose()});
 $("sub-form").addEventListener("submit",async e=>{e.preventDefault();
   const name=$("sub-name").value.trim(),t=$("sub-t").value.trim(),b=$("sub-b").value.trim(),f=$("sub-img").files[0];
-  if(!name){$("sub-msg").textContent="נשמח לדעת מי שולח 🙂";return}
+  if(!heFull(name)){$("sub-msg").textContent="כתבו שם מלא בעברית (שם פרטי ומשפחה)";return}
   if(SUBTYPE==="photo"&&!f){$("sub-msg").textContent="בחרו תמונה לשליחה";return}
   if(SUBTYPE!=="photo"&&!b){$("sub-msg").textContent="כתבו כמה מילים";return}
   $("sub-send").disabled=true;$("sub-msg").textContent="שולח…";
