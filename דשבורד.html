@@ -194,8 +194,8 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
 
   <!-- Order of suppliers and messages on the customer page (new.html) -->
   <div class="card" id="ord-card">
-    <div class="slabel">↕️ סדר הספקים וההודעות בדף הלקוחות</div>
-    <p style="margin:.2rem 0 .7rem;color:var(--muted);font-size:.85rem;">גוררים כל שורה למקום שרוצים (לוחצים ומחזיקים על ☰), ולוחצים "שמירת הסדר". הלקוחות רואים את השינוי מיד.</p>
+    <div class="slabel">↕️ סדר הספקים וההודעות, והסתרת הודעות</div>
+    <p style="margin:.2rem 0 .7rem;color:var(--muted);font-size:.85rem;">גוררים כל שורה למקום שרוצים (לוחצים ומחזיקים על ☰). בהודעות אפשר גם "🙈 להסתיר" הודעה מהלקוחות בלי למחוק אותה, או "✏️ עריכה" כדי לשנות את הטקסט. בסוף לוחצים "💾 שמירה".</p>
     <div class="ord-tabs">
       <button class="btn bt bsm" type="button" data-ordk="suppliers">🛒 ספקים</button>
       <button class="btn bg bsm" type="button" data-ordk="news">📣 הודעות</button>
@@ -203,7 +203,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
       <button class="btn bg bsm" type="button" data-ordk="reviews">💬 ממליצים</button>
     </div>
     <ol id="ord-list" class="ord-list"><li style="color:var(--muted)">טוען…</li></ol>
-    <button class="btn bt bfull" type="button" id="ord-save" disabled>💾 שמירת הסדר</button>
+    <button class="btn bt bfull" type="button" id="ord-save" disabled>💾 שמירה</button>
     <div id="ord-msg" style="margin-top:.5rem;font-size:.85rem;color:var(--muted)"></div>
   </div>
 
@@ -628,6 +628,10 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .ord-list li .st{font-size:.75rem;color:var(--muted)}
 .ord-list li button{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:#EEF9F7;font-weight:700;cursor:pointer}
 .ord-list li.moved{background:#FFF6E8}
+.ord-list li{flex-wrap:wrap}.ord-list li .n{flex:1 1 55%}
+.ord-list li.ohid{background:#F1F1F1;border-style:dashed}.ord-list li.ohid .n{color:#555}
+.ord-list li button.ord-act{width:auto;height:auto;min-height:36px;padding:.2rem .55rem;font-size:.8rem;white-space:nowrap;background:#fff}
+.ord-list li button.ord-act[aria-pressed="true"]{background:#E3F6E8}
 .ord-list .grip{cursor:grab;font-size:1.2rem;padding:0 .25rem;color:#4A6E6B;touch-action:none;user-select:none}
 .ord-list li.sort-ghost{opacity:.4;background:#E0F7F4}
 .ord-list li.sort-drag{box-shadow:0 6px 16px rgba(0,0,0,.18)}
@@ -731,12 +735,12 @@ async function load(){
 }
 function items(){
   if(K==="suppliers")return DATA.suppliers.map((s,i)=>({i,n:s.n,st:s.o?"מגיע השבוע":"לא מגיע השבוע"}));
-  return DATA.posts.map((p,i)=>({i,sec:p.sec,n:p.t||(p.b||"").slice(0,40),st:p.who||""})).filter(x=>x.sec===K);
+  return DATA.posts.map((p,i)=>({i,sec:p.sec,n:p.t||(p.b||"").slice(0,40),st:(p.hid?"🙈 מוסתר מהלקוחות":"")+(p.who?(p.hid?" · ":"")+p.who:""),hid:!!p.hid,post:1})).filter(x=>x.sec===K);
 }
 function render(){
   document.querySelectorAll("[data-ordk]").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.ordk===K);b.className="btn bsm "+(b.dataset.ordk===K?"bt":"bg")});
   const L=items();
-  $("ord-list").innerHTML=L.length?L.map((x,j)=>`<li class="${moved.has(K+":"+x.n)?"moved":""}"><span class="grip" aria-hidden="true">☰</span><b>${j+1}.</b><span class="n">${esc(x.n)}<br><span class="st">${esc(x.st)}</span></span><button type="button" data-up="${j}" aria-label="למעלה">↑</button><button type="button" data-dn="${j}" aria-label="למטה">↓</button></li>`).join(""):'<li style="color:var(--muted)">אין פריטים באזור הזה.</li>';
+  $("ord-list").innerHTML=L.length?L.map((x,j)=>`<li class="${moved.has(K+":"+x.n)?"moved":""}${x.hid?" ohid":""}"><span class="grip" aria-hidden="true">☰</span><b>${j+1}.</b><span class="n">${esc(x.n)}<br><span class="st">${esc(x.st)}</span></span>${x.post?`<button type="button" class="ord-act" data-ohid="${x.i}" aria-pressed="${x.hid}">${x.hid?"👁 להציג":"🙈 להסתיר"}<span class="sr">: ${esc(x.n)}</span></button><button type="button" class="ord-act" data-oedit="${x.i}">✏️ עריכה<span class="sr">: ${esc(x.n)}</span></button>`:""}<button type="button" data-up="${j}" aria-label="למעלה">↑</button><button type="button" data-dn="${j}" aria-label="למטה">↓</button></li>`).join(""):'<li style="color:var(--muted)">אין פריטים באזור הזה.</li>';
   $("ord-save").disabled=!dirty;
 }
 function move(j,d){
@@ -748,7 +752,10 @@ document.addEventListener("click",e=>{
   const t=e.target.closest("[data-ordk]");if(t){K=t.dataset.ordk;render();return}
   const u=e.target.closest("[data-up]");if(u){move(+u.dataset.up,-1);return}
   const d=e.target.closest("[data-dn]");if(d){move(+d.dataset.dn,1);return}
+  const hb=e.target.closest("[data-ohid]");if(hb){const i=+hb.dataset.ohid,p=DATA.posts[i];if(!p)return;if(p.hid)delete p.hid;else p.hid=1;HIDCH.set(pkey(p),!!p.hid);dirty=true;$("ord-msg").textContent=(p.hid?"ההודעה תוסתר":"ההודעה תוצג")+" אחרי לחיצה על \"שמירה\".";render();const x=document.querySelector(`[data-ohid="${i}"]`);if(x)x.focus();return}
+  const eb=e.target.closest("[data-oedit]");if(eb){const w=$("edit-wrap");if(w.hidden)$("edit-open").click();else w.scrollIntoView({behavior:"smooth",block:"start"});$("ord-msg").textContent="העורך נפתח למעלה. גוללים בו לחלק \"הודעות, המלצות, מתכונים…\" ופותחים את ההודעה.";return}
 });
+const HIDCH=new Map(),pkey=x=>(x.sec||"")+"|"+(x.t||"")+"|"+(x.b||"").slice(0,60);
 $("ord-save").addEventListener("click",async()=>{
   $("ord-save").disabled=true;$("ord-msg").textContent="שומרת…";
   try{const live=(await get(ref(db,"site5"))).val();
@@ -757,7 +764,8 @@ $("ord-save").addEventListener("click",async()=>{
       const ps=pos(DATA.suppliers,x=>x.h);live.suppliers.sort((a,b)=>ps(a)-ps(b));
       const pk=x=>(x.sec||"")+"|"+(x.t||"")+"|"+(x.b||"").slice(0,60),pp=pos(DATA.posts||[],pk);live.posts=(live.posts||[]).slice().sort((a,b)=>pp(a)-pp(b));
       DATA=live}
-    DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));dirty=false;moved.clear();$("ord-msg").textContent="נשמר ✓ הלקוחות כבר רואים את הסדר החדש.";render()}
+    (DATA.posts||[]).forEach(p=>{const k=pkey(p);if(HIDCH.has(k)){if(HIDCH.get(k))p.hid=1;else delete p.hid}});
+    DATA.ver=Date.now();await set(ref(db,"site5"),JSON.parse(JSON.stringify(DATA)));dirty=false;moved.clear();HIDCH.clear();$("ord-msg").textContent="נשמר ✓ הלקוחות כבר רואים את הסדר החדש.";render()}
   catch(e){$("ord-msg").textContent="השמירה לא הצליחה. בדקי את החיבור ונסי שוב.";$("ord-save").disabled=false}
 });
 function hx(h){h=h.replace("#","");return [0,2,4].map(i=>parseInt(h.substr(i,2),16))}
