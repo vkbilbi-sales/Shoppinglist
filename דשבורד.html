@@ -146,6 +146,17 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
   .of-search{box-sizing:border-box;width:100%;padding:.5rem;border:1.5px solid var(--border);border-radius:10px;font:inherit;margin:.4rem 0}
   .of-err{color:#C9393B;font-weight:700}
   #of-card [hidden]{display:none!important}
+  .of-ed{background:#F7FBFA;border:1.5px dashed #9FB9B7;border-radius:12px;padding:.8rem;margin-top:.6rem}
+  .of-ed h4{margin:.6rem 0 .3rem;font-size:.95rem}
+  .of-ed input[type=text],.of-ed input[type=number],.of-ed textarea{box-sizing:border-box;width:100%;padding:.5rem;border:1.5px solid var(--border);border-radius:9px;font:inherit;font-size:.9rem;background:#fff}
+  .of-ed textarea{min-height:70px}
+  .of-li{display:flex;gap:.4rem;align-items:center;margin-bottom:.35rem}
+  .of-li input[type=text]{flex:1}.of-li input[type=number]{width:90px;flex:none}
+  .of-x{background:#FDE6E5;color:#C9393B;border:0;border-radius:8px;padding:.45rem .6rem;cursor:pointer;font-weight:800}
+  .of-add{background:#DDF0EF;color:#126F74;border:0;border-radius:8px;padding:.45rem .8rem;cursor:pointer;font-weight:700}
+  .of-hid{font-size:.8rem;display:flex;gap:.2rem;align-items:center;white-space:nowrap}
+  .of-edbtns{display:flex;gap:.5rem;margin-top:.8rem}.of-edbtns .btn{flex:1}
+  .of-msg{font-weight:700;margin-top:.4rem}
   </style>
   <script>
   (function () {
@@ -193,6 +204,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
     }
 
     function render(d) {
+      DATA = d;
       $("of-upd").textContent = "עודכן " + d.updated;
       $("of-kpis").hidden = false;
       $("of-kpis").innerHTML = "<div>הזמנות פתוחות<b>" + fmt(d.sumCount) + "</b></div><div>סה\"כ ₪<b>" + fmt(d.sumTotal) + "</b></div><div>היום<b>" + fmt(d.sumToday) + "</b></div>";
@@ -205,7 +217,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         '<button class="btn of-lb" type="button" data-copy="' + esc(f.formUrl) + '">📋 העתקת הלינק</button>' +
         '<a class="btn of-lb" href="' + esc(f.sheetUrl) + '" target="_blank" rel="noopener">📊 הגיליון</a>' +
         '<button class="btn bg" type="button" data-wa="' + esc(f.formUrl) + '" data-n="' + esc(f.name) + '">💬 שליחה בוואטסאפ</button>' +
-        "</div>" + pointTable(f) + ordersTable(f, i) +
+        "</div>" + (f.api ? '<button class="btn of-lb" type="button" style="width:100%;padding:.55rem" data-ed="' + i + '">✏️ עריכת הטופס – נקודות, מוצרים ומחירים</button><div class="of-ed" id="of-ed' + i + '" hidden></div>' : "") + pointTable(f) + ordersTable(f, i) +
         (f.error ? '<p class="of-err">שגיאה בקריאת הגיליון: ' + esc(f.error) + "</p>" : "") +
         "</div>")).join("");
       $("of-list").querySelectorAll("[data-copy]").forEach(b => b.onclick = () => {
@@ -215,10 +227,69 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
       $("of-list").querySelectorAll("[data-wa]").forEach(b => b.onclick = () => {
         window.open("https://wa.me/?text=" + encodeURIComponent(b.getAttribute("data-n") + " – להזמנה:\n" + b.getAttribute("data-wa")), "_blank", "noopener");
       });
+      $("of-list").querySelectorAll("[data-ed]").forEach(b => b.onclick = () => openEditor(+b.getAttribute("data-ed")));
       $("of-list").querySelectorAll("[data-s]").forEach(inp => inp.oninput = () => {
         const q = inp.value.trim();
         $("of-t" + inp.getAttribute("data-s")).querySelectorAll("tr").forEach((tr, j) => { if (j) tr.hidden = q && !tr.textContent.includes(q); });
       });
+    }
+
+    let DATA = null;
+    function listEditor(title, key, items, ph) {
+      return '<h4>' + title + '</h4><div data-list="' + key + '">' + items.map(v => '<div class="of-li"><input type="text" value="' + esc(v) + '" placeholder="' + ph + '"><button type="button" class="of-x" aria-label="מחיקה">✕</button></div>').join("") +
+        '</div><button type="button" class="of-add" data-addli="' + key + '" data-ph="' + ph + '">+ הוספה</button>';
+    }
+    function prodRow(p) {
+      return '<div class="of-li" data-pid="' + esc(p.id || "") + '"><input type="text" value="' + esc(p.name) + '" placeholder="שם המוצר" aria-label="שם המוצר">' +
+        '<input type="number" min="0" step="0.5" value="' + esc(p.price) + '" aria-label="מחיר"><span>₪</span>' +
+        '<label class="of-hid"><input type="checkbox"' + (p.hidden ? " checked" : "") + '> מוסתר</label></div>';
+    }
+    async function openEditor(i) {
+      const f = DATA.forms[i], box = $("of-ed" + i);
+      if (!box.hidden) { box.hidden = true; return; }
+      box.hidden = false; box.innerHTML = '<p class="lk-p">טוען…</p>';
+      try {
+        const j = await (await fetch(f.api + "?api=config", { credentials: "omit" })).json();
+        if (!j.ok) throw new Error(j.error);
+        const c = j.data;
+        let h = '<p class="lk-p" style="margin:0">השינויים מופיעים בטופס מיד אחרי השמירה.</p>';
+        h += '<h4>שורה מתחת לכותרת</h4><input type="text" data-k="subtitle" value="' + esc(c.subtitle || "") + '">';
+        h += '<h4>תיאור</h4><textarea data-k="description">' + esc(c.description || "") + '</textarea>';
+        if (c.points) h += listEditor("נקודות איסוף", "points", c.points, "שם הנקודה");
+        if (c.pointsNote != null) h += '<h4>הערה מתחת לנקודות</h4><input type="text" data-k="pointsNote" value="' + esc(c.pointsNote || "") + '">';
+        if (c.locations) h += listEditor("מיקומים", "locations", c.locations, "מיקום");
+        h += '<h4>מוצרים ומחירים</h4><p class="lk-p" style="margin:0 0 .3rem">מוצר שלא רוצים יותר – מסמנים "מוסתר" (אי אפשר למחוק, כדי לא לשבש הזמנות קיימות).</p><div data-prods>' + c.products.map(prodRow).join("") + "</div>";
+        if (c.points) h += '<button type="button" class="of-add" data-addprod>+ מוצר חדש</button><p class="lk-p" style="margin:.2rem 0 0">מוצר חדש אפשר להוסיף רק כשאין עדיין הזמנות לשבוע הנוכחי.</p>';
+        h += '<div class="of-edbtns"><button type="button" class="btn bt" data-savecfg>💾 שמירה</button><button type="button" class="btn of-lb" data-cancel>ביטול</button></div><div class="of-msg" aria-live="polite"></div>';
+        box.innerHTML = h;
+        box.querySelectorAll("[data-addli]").forEach(b => b.onclick = () => {
+          const d = document.createElement("div"); d.className = "of-li";
+          d.innerHTML = '<input type="text" placeholder="' + b.getAttribute("data-ph") + '"><button type="button" class="of-x" aria-label="מחיקה">✕</button>';
+          box.querySelector('[data-list="' + b.getAttribute("data-addli") + '"]').appendChild(d); d.querySelector("input").focus();
+        });
+        box.onclick = e => { if (e.target.classList.contains("of-x")) e.target.parentNode.remove(); };
+        const ap = box.querySelector("[data-addprod]");
+        if (ap) ap.onclick = () => { box.querySelector("[data-prods]").insertAdjacentHTML("beforeend", prodRow({ name: "", price: "" })); };
+        box.querySelector("[data-cancel]").onclick = () => { box.hidden = true; };
+        box.querySelector("[data-savecfg]").onclick = () => saveCfg(f, box);
+      } catch (e) { box.innerHTML = '<p class="of-err">לא הצלחנו לטעון את הטופס לעריכה.</p>'; }
+    }
+    async function saveCfg(f, box) {
+      const msg = box.querySelector(".of-msg");
+      const cfg = {};
+      box.querySelectorAll("[data-k]").forEach(el => cfg[el.getAttribute("data-k")] = el.value);
+      box.querySelectorAll("[data-list]").forEach(l => cfg[l.getAttribute("data-list")] = [...l.querySelectorAll("input")].map(x => x.value.trim()).filter(Boolean));
+      cfg.products = [...box.querySelectorAll("[data-prods] .of-li")].map(r => {
+        const ins = r.querySelectorAll("input");
+        return { id: r.getAttribute("data-pid") || "", name: ins[0].value.trim(), price: Number(ins[1].value), hidden: ins[2].checked };
+      }).filter(p => p.id || p.name);
+      msg.style.color = "#126F74"; msg.textContent = "שומר…";
+      try {
+        const r = await fetch(f.api, { method: "POST", credentials: "omit", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "saveConfig", key: getKey(), cfg: cfg }) });
+        const j = await r.json();
+        if (!j.ok) throw new Error(j.error || "שגיאה");
+        msg.textContent = "נשמר ✅ הטופס עודכן"; toast("הטופס עודכן ✅");
+      } catch (e) { msg.style.color = "#C9393B"; msg.textContent = "לא נשמר: " + e.message; }
     }
 
     $("of-save").onclick = () => { const k = $("of-key").value.trim(); if (k) { setKey(k); $("of-key").value = ""; load(); } };

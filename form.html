@@ -74,6 +74,8 @@ legend{font-weight:700;padding:0;margin-bottom:6px}
 .choice{display:flex;align-items:center;gap:8px;border:1.5px solid #9FB9B7;border-radius:12px;padding:11px 12px;cursor:pointer;background:#fff}
 .choice input{width:20px;height:20px;accent-color:var(--leaf-deep);margin:0}
 .choice:has(input:checked){border-color:var(--leaf-deep);background:var(--leaf-soft);font-weight:700}
+.pinfo-box{background:var(--leaf-soft);border-radius:12px;padding:10px 12px;margin-top:8px;font-size:15.5px;line-height:1.7}
+.pinfo-box a{font-weight:700}
 .privacy{background:var(--bg);border-radius:12px;padding:10px 12px;font-size:14.5px;color:#34504F;margin-top:16px}
 details.policy{font-size:14.5px;margin-top:8px;color:#34504F}
 details.policy summary{cursor:pointer;color:var(--leaf-deep);font-weight:700}
@@ -167,6 +169,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
         <fieldset id="pointsWrap" hidden>
           <legend>נקודת איסוף <span class="req" aria-hidden="true">*</span></legend>
           <div class="choices" id="points"></div>
+          <div class="pinfo-box" id="pointInfo" hidden aria-live="polite"></div>
           <div class="hint" id="pointsNote"></div>
         </fieldset>
 
@@ -287,6 +290,7 @@ function render() {
   }
   (c.photos || []).filter(k => imgs[k]).forEach(k => { $("photos").hidden = false; $("photos").appendChild(el("img", { src: imgs[k], alt: "" })); });
 
+  c.products = (c.products || []).filter(p => !p.hidden);
   c.products.forEach(p => qty[p.id] = 0);
   renderProds();
 
@@ -294,6 +298,8 @@ function render() {
     $("pointsWrap").hidden = false;
     c.points.forEach(pt => $("points").appendChild(choice("point", pt)));
     $("pointsNote").textContent = c.pointsNote || "";
+    $("points").addEventListener("change", showPointInfo);
+    loadSitePoints();
   }
   if (c.locations && c.locations.length) {
     $("locWrap").hidden = false; $("cityWrap").hidden = false; $("dateWrap").hidden = false;
@@ -313,6 +319,37 @@ function render() {
     $("send").disabled = true;
   }
   $("loading").hidden = true; $("app").hidden = false; $("bar").hidden = false;
+}
+
+/* פרטי נקודת האיסוף (כתובת, שעה, Waze) – מתוך האתר עצמו */
+let SITE_POINTS = [
+  { n: "רמת השרון", a: "חניון הנצח", t: "16:15–16:45" },
+  { n: "רעננה", a: "חניון מעון ויצו פרחים", t: "17:30–18:00", w: "https://waze.com/ul/hsv8z11xxt" },
+  { n: "גני תקוה", a: "חניון לידר החווה החקלאית", t: "19:15–19:35", w: "https://waze.com/ul/hsv8y3esmf" },
+];
+async function loadSitePoints() {
+  try {
+    const r = await fetch("https://saleslist-vered-default-rtdb.firebaseio.com/site5/points.json", { credentials: "omit" });
+    const j = await r.json();
+    if (Array.isArray(j) && j.length) SITE_POINTS = j.filter(Boolean);
+  } catch (e) {}
+  showPointInfo();
+}
+const norm = s => String(s || "").replace(/שליחות/g, "").replace(/תקווה/g, "תקוה").replace(/\s+/g, " ").trim();
+function showPointInfo() {
+  const v = radio("point"), box = $("pointInfo");
+  if (!v) { box.hidden = true; return; }
+  box.hidden = false; box.innerHTML = "";
+  if (/שליחות/.test(v)) {
+    box.append(el("div", {}, "🛵 שליח מביא את ההזמנה עד הבית, באזור " + norm(v) + "."));
+    if (CFG.pointsNote) box.append(el("div", {}, CFG.pointsNote));
+    return;
+  }
+  const sp = SITE_POINTS.find(p => norm(p.n) === norm(v)) || SITE_POINTS.find(p => norm(v).includes(norm(p.n)) || norm(p.n).includes(norm(v)));
+  if (!sp) { box.append(el("div", {}, "📍 " + v)); return; }
+  box.append(el("div", {}, "📍 " + String(sp.a || sp.n).trim()));
+  if (sp.t) box.append(el("div", {}, "🕒 שעות החלוקה: " + sp.t));
+  if (sp.w) { const a = el("a", { href: sp.w, target: "_blank", rel: "noopener" }, "🧭 ניווט ב-Waze"); box.append(a); }
 }
 
 function choice(name, value) {
@@ -413,6 +450,7 @@ async function loadEdit() {
     if (o.date) $("date").value = o.date;
     $("notes").value = o.notes || "";
     document.querySelectorAll("input[name=point]").forEach(r => r.checked = r.value === o.point);
+    showPointInfo();
     document.querySelectorAll("input[name=loc]").forEach(r => r.checked = r.value === o.location);
     Object.keys(o.qty || {}).forEach(k => { if (k in qty) qty[k] = o.qty[k]; });
     renderProds();
