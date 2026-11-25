@@ -85,6 +85,7 @@ details.policy p{margin:0}
 .agree input{width:22px;height:22px;margin-top:2px;flex:none;accent-color:var(--leaf-deep)}
 .err{color:var(--heart);font-weight:700;margin-top:10px;min-height:1em}
 .notice{background:#FFF4CF;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-weight:700}
+.endbar{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);margin-top:16px;padding-top:14px}
 .bar{position:fixed;bottom:0;left:0;right:0;background:#fff;box-shadow:0 -4px 16px rgba(23,52,54,.12);padding:10px 14px}
 .bar .in{max-width:600px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .total{font-size:22px;font-weight:800}
@@ -191,6 +192,10 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
         <details class="policy"><summary>מדיניות הפרטיות המלאה</summary><div id="policy"></div></details>
         <label class="agree"><input type="checkbox" id="agree"><span id="agreeText"></span></label>
         <div class="err" id="err" role="alert" aria-live="assertive"></div>
+        <div class="endbar" id="endbar">
+          <div><div class="muted">סה"כ לתשלום</div><div class="total" id="total2">0 ₪</div></div>
+          <button class="btn" id="send2" type="button">שליחת הזמנה</button>
+        </div>
       </section>
       <footer><div id="foot"></div></footer>
     </div>
@@ -400,7 +405,7 @@ function renderProds() {
 }
 
 function calc() { return CFG.products.reduce((s, p) => s + (qty[p.id] || 0) * p.price, 0); }
-function total() { $("total").textContent = calc() + " ₪"; }
+function total() { $("total").textContent = calc() + " ₪"; $("total2").textContent = calc() + " ₪"; }
 const radio = n => { const r = document.querySelector(`input[name=${n}]:checked`); return r ? r.value : ""; };
 
 const HEB_NAME = /^[א-ת'"׳״\-]{2,}(\s+[א-ת'"׳״\-]{2,})+$/;
@@ -484,6 +489,15 @@ function share() {
   else window.open("https://wa.me/?text=" + encodeURIComponent(text + "\n" + url), "_blank", "noopener");
 }
 document.querySelectorAll("[data-share]").forEach(b => b.onclick = share);
+
+/* כפתור שליחה וסה"כ גם בסוף הטופס; הפס הצף נעלם כשמגיעים לסוף */
+$("send2").onclick = () => $("send").click();
+new MutationObserver(() => { $("send2").textContent = $("send").textContent; $("send2").disabled = $("send").disabled; })
+  .observe($("send"), { attributes: true, childList: true, characterData: true, subtree: true });
+if ("IntersectionObserver" in window) {
+  new IntersectionObserver(es => es.forEach(e => { if (!$("doneView").hidden) return; $("bar").style.visibility = e.isIntersecting ? "hidden" : "visible"; }))
+    .observe($("endbar"));
+}
 
 async function loadEdit() {
   $("editNotice").hidden = false;
