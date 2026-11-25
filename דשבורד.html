@@ -255,8 +255,9 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         let h = '<p class="lk-p" style="margin:0">השינויים מופיעים בטופס מיד אחרי השמירה.</p>';
         h += '<h4>שורה מתחת לכותרת</h4><input type="text" data-k="subtitle" value="' + esc(c.subtitle || "") + '">';
         h += '<h4>תיאור</h4><textarea data-k="description">' + esc(c.description || "") + '</textarea>';
-        if (c.points) h += listEditor("נקודות איסוף", "points", c.points, "שם הנקודה");
-        if (c.pointsNote != null) h += '<h4>הערה מתחת לנקודות</h4><input type="text" data-k="pointsNote" value="' + esc(c.pointsNote || "") + '">';
+        if (c.pointsFromSite) h += '<h4>נקודות איסוף ושליחויות</h4><p class="lk-p" style="margin:0">נלקחות אוטומטית מהאתר: נקודות החלוקה והשליחים הפעילים. משנים אותן בעורך האתר ("עריכת תוכן האתר") ובמאגר השליחים.</p>';
+        else if (c.points) h += listEditor("נקודות איסוף", "points", c.points, "שם הנקודה");
+        if (c.pointsNote != null && !c.pointsFromSite) h += '<h4>הערה מתחת לנקודות</h4><input type="text" data-k="pointsNote" value="' + esc(c.pointsNote || "") + '">';
         if (c.locations) h += listEditor("מיקומים", "locations", c.locations, "מיקום");
         h += '<h4>מוצרים ומחירים</h4><p class="lk-p" style="margin:0 0 .3rem">מוצר שלא רוצים יותר – מסמנים "מוסתר" (אי אפשר למחוק, כדי לא לשבש הזמנות קיימות).</p><div data-prods>' + c.products.map(prodRow).join("") + "</div>";
         if (c.points) h += '<button type="button" class="of-add" data-addprod>+ מוצר חדש</button><p class="lk-p" style="margin:.2rem 0 0">מוצר חדש אפשר להוסיף רק כשאין עדיין הזמנות לשבוע הנוכחי.</p>';

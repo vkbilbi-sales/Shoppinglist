@@ -294,12 +294,12 @@ function render() {
   c.products.forEach(p => qty[p.id] = 0);
   renderProds();
 
-  if (c.points && c.points.length) {
+  const pts = pointOptions();
+  if (pts.length) {
     $("pointsWrap").hidden = false;
-    c.points.forEach(pt => $("points").appendChild(choice("point", pt)));
-    $("pointsNote").textContent = c.pointsNote || "";
+    pts.forEach(pt => $("points").appendChild(choice("point", pt)));
+    $("pointsNote").textContent = c.pointsFromSite ? "" : (c.pointsNote || "");
     $("points").addEventListener("change", showPointInfo);
-    loadSitePoints();
   }
   if (c.locations && c.locations.length) {
     $("locWrap").hidden = false; $("cityWrap").hidden = false; $("dateWrap").hidden = false;
@@ -321,35 +321,49 @@ function render() {
   $("loading").hidden = true; $("app").hidden = false; $("bar").hidden = false;
 }
 
-/* פרטי נקודת האיסוף (כתובת, שעה, Waze) – מתוך האתר עצמו */
+/* נקודות איסוף ושליחויות – נלקחות מהאתר עצמו (נקודות החלוקה והשליחים הפעילים) */
 let SITE_POINTS = [
   { n: "רמת השרון", a: "חניון הנצח", t: "16:15–16:45" },
   { n: "רעננה", a: "חניון מעון ויצו פרחים", t: "17:30–18:00", w: "https://waze.com/ul/hsv8z11xxt" },
   { n: "גני תקוה", a: "חניון לידר החווה החקלאית", t: "19:15–19:35", w: "https://waze.com/ul/hsv8y3esmf" },
 ];
-async function loadSitePoints() {
+let SITE_COURIERS = [];
+let SITE_OK = false;
+async function loadSite() {
+  const fb = "https://saleslist-vered-default-rtdb.firebaseio.com/site5/";
   try {
-    const r = await fetch("https://saleslist-vered-default-rtdb.firebaseio.com/site5/points.json", { credentials: "omit" });
-    const j = await r.json();
-    if (Array.isArray(j) && j.length) SITE_POINTS = j.filter(Boolean);
+    const [p, c] = await Promise.all([
+      fetch(fb + "points.json", { credentials: "omit" }).then(r => r.json()),
+      fetch(fb + "couriers.json", { credentials: "omit" }).then(r => r.json()),
+    ]);
+    if (Array.isArray(p) && p.length) { SITE_POINTS = p.filter(x => x && x.n); SITE_OK = true; }
+    if (Array.isArray(c)) SITE_COURIERS = c.filter(x => x && x.area && !x.off);
   } catch (e) {}
-  showPointInfo();
 }
 const norm = s => String(s || "").replace(/שליחות/g, "").replace(/תקווה/g, "תקוה").replace(/\s+/g, " ").trim();
+const COURIER = "שליחות ";
+function pointOptions() {
+  if (CFG.pointsFromSite && SITE_OK) {
+    return SITE_POINTS.map(p => String(p.n).trim()).concat(SITE_COURIERS.map(c => COURIER + String(c.area).trim()));
+  }
+  return CFG.points || [];
+}
 function showPointInfo() {
   const v = radio("point"), box = $("pointInfo");
   if (!v) { box.hidden = true; return; }
   box.hidden = false; box.innerHTML = "";
-  if (/שליחות/.test(v)) {
-    box.append(el("div", {}, "🛵 שליח מביא את ההזמנה עד הבית, באזור " + norm(v) + "."));
-    if (CFG.pointsNote) box.append(el("div", {}, CFG.pointsNote));
+  if (v.indexOf(COURIER) === 0) {
+    const c = SITE_COURIERS.find(x => norm(x.area) === norm(v));
+    box.append(el("div", {}, "🛵 שליח מביא את ההזמנה עד הבית, באזור " + norm(v) + (c && c.name ? " (" + c.name + ")" : "") + "."));
+    if (c && c.note) box.append(el("div", {}, c.note));
+    else if (CFG.pointsNote) box.append(el("div", {}, CFG.pointsNote));
     return;
   }
   const sp = SITE_POINTS.find(p => norm(p.n) === norm(v)) || SITE_POINTS.find(p => norm(v).includes(norm(p.n)) || norm(p.n).includes(norm(v)));
   if (!sp) { box.append(el("div", {}, "📍 " + v)); return; }
   box.append(el("div", {}, "📍 " + String(sp.a || sp.n).trim()));
   if (sp.t) box.append(el("div", {}, "🕒 שעות החלוקה: " + sp.t));
-  if (sp.w) { const a = el("a", { href: sp.w, target: "_blank", rel: "noopener" }, "🧭 ניווט ב-Waze"); box.append(a); }
+  if (sp.w) box.append(el("a", { href: sp.w, target: "_blank", rel: "noopener" }, "🧭 ניווט ב-Waze"));
 }
 
 function choice(name, value) {
@@ -449,6 +463,7 @@ async function loadEdit() {
     if (o.city) $("city").value = o.city;
     if (o.date) $("date").value = o.date;
     $("notes").value = o.notes || "";
+    if (o.point && ![...document.querySelectorAll("input[name=point]")].some(r => r.value === o.point)) $("points").appendChild(choice("point", o.point));
     document.querySelectorAll("input[name=point]").forEach(r => r.checked = r.value === o.point);
     showPointInfo();
     document.querySelectorAll("input[name=loc]").forEach(r => r.checked = r.value === o.location);
@@ -463,6 +478,7 @@ async function loadEdit() {
   if (!F) return fail("הטופס לא נמצא.");
   try {
     CFG = await api({ api: "config" });
+    if (CFG.points || CFG.pointsFromSite) await loadSite();
     render();
     if (EDIT) await loadEdit();
   } catch (e) {
