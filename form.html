@@ -150,9 +150,10 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
 
       <section class="card" aria-labelledby="detTitle">
         <h2 id="detTitle">פרטים</h2>
+        <p class="hint" id="savedNote" hidden>מילאנו את הפרטים שלך מהפעם הקודמת (שמורים רק במכשיר הזה). <a href="#" id="forget">לא את/ה? ניקוי</a></p>
         <label class="f" for="name">שם מלא <span class="req" aria-hidden="true">*</span></label>
         <input type="text" id="name" autocomplete="name" required aria-describedby="nameHint">
-        <div class="hint" id="nameHint">שם פרטי ושם משפחה, בעברית</div>
+        <div class="hint" id="nameHint">שם פרטי ושם משפחה, בעברית בלבד</div>
 
         <label class="f" for="phone">טלפון <span class="req" aria-hidden="true">*</span></label>
         <input type="tel" id="phone" autocomplete="tel" inputmode="tel" required>
@@ -435,7 +436,38 @@ $("send").onclick = async () => {
   }
 };
 
+/* זכירת פרטי הלקוח במכשיר (לכל הטפסים) – בלי נקודת איסוף, שאותה בוחרים כל פעם מחדש */
+const ME_KEY = "rk-me";
+function saveMe() {
+  try { localStorage.setItem(ME_KEY, JSON.stringify({ name: $("name").value.trim(), phone: $("phone").value.trim(), email: $("email").value.trim(), city: $("city").value.trim() })); } catch (e) {}
+}
+function loadMe() {
+  try {
+    const m = JSON.parse(localStorage.getItem(ME_KEY) || "null");
+    if (!m) return;
+    $("name").value = m.name || ""; $("phone").value = m.phone || ""; $("email").value = m.email || "";
+    if (m.city) $("city").value = m.city;
+    $("savedNote").hidden = false;
+  } catch (e) {}
+}
+/* שם מלא בעברית בלבד – בדיקה כבר בזמן ההקלדה */
+$("name").addEventListener("input", () => {
+  const v = $("name").value, h = $("nameHint");
+  const bad = /[^\u05D0-\u05EA'"׳״\-\s]/.test(v);
+  h.textContent = bad ? "אפשר לכתוב רק אותיות בעברית" : "שם פרטי ושם משפחה, בעברית בלבד";
+  h.style.color = bad ? "var(--heart)" : "";
+  $("name").setAttribute("aria-invalid", bad ? "true" : "false");
+});
+
+$("forget").onclick = e => {
+  e.preventDefault();
+  try { localStorage.removeItem(ME_KEY); } catch (err) {}
+  ["name", "phone", "email", "city"].forEach(id => $(id).value = "");
+  $("savedNote").hidden = true; $("name").focus();
+};
+
 function showDone(res) {
+  saveMe();
   $("formView").hidden = true; $("bar").hidden = true; $("doneView").hidden = false;
   $("doneTitle").textContent = res.isEdit ? (F.noun + " עודכנה") : ("תודה! ה" + F.noun + " התקבלה");
   $("doneSum").textContent = res.total + " ₪";
@@ -480,7 +512,7 @@ async function loadEdit() {
     CFG = await api({ api: "config" });
     if (CFG.points || CFG.pointsFromSite) await loadSite();
     render();
-    if (EDIT) await loadEdit();
+    if (EDIT) await loadEdit(); else loadMe();
   } catch (e) {
     fail("לא הצלחנו לטעון את הטופס. נסו לרענן את הדף בעוד רגע.");
   }
