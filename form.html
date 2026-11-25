@@ -31,7 +31,11 @@ a{color:var(--leaf-deep)}
 .skip:focus{right:8px}
 .top{background:var(--leaf-deep);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .top a{color:#fff;text-decoration:none;font-weight:700;font-size:15px}
-.top .brand{font-family:var(--display);font-size:18px}
+.top .brand{font-family:var(--display);font-size:18px;display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none}
+.top .brand img{width:38px;height:38px;border-radius:50%;background:#fff}
+.illu{width:270px;max-width:80%;margin:0 auto 4px}
+.brandfoot{display:flex;flex-direction:column;align-items:center;gap:4px;margin:18px 0 0;color:var(--muted);font-size:14px}
+.brandfoot img{width:84px;height:84px;border-radius:50%}
 .wrap{max-width:600px;margin:0 auto;padding:16px 14px 130px}
 header.h{text-align:center;margin:6px 0 14px}
 header.h .emoji{font-size:44px;line-height:1}
@@ -100,7 +104,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
 </head>
 <body>
 <a class="skip" href="#main">דילוג לטופס</a>
-<div class="top"><a href="./">→ לכל הספקים</a><span class="brand">רכישות כדאיות</span></div>
+<div class="top"><a href="./">→ לכל הספקים</a><a class="brand" href="./"><img src="img/icon-192.png" alt="">רכישות כדאיות</a></div>
 
 <main class="wrap" id="main" tabindex="-1">
   <div class="loading" id="loading" role="status">טוען את הטופס…</div>
@@ -108,6 +112,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
 
   <div id="app" hidden>
     <header class="h">
+      <img class="illu" id="illu" alt="" hidden>
       <div class="emoji" id="emoji" aria-hidden="true"></div>
       <h1 id="title"></h1>
       <p class="sub" id="subtitle"></p>
@@ -183,7 +188,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
         <label class="agree"><input type="checkbox" id="agree"><span id="agreeText"></span></label>
         <div class="err" id="err" role="alert" aria-live="assertive"></div>
       </section>
-      <footer id="foot"></footer>
+      <footer><div id="foot"></div><a class="brandfoot" href="./"><img src="img/icon-192.png" alt="רכישות כדאיות – כי באנו לעשות טוב"><span>הזמנה דרך רכישות כדאיות</span></a></footer>
     </div>
 
     <section class="card done" id="doneView" hidden tabindex="-1">
@@ -216,7 +221,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
 <script>
 /* ---- הטפסים באתר: מזהה בלינק (?f=…) ← הסקריפט של גוגל שמחזיק את הנתונים ---- */
 const FORMS = {
-  eggs: { api: "https://script.google.com/macros/s/AKfycbwbyY-dbaqmQ8gFFa8mWLk3C8KHDOcMWJWRC6QnVsGf8Y07kGNsvjfg5u3LUtiDXGsOVQ/exec", emoji: "🥚", color: "#16868C", noun: "הזמנה" },
+  eggs: { api: "https://script.google.com/macros/s/AKfycbwbyY-dbaqmQ8gFFa8mWLk3C8KHDOcMWJWRC6QnVsGf8Y07kGNsvjfg5u3LUtiDXGsOVQ/exec", emoji: "🥚", illu: "img/eggs-illu.svg", color: "#16868C", noun: "הזמנה" },
   asia: { api: "https://script.google.com/macros/s/AKfycbxJ5wrKFs5A9clvm_YmV5x3ubqVaxBAvj6In1ULuzlXk-n6Htws0Eb5qxAaLcMeZraB/exec", emoji: "🥟", color: "#B5541C", noun: "הרשמה" },
 };
 
@@ -265,7 +270,7 @@ function render() {
   const c = CFG, imgs = c.images || {};
   document.title = c.title + " – רכישות כדאיות";
   document.documentElement.style.setProperty("--c", F.color);
-  $("emoji").textContent = F.emoji;
+  if (F.illu) { $("illu").src = F.illu; $("illu").hidden = false; } else $("emoji").textContent = F.emoji;
   $("title").textContent = c.title;
   $("subtitle").textContent = c.subtitle || "";
   if (c.closeAt && !c.isClosed) { $("closeChip").hidden = false; $("closeChip").textContent = "ההזמנות נסגרות ב-" + niceClose(c.closeAt); }
