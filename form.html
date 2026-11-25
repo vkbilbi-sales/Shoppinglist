@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>טופס הזמנה – רכישות כדאיות</title>
+<link rel="icon" type="image/png" sizes="192x192" href="img/icon-192.png">
+<link rel="apple-touch-icon" href="img/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Secular+One&family=Assistant:wght@400;600;700;800&display=swap">
+<style>
+/* Order form page of רכישות כדאיות – same palette as the main site.
+   The page talks to the supplier's Google Apps Script only for data (config / submit / edit). */
+:root{
+  --bg:#F2F8F6; --surface:#FFFFFF; --ink:#173436; --muted:#4F6B6C; --line:#D3E4E2;
+  --leaf:#16868C; --leaf-deep:#126F74; --leaf-soft:#DDF0EF; --heart:#C9393B; --heart-soft:#FDE6E5;
+  --pay:#1a5fd1; --pay-soft:#EAF1FD;
+  --display:"Secular One","Assistant",system-ui,sans-serif;
+  --body:"Assistant",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --c:var(--leaf);
+}
+*{box-sizing:border-box}
+html{font-size:17px}
+body{margin:0;font-family:var(--body);background:var(--bg);color:var(--ink);line-height:1.5}
+img{max-width:100%;display:block}
+[hidden]{display:none!important}
+a{color:var(--leaf-deep)}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px;border-radius:6px}
+.skip{position:absolute;right:-999px;top:0;background:var(--ink);color:#fff;padding:8px 14px;z-index:99}
+.skip:focus{right:8px}
+.top{background:var(--leaf-deep);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.top a{color:#fff;text-decoration:none;font-weight:700;font-size:15px}
+.top .brand{font-family:var(--display);font-size:18px}
+.wrap{max-width:600px;margin:0 auto;padding:16px 14px 130px}
+header.h{text-align:center;margin:6px 0 14px}
+header.h .emoji{font-size:44px;line-height:1}
+h1{font-family:var(--display);font-weight:400;font-size:30px;margin:4px 0 2px;color:var(--c)}
+.sub{color:var(--muted);margin:0;font-size:16px}
+.chip{display:inline-block;margin-top:8px;background:var(--leaf-soft);color:var(--leaf-deep);font-weight:700;border-radius:20px;padding:3px 12px;font-size:14px}
+.card{background:var(--surface);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 1px 8px rgba(23,52,54,.07)}
+.card h2{font-size:19px;margin:0 0 10px}
+.desc{margin:0 0 6px}
+.muted{color:var(--muted);font-size:15px}
+.rec{background:var(--leaf-soft);border-radius:12px;padding:10px 12px;margin:0 0 10px;font-weight:600}
+.gift{color:var(--heart);font-weight:700;margin:0 0 8px}
+ul.learn{margin:0;padding:0 20px 0 0;line-height:1.9}
+.photos img{border-radius:14px;margin-bottom:10px;width:100%}
+.hero{border-radius:18px;margin-bottom:14px;width:100%}
+.prod{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.prod:last-child{border-bottom:0}
+.pinfo{display:flex;align-items:center;gap:12px;min-width:0}
+.pimg{width:72px;height:72px;border-radius:12px;object-fit:cover;flex:none}
+.pname{font-weight:700}
+.pnote{color:var(--muted);font-size:14px}
+.pprice{color:var(--c);font-weight:800}
+.qty{display:flex;align-items:center;gap:8px;flex:none}
+.qty button{width:44px;height:44px;border-radius:50%;border:2px solid var(--c);background:#fff;color:var(--c);font-size:24px;font-weight:700;line-height:1;cursor:pointer}
+.qty button.plus{background:var(--c);color:#fff}
+.qty output{min-width:24px;text-align:center;font-size:19px;font-weight:800}
+label.f{display:block;font-weight:700;margin:14px 0 4px}
+.req{color:var(--heart)}
+input[type=text],input[type=tel],input[type=email],input[type=date],textarea{width:100%;padding:12px;border:1.5px solid #9FB9B7;border-radius:12px;font:inherit;font-size:17px;background:#fff;color:var(--ink)}
+input:focus,textarea:focus{border-color:var(--leaf-deep);outline:none;box-shadow:0 0 0 3px var(--leaf-soft)}
+textarea{min-height:84px;resize:vertical}
+.hint{font-size:14px;color:var(--muted);margin-top:3px}
+fieldset{border:0;padding:0;margin:14px 0 0}
+legend{font-weight:700;padding:0;margin-bottom:6px}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.choice{display:flex;align-items:center;gap:8px;border:1.5px solid #9FB9B7;border-radius:12px;padding:11px 12px;cursor:pointer;background:#fff}
+.choice input{width:20px;height:20px;accent-color:var(--leaf-deep);margin:0}
+.choice:has(input:checked){border-color:var(--leaf-deep);background:var(--leaf-soft);font-weight:700}
+.privacy{background:var(--bg);border-radius:12px;padding:10px 12px;font-size:14.5px;color:#34504F;margin-top:16px}
+details.policy{font-size:14.5px;margin-top:8px;color:#34504F}
+details.policy summary{cursor:pointer;color:var(--leaf-deep);font-weight:700}
+details.policy h3{margin:10px 0 2px;font-size:15px;color:var(--ink)}
+details.policy p{margin:0}
+.agree{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:15.5px}
+.agree input{width:22px;height:22px;margin-top:2px;flex:none;accent-color:var(--leaf-deep)}
+.err{color:var(--heart);font-weight:700;margin-top:10px;min-height:1em}
+.notice{background:#FFF4CF;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-weight:700}
+.bar{position:fixed;bottom:0;left:0;right:0;background:#fff;box-shadow:0 -4px 16px rgba(23,52,54,.12);padding:10px 14px}
+.bar .in{max-width:600px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.total{font-size:22px;font-weight:800}
+.btn{display:inline-block;border:0;border-radius:26px;padding:13px 26px;font:inherit;font-weight:800;font-size:17px;cursor:pointer;text-decoration:none;color:#fff;background:var(--leaf-deep);text-align:center}
+.btn:disabled{opacity:.55;cursor:default}
+.btn.pay{background:var(--pay)}
+.btn.light{background:var(--leaf-soft);color:var(--leaf-deep)}
+.btn.share{background:#1F7A45}
+.done{text-align:center}
+.done h2{font-family:var(--display);font-weight:400;font-size:26px;color:var(--leaf-deep)}
+.paybox{background:var(--pay-soft);border-radius:14px;padding:16px;margin:12px 0}
+.sum{font-size:32px;font-weight:800;color:var(--pay);margin:2px 0 10px}
+.row{display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:10px}
+.center{text-align:center}
+.loading{text-align:center;padding:60px 10px;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
+@media (max-width:420px){.choices{grid-template-columns:1fr}.pimg{width:58px;height:58px}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">דילוג לטופס</a>
+<div class="top"><a href="./">→ לכל הספקים</a><span class="brand">רכישות כדאיות</span></div>
+
+<main class="wrap" id="main" tabindex="-1">
+  <div class="loading" id="loading" role="status">טוען את הטופס…</div>
+  <div class="card center" id="fatal" hidden role="alert"></div>
+
+  <div id="app" hidden>
+    <header class="h">
+      <div class="emoji" id="emoji" aria-hidden="true"></div>
+      <h1 id="title"></h1>
+      <p class="sub" id="subtitle"></p>
+      <span class="chip" id="closeChip" hidden></span>
+    </header>
+
+    <div id="formView">
+      <div class="notice" id="editNotice" hidden>את/ה עורך/ת הזמנה קיימת</div>
+      <div class="notice" id="closedNotice" hidden role="alert"></div>
+
+      <img class="hero" id="hero" alt="" hidden>
+
+      <section class="card" id="introCard">
+        <p class="rec" id="rec" hidden></p>
+        <p class="gift" id="gift" hidden></p>
+        <p class="desc" id="desc"></p>
+        <p class="muted" id="schedule" hidden></p>
+        <a id="calLink" target="_blank" rel="noopener" hidden>📅 לצפייה בתאריכים הפנויים</a>
+        <div class="row"><button type="button" class="btn share" data-share>📤 שליחת הטופס לחבר</button></div>
+      </section>
+
+      <section class="card" id="learnCard" hidden>
+        <h2 id="learnTitle"></h2>
+        <ul class="learn" id="learn"></ul>
+      </section>
+
+      <section class="card photos" id="photos" hidden aria-label="תמונות"></section>
+
+      <section class="card" aria-labelledby="prodTitle">
+        <h2 id="prodTitle">מה מזמינים?</h2>
+        <div id="prods"></div>
+      </section>
+
+      <section class="card" aria-labelledby="detTitle">
+        <h2 id="detTitle">פרטים</h2>
+        <label class="f" for="name">שם מלא <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="name" autocomplete="name" required aria-describedby="nameHint">
+        <div class="hint" id="nameHint">שם פרטי ושם משפחה, בעברית</div>
+
+        <label class="f" for="phone">טלפון <span class="req" aria-hidden="true">*</span></label>
+        <input type="tel" id="phone" autocomplete="tel" inputmode="tel" required>
+
+        <label class="f" for="email">אימייל <span class="req" aria-hidden="true">*</span></label>
+        <input type="email" id="email" autocomplete="email" dir="ltr" required aria-describedby="emailHint">
+        <div class="hint" id="emailHint">לכאן יישלח אישור ולינק לעריכה</div>
+
+        <div id="cityWrap" hidden>
+          <label class="f" for="city">עיר מגורים <span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="city" autocomplete="address-level2">
+        </div>
+
+        <fieldset id="pointsWrap" hidden>
+          <legend>נקודת איסוף <span class="req" aria-hidden="true">*</span></legend>
+          <div class="choices" id="points"></div>
+          <div class="hint" id="pointsNote"></div>
+        </fieldset>
+
+        <fieldset id="locWrap" hidden>
+          <legend>איפה תתקיים הסדנה? <span class="req" aria-hidden="true">*</span></legend>
+          <div class="choices" id="locs"></div>
+        </fieldset>
+
+        <div id="dateWrap" hidden>
+          <label class="f" for="date">תאריך מועדף</label>
+          <input type="date" id="date">
+        </div>
+
+        <label class="f" for="notes">הערות</label>
+        <textarea id="notes"></textarea>
+
+        <div class="privacy" id="privacyNotice"></div>
+        <details class="policy"><summary>מדיניות הפרטיות המלאה</summary><div id="policy"></div></details>
+        <label class="agree"><input type="checkbox" id="agree"><span id="agreeText"></span></label>
+        <div class="err" id="err" role="alert" aria-live="assertive"></div>
+      </section>
+      <footer id="foot"></footer>
+    </div>
+
+    <section class="card done" id="doneView" hidden tabindex="-1">
+      <h2 id="doneTitle">תודה! ההזמנה התקבלה</h2>
+      <p id="thanks"></p>
+      <div class="paybox">
+        <div>סה"כ לתשלום</div>
+        <div class="sum" id="doneSum"></div>
+        <div id="payWrap"><p>לחצו כאן לתשלום בפייבוקס 👇</p><a class="btn pay" id="payBtn" target="_blank" rel="noopener">לתשלום בפייבוקס</a></div>
+        <p id="noPay" hidden></p>
+      </div>
+      <div class="row">
+        <a class="btn light" id="editBtn">עריכת ההזמנה</a>
+        <p class="muted">שלחנו אישור עם לינק לעריכה למייל שלך</p>
+        <p>מכירים עוד מישהו שיאהב את זה?</p>
+        <button type="button" class="btn share" data-share>📤 שליחת הטופס לחבר</button>
+        <a href="./">→ חזרה לכל הספקים</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="bar" id="bar" hidden>
+  <div class="in">
+    <div><div class="muted">סה"כ</div><div class="total" id="total" aria-live="polite">0 ₪</div></div>
+    <button class="btn" id="send" type="button">שליחת הזמנה</button>
+  </div>
+</div>
+
+<script>
+/* ---- הטפסים באתר: מזהה בלינק (?f=…) ← הסקריפט של גוגל שמחזיק את הנתונים ---- */
+const FORMS = {
+  eggs: { api: "https://script.google.com/macros/s/AKfycbwbyY-dbaqmQ8gFFa8mWLk3C8KHDOcMWJWRC6QnVsGf8Y07kGNsvjfg5u3LUtiDXGsOVQ/exec", emoji: "🥚", color: "#16868C", noun: "הזמנה" },
+  asia: { api: "https://script.google.com/macros/s/AKfycbxJ5wrKFs5A9clvm_YmV5x3ubqVaxBAvj6In1ULuzlXk-n6Htws0Eb5qxAaLcMeZraB/exec", emoji: "🥟", color: "#B5541C", noun: "הרשמה" },
+};
+
+const $ = id => document.getElementById(id);
+const P = new URLSearchParams(location.search);
+const FID = P.get("f") || "";
+const EDIT = P.get("edit") || "";
+const F = FORMS[FID];
+const qty = {};
+let CFG = null;
+
+function fail(msg) {
+  $("loading").hidden = true;
+  $("fatal").hidden = false;
+  $("fatal").innerHTML = `<p>${msg}</p><p><a href="./">← לכל הספקים</a></p>`;
+}
+
+async function api(params) {
+  const r = await fetch(F.api + "?" + new URLSearchParams(params), { credentials: "omit" });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || "שגיאה");
+  return j.data;
+}
+
+async function post(body) {
+  const r = await fetch(F.api, { method: "POST", credentials: "omit", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(body) });
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || "שגיאה בשליחה, נסו שוב");
+  return j.data;
+}
+
+function el(tag, attrs, text) {
+  const e = document.createElement(tag);
+  Object.entries(attrs || {}).forEach(([k, v]) => e.setAttribute(k, v));
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+function niceClose(s) {
+  const m = String(s || "").match(/\d{4}-(\d{2})-(\d{2}) (\d{1,2}:\d{2})/);
+  if (!m) return "";
+  return `${+m[2]}.${+m[1]} בשעה ${m[3]}`;
+}
+
+function render() {
+  const c = CFG, imgs = c.images || {};
+  document.title = c.title + " – רכישות כדאיות";
+  document.documentElement.style.setProperty("--c", F.color);
+  $("emoji").textContent = F.emoji;
+  $("title").textContent = c.title;
+  $("subtitle").textContent = c.subtitle || "";
+  if (c.closeAt && !c.isClosed) { $("closeChip").hidden = false; $("closeChip").textContent = "ההזמנות נסגרות ב-" + niceClose(c.closeAt); }
+
+  if (c.heroImg && imgs[c.heroImg]) { $("hero").src = imgs[c.heroImg]; $("hero").hidden = false; }
+  if (c.recommend) { $("rec").hidden = false; $("rec").textContent = "👈 " + c.recommend; }
+  if (c.gift) { $("gift").hidden = false; $("gift").textContent = "🎁 " + c.gift; }
+  $("desc").textContent = c.description || "";
+  if (c.schedule) { $("schedule").hidden = false; $("schedule").textContent = c.schedule; }
+  if (c.calendarUrl) { $("calLink").hidden = false; $("calLink").href = c.calendarUrl; }
+  if (c.learn && c.learn.length) {
+    $("learnCard").hidden = false; $("learnTitle").textContent = c.learnTitle || "מה תקבלו?";
+    c.learn.forEach(t => $("learn").appendChild(el("li", {}, t)));
+  }
+  (c.photos || []).filter(k => imgs[k]).forEach(k => { $("photos").hidden = false; $("photos").appendChild(el("img", { src: imgs[k], alt: "" })); });
+
+  c.products.forEach(p => qty[p.id] = 0);
+  renderProds();
+
+  if (c.points && c.points.length) {
+    $("pointsWrap").hidden = false;
+    c.points.forEach(pt => $("points").appendChild(choice("point", pt)));
+    $("pointsNote").textContent = c.pointsNote || "";
+  }
+  if (c.locations && c.locations.length) {
+    $("locWrap").hidden = false; $("cityWrap").hidden = false; $("dateWrap").hidden = false;
+    c.locations.forEach(l => $("locs").appendChild(choice("loc", l)));
+  }
+
+  $("privacyNotice").textContent = c.privacyNotice || "";
+  (c.privacyPolicy || []).forEach(([t, p]) => { $("policy").append(el("h3", {}, t), el("p", {}, p)); });
+  $("agreeText").textContent = c.agreeText || "אני מאשר/ת";
+  $("thanks").textContent = c.thanksText || "";
+  $("foot").textContent = (c.businessName || "") + (c.phone ? " · " + c.phone : "");
+  if (F.noun === "הרשמה") { $("send").textContent = "שליחת הרשמה"; $("prodTitle").textContent = "כמה משתתפים?"; }
+
+  if (c.isClosed) {
+    $("closedNotice").hidden = false;
+    $("closedNotice").textContent = "ההזמנות לשבוע זה נסגרו" + (c.reopenText ? " – ההזמנה הבאה נפתחת ביום " + c.reopenText : "");
+    $("send").disabled = true;
+  }
+  $("loading").hidden = true; $("app").hidden = false; $("bar").hidden = false;
+}
+
+function choice(name, value) {
+  const lab = el("label", { class: "choice" });
+  const inp = el("input", { type: "radio", name: name, value: value });
+  lab.append(inp, el("span", {}, value));
+  return lab;
+}
+
+function renderProds() {
+  const box = $("prods"); box.innerHTML = "";
+  const imgs = CFG.images || {};
+  CFG.products.forEach(p => {
+    const row = el("div", { class: "prod" });
+    const info = el("div", { class: "pinfo" });
+    if (p.img && imgs[p.img]) info.appendChild(el("img", { class: "pimg", src: imgs[p.img], alt: "" }));
+    const t = el("div");
+    t.append(el("div", { class: "pname" }, p.name));
+    if (p.note) t.append(el("div", { class: "pnote" }, p.note));
+    t.append(el("div", { class: "pprice" }, p.price + " ₪"));
+    info.appendChild(t);
+    const q = el("div", { class: "qty" });
+    const minus = el("button", { type: "button", "aria-label": "פחות " + p.name }, "−");
+    const out = el("output", { "aria-live": "polite", "aria-label": "כמות " + p.name }, String(qty[p.id]));
+    const plus = el("button", { type: "button", class: "plus", "aria-label": "עוד " + p.name }, "+");
+    minus.onclick = () => { if (qty[p.id] > 0) { qty[p.id]--; out.textContent = qty[p.id]; total(); } };
+    plus.onclick = () => { if (qty[p.id] < (CFG.maxQty || 10)) { qty[p.id]++; out.textContent = qty[p.id]; total(); } };
+    q.append(plus, out, minus);
+    row.append(info, q);
+    box.appendChild(row);
+  });
+  total();
+}
+
+function calc() { return CFG.products.reduce((s, p) => s + (qty[p.id] || 0) * p.price, 0); }
+function total() { $("total").textContent = calc() + " ₪"; }
+const radio = n => { const r = document.querySelector(`input[name=${n}]:checked`); return r ? r.value : ""; };
+
+const HEB_NAME = /^[א-ת'"׳״\-]{2,}(\s+[א-ת'"׳״\-]{2,})+$/;
+function validate() {
+  if (!CFG.products.some(p => qty[p.id] > 0)) return "יש לבחור לפחות פריט אחד";
+  if (!HEB_NAME.test($("name").value.trim().replace(/\s+/g, " "))) return "יש לכתוב שם מלא (פרטי ומשפחה) בעברית";
+  if (!/^0\d{8,9}$/.test($("phone").value.replace(/[^\d]/g, ""))) return "מספר טלפון לא תקין";
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("email").value.trim())) return "כתובת מייל לא תקינה";
+  if (!$("cityWrap").hidden && !$("city").value.trim()) return "יש למלא עיר מגורים";
+  if (!$("pointsWrap").hidden && !radio("point")) return "יש לבחור נקודת איסוף";
+  if (!$("locWrap").hidden && !radio("loc")) return "יש לבחור איפה תתקיים הסדנה";
+  if (!$("agree").checked) return "יש לסמן את תיבת האישור";
+  return "";
+}
+
+$("send").onclick = async () => {
+  const e = validate();
+  $("err").textContent = e;
+  if (e) { $("err").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+  $("send").disabled = true; $("send").textContent = "שולח…";
+  const data = {
+    token: EDIT, name: $("name").value.trim().replace(/\s+/g, " "), phone: $("phone").value.trim(), email: $("email").value.trim(),
+    point: radio("point"), city: $("city").value.trim(), location: radio("loc"), date: $("date").value,
+    notes: $("notes").value, qty: qty, agree: true,
+    siteUrl: location.origin + location.pathname + "?f=" + FID,
+  };
+  try {
+    const res = await post({ action: "submit", data: data });
+    showDone(res);
+  } catch (err) {
+    $("err").textContent = err.message;
+    $("send").disabled = false; $("send").textContent = F.noun === "הרשמה" ? "שליחת הרשמה" : "שליחת הזמנה";
+  }
+};
+
+function showDone(res) {
+  $("formView").hidden = true; $("bar").hidden = true; $("doneView").hidden = false;
+  $("doneTitle").textContent = res.isEdit ? (F.noun + " עודכנה") : ("תודה! ה" + F.noun + " התקבלה");
+  $("doneSum").textContent = res.total + " ₪";
+  if (CFG.payboxUrl) { $("payBtn").href = CFG.payboxUrl; }
+  else { $("payWrap").hidden = true; $("noPay").hidden = false; $("noPay").textContent = CFG.noPayText || ""; }
+  $("editBtn").href = res.editUrl;
+  window.scrollTo(0, 0); $("doneView").focus();
+}
+
+function share() {
+  const url = location.origin + location.pathname + "?f=" + FID;
+  const text = CFG.shareText || ("🛒 " + CFG.title + " – רכישות כדאיות. להזמנה:");
+  if (navigator.share) navigator.share({ title: CFG.title, text: text, url: url }).catch(() => {});
+  else window.open("https://wa.me/?text=" + encodeURIComponent(text + "\n" + url), "_blank", "noopener");
+}
+document.querySelectorAll("[data-share]").forEach(b => b.onclick = share);
+
+async function loadEdit() {
+  $("editNotice").hidden = false;
+  $("send").textContent = "עדכון " + F.noun;
+  try {
+    const o = await api({ api: "order", token: EDIT });
+    if (!o) { $("editNotice").textContent = "לא נמצאה " + F.noun + ". אפשר למלא חדשה."; return; }
+    $("name").value = o.name || ""; $("phone").value = o.phone || ""; $("email").value = o.email || "";
+    if (o.city) $("city").value = o.city;
+    if (o.date) $("date").value = o.date;
+    $("notes").value = o.notes || "";
+    document.querySelectorAll("input[name=point]").forEach(r => r.checked = r.value === o.point);
+    document.querySelectorAll("input[name=loc]").forEach(r => r.checked = r.value === o.location);
+    Object.keys(o.qty || {}).forEach(k => { if (k in qty) qty[k] = o.qty[k]; });
+    renderProds();
+    $("agree").checked = true;
+    if (o.closed) $("send").disabled = true;
+  } catch (e) { $("editNotice").textContent = "לא הצלחנו לטעון את ה" + F.noun + " לעריכה"; }
+}
+
+(async () => {
+  if (!F) return fail("הטופס לא נמצא.");
+  try {
+    CFG = await api({ api: "config" });
+    render();
+    if (EDIT) await loadEdit();
+  } catch (e) {
+    fail("לא הצלחנו לטעון את הטופס. נסו לרענן את הדף בעוד רגע.");
+  }
+})();
+</script>
+</body>
+</html>

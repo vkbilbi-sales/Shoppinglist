@@ -115,6 +115,119 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
     <button class="btn bg bfull" onclick="waLink()">💬 שלחי בוואטסאפ</button>
   </div>
 
+  <!-- Order forms (Google Apps Script) — orders by pickup point, links for customers and sheets -->
+  <div class="card" id="of-card">
+    <div class="slabel">📋 טפסי הזמנה – הזמנות לפי נקודות</div>
+    <div id="of-login" hidden>
+      <p class="lk-p">כדי לראות את ההזמנות צריך את המפתח הפרטי של מרכז הטפסים (פעם אחת בכל מכשיר). המפתח נשמר רק במכשיר הזה.</p>
+      <div style="display:flex;gap:.5rem"><input id="of-key" type="password" placeholder="מפתח" style="flex:1;padding:.6rem;border:1.5px solid var(--border);border-radius:10px;font:inherit" aria-label="מפתח פרטי"><button class="btn bt" type="button" id="of-save">שמירה</button></div>
+    </div>
+    <div id="of-top" hidden><div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.6rem">
+      <span class="lk-p" style="margin:0" id="of-upd"></span>
+      <button class="btn bt" type="button" id="of-refresh">⟳ רענון</button>
+    </div></div>
+    <div id="of-kpis" class="of-kpis" hidden></div>
+    <div id="of-list" aria-live="polite"></div>
+  </div>
+  <style>
+  .of-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.8rem}
+  .of-kpis div{background:#F2F8F6;border-radius:12px;padding:.5rem .7rem}.of-kpis b{display:block;font-size:1.4rem}
+  .of-form{border:1.5px solid var(--border);border-top:5px solid var(--ofc,#16868C);border-radius:14px;padding:.9rem;margin-bottom:.8rem}
+  .of-h{display:flex;align-items:center;gap:.5rem;font-weight:800;font-size:1.05rem}
+  .of-sub{color:#4A6E6B;font-size:.85rem;margin:.15rem 0 .5rem}
+  .of-links{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin:.5rem 0}
+  .of-links a,.of-links button{text-decoration:none;font-size:.85rem;padding:.55rem .6rem}
+  .of-lb{background:#DDF0EF;color:#126F74}
+  .of-tbl{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:.4rem}
+  .of-tbl th,.of-tbl td{border:1px solid #D3E4E2;padding:.35rem .45rem;text-align:center}
+  .of-tbl th{background:#F2F8F6}.of-tbl tr.of-sum td{font-weight:800;background:#FFF8E1}
+  .of-scroll{overflow-x:auto;max-height:420px;overflow-y:auto}
+  .of-form details{margin-top:.5rem}.of-form summary{cursor:pointer;font-weight:700;color:#126F74}
+  .of-search{box-sizing:border-box;width:100%;padding:.5rem;border:1.5px solid var(--border);border-radius:10px;font:inherit;margin:.4rem 0}
+  .of-err{color:#C9393B;font-weight:700}
+  #of-card [hidden]{display:none!important}
+  </style>
+  <script>
+  (function () {
+    const HUB = "https://script.google.com/macros/s/AKfycbwG-XpNjHPfmvc-kqcOmdKzwYnFMW9AzLDXil9lGQ5eDgwxwDNy1v0c5iJOjaBH_up3/exec";
+    const LSK = "rk-forms-key";
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const fmt = n => Number(n || 0).toLocaleString("he-IL");
+    const getKey = () => { try { return localStorage.getItem(LSK) || ""; } catch (e) { return ""; } };
+    const setKey = k => { try { localStorage.setItem(LSK, k); } catch (e) {} };
+
+    function toast(m) { if (typeof showToast === "function") showToast(m); }
+
+    async function load() {
+      const k = getKey();
+      if (!k) { $("of-login").hidden = false; $("of-top").hidden = true; return; }
+      $("of-login").hidden = true; $("of-top").hidden = false;
+      $("of-list").innerHTML = '<p class="lk-p">טוען הזמנות…</p>';
+      try {
+        const r = await fetch(HUB + "?api=data&k=" + encodeURIComponent(k), { credentials: "omit" });
+        const j = await r.json();
+        if (!j.ok) { setKey(""); $("of-list").innerHTML = '<p class="of-err">המפתח לא נכון. נסי שוב.</p>'; $("of-login").hidden = false; $("of-top").hidden = true; return; }
+        render(j.data);
+      } catch (e) {
+        $("of-list").innerHTML = '<p class="of-err">לא הצלחנו לטעון את ההזמנות. נסי לרענן.</p>';
+      }
+    }
+
+    function pointTable(f) {
+      if (!f.byPoint.length) return '<p class="lk-p">עוד אין הזמנות השבוע.</p>';
+      const qh = f.qtyHead || [];
+      const head = "<tr><th>נקודה</th><th>הזמנות</th>" + qh.map(h => "<th>" + esc(h) + "</th>").join("") + "<th>סה\"כ ₪</th></tr>";
+      const body = f.byPoint.map(p => "<tr><td>" + esc(p.point) + "</td><td>" + p.n + "</td>" + p.q.map(q => "<td>" + fmt(q) + "</td>").join("") + "<td>" + fmt(p.sum) + "</td></tr>").join("");
+      const tq = qh.map((h, i) => f.byPoint.reduce((s, p) => s + (p.q[i] || 0), 0));
+      const sum = '<tr class="of-sum"><td>סה"כ</td><td>' + f.count + "</td>" + tq.map(q => "<td>" + fmt(q) + "</td>").join("") + "<td>" + fmt(f.total) + "</td></tr>";
+      return '<div class="of-scroll"><table class="of-tbl">' + head + body + sum + "</table></div>";
+    }
+
+    function ordersTable(f, i) {
+      if (!f.rows.length) return "";
+      return '<details><summary>כל ההזמנות (' + f.rows.length + ')</summary>' +
+        '<input class="of-search" data-s="' + i + '" placeholder="חיפוש לפי שם, טלפון או נקודה" aria-label="חיפוש בהזמנות">' +
+        '<div class="of-scroll"><table class="of-tbl" id="of-t' + i + '"><tr>' + f.head.map(h => "<th>" + esc(h) + "</th>").join("") + "</tr>" +
+        f.rows.map(r => "<tr>" + r.map(c => "<td>" + esc(c) + "</td>").join("") + "</tr>").join("") + "</table></div></details>";
+    }
+
+    function render(d) {
+      $("of-upd").textContent = "עודכן " + d.updated;
+      $("of-kpis").hidden = false;
+      $("of-kpis").innerHTML = "<div>הזמנות פתוחות<b>" + fmt(d.sumCount) + "</b></div><div>סה\"כ ₪<b>" + fmt(d.sumTotal) + "</b></div><div>היום<b>" + fmt(d.sumToday) + "</b></div>";
+      $("of-list").innerHTML = d.forms.map((f, i) => (
+        '<div class="of-form" style="--ofc:' + esc(f.color) + '">' +
+        '<div class="of-h"><span aria-hidden="true">' + esc(f.emoji) + "</span>" + esc(f.name) + "</div>" +
+        '<div class="of-sub">' + esc(f.note) + (f.last ? " · הזמנה אחרונה " + esc(f.last) : "") + "</div>" +
+        '<div class="of-links">' +
+        '<a class="btn bt" href="' + esc(f.formUrl) + '" target="_blank" rel="noopener">🔗 הטופס ללקוחות</a>' +
+        '<button class="btn of-lb" type="button" data-copy="' + esc(f.formUrl) + '">📋 העתקת הלינק</button>' +
+        '<a class="btn of-lb" href="' + esc(f.sheetUrl) + '" target="_blank" rel="noopener">📊 הגיליון</a>' +
+        '<button class="btn bg" type="button" data-wa="' + esc(f.formUrl) + '" data-n="' + esc(f.name) + '">💬 שליחה בוואטסאפ</button>' +
+        "</div>" + pointTable(f) + ordersTable(f, i) +
+        (f.error ? '<p class="of-err">שגיאה בקריאת הגיליון: ' + esc(f.error) + "</p>" : "") +
+        "</div>")).join("");
+      $("of-list").querySelectorAll("[data-copy]").forEach(b => b.onclick = () => {
+        const t = b.getAttribute("data-copy");
+        (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("הלינק הועתק ✅"), () => prompt("העתיקי:", t));
+      });
+      $("of-list").querySelectorAll("[data-wa]").forEach(b => b.onclick = () => {
+        window.open("https://wa.me/?text=" + encodeURIComponent(b.getAttribute("data-n") + " – להזמנה:\n" + b.getAttribute("data-wa")), "_blank", "noopener");
+      });
+      $("of-list").querySelectorAll("[data-s]").forEach(inp => inp.oninput = () => {
+        const q = inp.value.trim();
+        $("of-t" + inp.getAttribute("data-s")).querySelectorAll("tr").forEach((tr, j) => { if (j) tr.hidden = q && !tr.textContent.includes(q); });
+      });
+    }
+
+    $("of-save").onclick = () => { const k = $("of-key").value.trim(); if (k) { setKey(k); $("of-key").value = ""; load(); } };
+    $("of-key").onkeydown = e => { if (e.key === "Enter") $("of-save").click(); };
+    $("of-refresh").onclick = load;
+    load();
+  })();
+  </script>
+
   <!-- Full content editor of the customer page, inside the dashboard -->
   <div class="card" id="edit-card">
     <div class="slabel">✏️ עריכת תוכן האתר</div>
