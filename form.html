@@ -231,6 +231,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
 /* ---- הטפסים באתר: מזהה בלינק (?f=…) ← הסקריפט של גוגל שמחזיק את הנתונים ---- */
 const FORMS = {
   eggs: { api: "https://script.google.com/macros/s/AKfycbwbyY-dbaqmQ8gFFa8mWLk3C8KHDOcMWJWRC6QnVsGf8Y07kGNsvjfg5u3LUtiDXGsOVQ/exec", emoji: "🥚", illu: "img/eggs-illu.svg", color: "#16868C", noun: "הזמנה",
+          weekly: true,
           pitch: "🥚 ביצי חופש טריות עם חלמון כתום – ישר מהמשק אלינו!", cta: "להזמנה" },
   asia: { api: "https://script.google.com/macros/s/AKfycbxJ5wrKFs5A9clvm_YmV5x3ubqVaxBAvj6In1ULuzlXk-n6Htws0Eb5qxAaLcMeZraB/exec", emoji: "🥟", color: "#B5541C", noun: "הרשמה",
           pitch: "🥟 סדנת גיוזה ודים סאם של אסיה הקטנה – חוויה אסייתית, טעימה ומלאת יצירה!", cta: "להרשמה" },
@@ -429,7 +430,7 @@ $("send").onclick = async () => {
   if (e) { $("err").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
   $("send").disabled = true; $("send").textContent = "שולח…";
   const data = {
-    token: EDIT, name: $("name").value.trim().replace(/\s+/g, " "), phone: $("phone").value.trim(), email: $("email").value.trim(),
+    token: CUR_TOKEN, name: $("name").value.trim().replace(/\s+/g, " "), phone: $("phone").value.trim(), email: $("email").value.trim(),
     point: radio("point"), city: $("city").value.trim(), location: radio("loc"), date: $("date").value,
     notes: $("notes").value, qty: qty, agree: true,
     siteUrl: location.origin + location.pathname + "?f=" + FID,
@@ -475,6 +476,7 @@ $("forget").onclick = e => {
 
 function showDone(res) {
   saveMe();
+  if (res.editUrl) { const t = (res.editUrl.match(/edit=([\w-]+)/) || [])[1]; if (t) keepToken(t); }
   $("formView").hidden = true; $("bar").hidden = true; $("doneView").hidden = false;
   $("doneTitle").textContent = res.isEdit ? (F.noun + " עודכנה") : ("תודה! ה" + F.noun + " התקבלה");
   $("doneSum").textContent = res.total + " ₪";
@@ -509,34 +511,44 @@ if ("IntersectionObserver" in window) {
     .observe($("endbar"));
 }
 
-async function loadEdit() {
+/* הזמנה קיימת: מהלינק במייל (?edit=…) או מהזמנה קודמת שנשמרה במכשיר הזה */
+let CUR_TOKEN = EDIT;
+const TOK_KEY = "rk-ord-" + FID;
+function myToken() { try { return localStorage.getItem(TOK_KEY) || ""; } catch (e) { return ""; } }
+function keepToken(t) { try { localStorage.setItem(TOK_KEY, t); } catch (e) {} }
+function forgetToken() { try { localStorage.removeItem(TOK_KEY); } catch (e) {} }
+function fillOrder(o, token, fromDevice) {
+  CUR_TOKEN = token;
   $("editNotice").hidden = false;
+  $("editNotice").textContent = fromDevice
+    ? "כבר שלחת " + F.noun + " – הנה היא. אפשר לעדכן ולשלוח שוב (היא תתעדכן, לא תיפתח חדשה)."
+    : "את/ה עורך/ת " + F.noun + " קיימת";
   $("send").textContent = "עדכון " + F.noun;
-  try {
-    const o = await api({ api: "order", token: EDIT });
-    if (!o) { $("editNotice").textContent = "לא נמצאה " + F.noun + ". אפשר למלא חדשה."; return; }
-    $("name").value = o.name || ""; $("phone").value = o.phone || ""; $("email").value = o.email || "";
-    if (o.city) $("city").value = o.city;
-    if (o.date) $("date").value = o.date;
-    $("notes").value = o.notes || "";
-    if (o.point && ![...document.querySelectorAll("input[name=point]")].some(r => r.value === o.point)) $("points").appendChild(choice("point", o.point));
-    document.querySelectorAll("input[name=point]").forEach(r => r.checked = r.value === o.point);
-    showPointInfo();
-    document.querySelectorAll("input[name=loc]").forEach(r => r.checked = r.value === o.location);
-    Object.keys(o.qty || {}).forEach(k => { if (k in qty) qty[k] = o.qty[k]; });
-    renderProds();
-    $("agree").checked = true;
-    if (o.closed) $("send").disabled = true;
-  } catch (e) { $("editNotice").textContent = "לא הצלחנו לטעון את ה" + F.noun + " לעריכה"; }
+  $("name").value = o.name || ""; $("phone").value = o.phone || ""; $("email").value = o.email || "";
+  if (o.city) $("city").value = o.city;
+  if (o.date) $("date").value = o.date;
+  $("notes").value = o.notes || "";
+  if (o.point && ![...document.querySelectorAll("input[name=point]")].some(r => r.value === o.point)) $("points").appendChild(choice("point", o.point));
+  document.querySelectorAll("input[name=point]").forEach(r => r.checked = r.value === o.point);
+  showPointInfo();
+  document.querySelectorAll("input[name=loc]").forEach(r => r.checked = r.value === o.location);
+  Object.keys(o.qty || {}).forEach(k => { if (k in qty) qty[k] = o.qty[k]; });
+  renderProds();
+  $("agree").checked = true;
+  if (o.closed) { $("send").disabled = true; $("editNotice").textContent = "ההזמנות נסגרו – אי אפשר לערוך עכשיו"; }
 }
 
 (async () => {
   if (!F) return fail("הטופס לא נמצא.");
   try {
-    CFG = await api({ api: "config" });
+    const token = EDIT || (F.weekly ? myToken() : "");
+    if (token) $("loading").textContent = "טוען את ההזמנה שלך…";
+    const [cfg, ord] = await Promise.all([api({ api: "config" }), token ? api({ api: "order", token: token }).catch(() => null) : null]);
+    CFG = cfg;
     if (CFG.points || CFG.pointsFromSite) await loadSite();
     render();
-    if (EDIT) await loadEdit(); else loadMe();
+    if (ord) fillOrder(ord, token, !EDIT);
+    else { if (!EDIT) forgetToken(); if (EDIT) { $("editNotice").hidden = false; $("editNotice").textContent = "לא מצאנו את ה" + F.noun + " (אולי השבוע כבר נסגר). אפשר למלא חדשה."; } loadMe(); }
   } catch (e) {
     fail("לא הצלחנו לטעון את הטופס. נסו לרענן את הדף בעוד רגע.");
   }
