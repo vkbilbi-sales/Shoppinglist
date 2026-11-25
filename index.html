@@ -1790,7 +1790,7 @@ function renderArrivals(){const box=$("arr-list");if(!box||!DIST)return;const A=
     return `<li class="arr-row${r.now?" now":""}"><h3 class="arr-n">${esc(s.n)}</h3>
       <p class="arr-l"><span aria-hidden="true">🔁</span> <span class="arr-k">זמן הגעה:</span> ${r.wk?"כל שבוע":fqTxt(s.fq)}${s.f&&!r.irr?" (ביום שישי)":""}</p>
       <p class="arr-l"><span aria-hidden="true">🗓️</span> <span class="arr-k">התאריך הבא:</span> ${!r.date?"<b>יעודכן בקרוב</b>":`<b>${dTxt(r.date,1)}</b>`} ${!r.date?"":r.now?'<span class="arr-tag">השבוע!</span>':days>0?`<span class="arr-in">(בעוד ${days===1?"יום":days+" ימים"})</span>`:""}</p></li>`}).join("")}</ul>`}
-function isOpen(s){const t=closeAt(s);return !!t&&t>Date.now()}
+function isOpen(s){if(s&&s.ao&&s.o)return true;const t=closeAt(s);return !!t&&t>Date.now()}
 function closeLabel(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ${p.d}.${p.mo+1} בשעה ${f}`}
 function closeShort(s){const t=closeAt(s);if(!t)return "";const p=ilParts(t);const f=new Intl.DateTimeFormat("he-IL",{timeZone:TZ,hour:"2-digit",minute:"2-digit"}).format(new Date(t));return `יום ${DAYN[p.wd]} ב-${f}`}
 function cdText(t){let ms=t-Date.now();if(ms<=0)return["ההזמנות נסגרו","over"];const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60),sec=s%60;const pad=n=>String(n).padStart(2,"0");
