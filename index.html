@@ -1806,7 +1806,7 @@ document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest
 function markDescs(){return;document.querySelectorAll(".card .desc").forEach(d=>{const b=d.nextElementSibling;if(!b||!b.classList.contains("desc-i"))return;if(d.classList.contains("open")){b.hidden=false;return}b.hidden=!(d.scrollHeight>d.clientHeight+2)})}
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-desc]");if(!b)return;const d=document.getElementById("d-"+b.dataset.desc);if(!d)return;const o=d.hidden;d.hidden=!o;b.setAttribute("aria-expanded",String(o));b.innerHTML=o?'<span aria-hidden="true">ⓘ</span> סגירה':'<span aria-hidden="true">ⓘ</span> מידע נוסף'});
 window.addEventListener("resize",()=>{clearTimeout(window._mdT);window._mdT=setTimeout(markDescs,200)});
-function isForm(s){return /forms\.gle|docs\.google\.com\/forms/.test(s.url||"")}
+function isForm(s){return /forms\.gle|docs\.google\.com\/forms|form\.html/.test(s.url||"")}
 
 
 // ---- pickup reminder to calendar ----
