@@ -230,8 +230,10 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
 <script>
 /* ---- הטפסים באתר: מזהה בלינק (?f=…) ← הסקריפט של גוגל שמחזיק את הנתונים ---- */
 const FORMS = {
-  eggs: { api: "https://script.google.com/macros/s/AKfycbwbyY-dbaqmQ8gFFa8mWLk3C8KHDOcMWJWRC6QnVsGf8Y07kGNsvjfg5u3LUtiDXGsOVQ/exec", emoji: "🥚", illu: "img/eggs-illu.svg", color: "#16868C", noun: "הזמנה" },
-  asia: { api: "https://script.google.com/macros/s/AKfycbxJ5wrKFs5A9clvm_YmV5x3ubqVaxBAvj6In1ULuzlXk-n6Htws0Eb5qxAaLcMeZraB/exec", emoji: "🥟", color: "#B5541C", noun: "הרשמה" },
+  eggs: { api: "https://script.google.com/macros/s/AKfycbwbyY-dbaqmQ8gFFa8mWLk3C8KHDOcMWJWRC6QnVsGf8Y07kGNsvjfg5u3LUtiDXGsOVQ/exec", emoji: "🥚", illu: "img/eggs-illu.svg", color: "#16868C", noun: "הזמנה",
+          pitch: "🥚 ביצי חופש טריות עם חלמון כתום – ישר מהמשק אלינו!", cta: "להזמנה" },
+  asia: { api: "https://script.google.com/macros/s/AKfycbxJ5wrKFs5A9clvm_YmV5x3ubqVaxBAvj6In1ULuzlXk-n6Htws0Eb5qxAaLcMeZraB/exec", emoji: "🥟", color: "#B5541C", noun: "הרשמה",
+          pitch: "🥟 סדנת גיוזה ודים סאם של אסיה הקטנה – חוויה אסייתית, טעימה ומלאת יצירה!", cta: "להרשמה" },
 };
 
 const $ = id => document.getElementById(id);
@@ -482,11 +484,19 @@ function showDone(res) {
   window.scrollTo(0, 0); $("doneView").focus();
 }
 
+/* הודעת "שליחה לחבר": שורת פתיחה, מיד אחריה הלינק, ואז המסר של רכישות כדאיות */
 function share() {
   const url = location.origin + location.pathname + "?f=" + FID;
-  const text = CFG.shareText || ("🛒 " + CFG.title + " – רכישות כדאיות. להזמנה:");
-  if (navigator.share) navigator.share({ title: CFG.title, text: text, url: url }).catch(() => {});
-  else window.open("https://wa.me/?text=" + encodeURIComponent(text + "\n" + url), "_blank", "noopener");
+  const text = [
+    F.pitch || ("✨ " + CFG.title + (CFG.subtitle ? " – " + CFG.subtitle : "")),
+    "🛒 " + (F.cta || (F.noun === "הרשמה" ? "להרשמה" : "להזמנה")) + ": " + url,
+    "",
+    "תוצרת ישירה מחקלאים ויצרנים מקומיים, במחירים כדאיים 💚",
+    "רכישות כדאיות – חיבור בין יצרנים ואנשים",
+    "כי באנו לעשות טוב ♥️",
+  ].join("\n");
+  if (navigator.share) navigator.share({ title: CFG.title, text: text }).catch(() => {});
+  else window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener");
 }
 document.querySelectorAll("[data-share]").forEach(b => b.onclick = share);
 

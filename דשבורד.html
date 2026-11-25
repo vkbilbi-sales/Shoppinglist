@@ -225,7 +225,8 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("הלינק הועתק ✅"), () => prompt("העתיקי:", t));
       });
       $("of-list").querySelectorAll("[data-wa]").forEach(b => b.onclick = () => {
-        window.open("https://wa.me/?text=" + encodeURIComponent(b.getAttribute("data-n") + " – להזמנה:\n" + b.getAttribute("data-wa")), "_blank", "noopener");
+        const t = ["✨ " + b.getAttribute("data-n"), "🛒 להזמנה: " + b.getAttribute("data-wa"), "", "תוצרת ישירה מחקלאים ויצרנים מקומיים, במחירים כדאיים 💚", "רכישות כדאיות – חיבור בין יצרנים ואנשים", "כי באנו לעשות טוב ♥️"].join("\n");
+        window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank", "noopener");
       });
       $("of-list").querySelectorAll("[data-ed]").forEach(b => b.onclick = () => openEditor(+b.getAttribute("data-ed")));
       $("of-list").querySelectorAll("[data-s]").forEach(inp => inp.oninput = () => {
