@@ -235,6 +235,9 @@ const FORMS = {
           pitch: "🥚 ביצי חופש טריות עם חלמון כתום – ישר מהמשק אלינו!", cta: "להזמנה" },
   asia: { api: "https://script.google.com/macros/s/AKfycbxJ5wrKFs5A9clvm_YmV5x3ubqVaxBAvj6In1ULuzlXk-n6Htws0Eb5qxAaLcMeZraB/exec", emoji: "🥟", color: "#B5541C", noun: "הרשמה",
           pitch: "🥟 סדנת גיוזה ודים סאם של אסיה הקטנה – חוויה אסייתית, טעימה ומלאת יצירה!", cta: "להרשמה" },
+  erlich: { api: "", emoji: "🥑", color: "#4E8B2F", noun: "הזמנה",
+          weekly: true,
+          pitch: "🥑 אבוקדו והדרים ישר מהעץ, ממשק ארליך בעמק חפר – בלי הבחלה!", cta: "להזמנה" },
 };
 
 const $ = id => document.getElementById(id);
@@ -540,6 +543,7 @@ function fillOrder(o, token, fromDevice) {
 
 (async () => {
   if (!F) return fail("הטופס לא נמצא.");
+  if (!F.api) return fail("הטופס ייפתח בקרוב 🙂");
   try {
     const token = EDIT || (F.weekly ? myToken() : "");
     if (token) $("loading").textContent = "טוען את ההזמנה שלך…";
