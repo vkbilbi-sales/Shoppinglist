@@ -1876,7 +1876,7 @@ function renderGrid(){
     </dl>
     ${s.d||s.more?`<button type="button" class="desc-i" data-desc="${esc(s.h)}" aria-expanded="false" aria-controls="d-${esc(s.h)}"><span aria-hidden="true">ⓘ</span> מידע נוסף</button><div class="desc-panel" id="d-${esc(s.h)}" hidden>${s.d?`<p>${esc(s.d)}</p>`:""}${s.more?`<p>${esc(s.more).replace(/\n/g,"<br>")}</p>`:""}</div>`:""}${WEEKLY[s.h]?`<p class="wk-line"><b>🛒 השבוע בחנות:</b> ${esc(WEEKLY[s.h])}</p>`:""}
     <div class="actions">
-      <a class="btn go" href="${esc(s.url)}" target="_blank" rel="noopener">${isForm(s)?"להזמנה בטופס":"להזמנה בחנות"}</a>
+      <a class="btn go" href="${esc(s.url)}" target="_blank" rel="noopener">${s.w?"להרשמה לסדנה":isForm(s)?"להזמנה בטופס":"להזמנה בחנות"}</a>
       <button type="button" class="icon fav" data-fav="${s.h}" aria-pressed="${favs.has(s.h)}" aria-label="הוספה למועדפים: ${s.n}">${heart}</button>
       <button type="button" class="addbtn" data-add="${s.h}" aria-pressed="${inL}" aria-label="${inL?"הסרה מרשימת הקניות":"הוספה לרשימת הקניות"}: ${s.n}">${inL?"✓ ברשימת הקניות":"להוספה לרשימת הקניות"}</button>
     </div>
