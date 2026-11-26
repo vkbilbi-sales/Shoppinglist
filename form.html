@@ -77,7 +77,7 @@ legend{font-weight:700;padding:0;margin-bottom:6px}
 .choice{display:flex;align-items:center;gap:8px;border:1.5px solid #9FB9B7;border-radius:12px;padding:11px 12px;cursor:pointer;background:#fff}
 .choice input{width:20px;height:20px;accent-color:var(--leaf-deep);margin:0}
 .choice:has(input:checked){border-color:var(--leaf-deep);background:var(--leaf-soft);font-weight:700}
-.pinfo-box{background:var(--leaf-soft);border-radius:12px;padding:10px 12px;margin-top:8px;font-size:15.5px;line-height:1.7}
+.pinfo-box{background:var(--leaf-soft);border-radius:12px;padding:12px 14px;margin-top:8px;font-size:19px;line-height:1.75;font-weight:700}
 .pinfo-box a{font-weight:700}
 .privacy{background:var(--bg);border-radius:12px;padding:10px 12px;font-size:14.5px;color:#34504F;margin-top:16px}
 details.policy{font-size:14.5px;margin-top:8px;color:#34504F}
@@ -249,6 +249,7 @@ const FID = P.get("f") || "";
 const EDIT = P.get("edit") || "";
 const F = FORMS[FID];
 const qty = {};
+const ORIG = {};   // הכמויות שכבר היו בהזמנה הקיימת (לחישוב מה שנשאר במלאי)
 let CFG = null;
 
 function fail(msg) {
@@ -406,7 +407,11 @@ function renderProds() {
     const out = el("output", { "aria-live": "polite", "aria-label": "כמות " + p.name }, String(qty[p.id]));
     const plus = el("button", { type: "button", class: "plus", "aria-label": "עוד " + p.name }, "+");
     minus.onclick = () => { if (qty[p.id] > 0) { qty[p.id]--; out.textContent = qty[p.id]; total(); } };
-    plus.onclick = () => { if (qty[p.id] < (CFG.maxQty || 10)) { qty[p.id]++; out.textContent = qty[p.id]; total(); } };
+    plus.onclick = () => {
+      const cap = p.left != null ? Math.min(CFG.maxQty || 10, p.left + (ORIG[p.id] || 0)) : (CFG.maxQty || 10);
+      if (qty[p.id] < cap) { qty[p.id]++; out.textContent = qty[p.id]; total(); }
+      else if (p.left != null) { $("err").textContent = "מ" + p.name + " נשארו רק " + cap; }
+    };
     if (p.locked) { plus.disabled = true; minus.disabled = true; row.classList.add("locked"); }
     q.append(plus, out, minus);
     row.append(info, q);
@@ -540,7 +545,7 @@ function fillOrder(o, token, fromDevice) {
   document.querySelectorAll("input[name=point]").forEach(r => r.checked = r.value === o.point);
   showPointInfo();
   document.querySelectorAll("input[name=loc]").forEach(r => r.checked = r.value === o.location);
-  Object.keys(o.qty || {}).forEach(k => { if (k in qty) qty[k] = o.qty[k]; });
+  Object.keys(o.qty || {}).forEach(k => { if (k in qty) { qty[k] = o.qty[k]; ORIG[k] = o.qty[k]; } });
   renderProds();
   $("agree").checked = true;
   if (o.closed) { $("send").disabled = true; $("editNotice").textContent = "ההזמנות נסגרו – אי אפשר לערוך עכשיו"; }

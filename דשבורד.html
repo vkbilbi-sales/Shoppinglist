@@ -155,6 +155,9 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
   .of-x{background:#FDE6E5;color:#C9393B;border:0;border-radius:8px;padding:.45rem .6rem;cursor:pointer;font-weight:800}
   .of-add{background:#DDF0EF;color:#126F74;border:0;border-radius:8px;padding:.45rem .8rem;cursor:pointer;font-weight:700}
   .of-hid{font-size:.8rem;display:flex;gap:.2rem;align-items:center;white-space:nowrap}
+  .of-prod{border-bottom:1px solid var(--border);padding:.35rem 0 .15rem;margin-bottom:.3rem}
+  .of-prod .of-li input[data-p="stock"]{width:80px}
+  .of-left{font-size:.8rem;color:#4A6E6B;white-space:nowrap}
   .of-edbtns{display:flex;gap:.5rem;margin-top:.8rem}.of-edbtns .btn{flex:1}
   .of-msg{font-weight:700;margin-top:.4rem}
   </style>
@@ -240,7 +243,18 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
       return '<h4>' + title + '</h4><div data-list="' + key + '">' + items.map(v => '<div class="of-li"><input type="text" value="' + esc(v) + '" placeholder="' + ph + '"><button type="button" class="of-x" aria-label="מחיקה">✕</button></div>').join("") +
         '</div><button type="button" class="of-add" data-addli="' + key + '" data-ph="' + ph + '">+ הוספה</button>';
     }
+    let ADV = false;   // טפסים שתומכים במלאי, "אזל" והוספת מוצרים באמצע השבוע
     function prodRow(p) {
+      if (ADV) {
+        const left = p.left != null ? " (נשארו " + p.left + ")" : "";
+        return '<div class="of-prod" data-pid="' + esc(p.id || "") + '">' +
+          '<div class="of-li"><input type="text" data-p="name" value="' + esc(p.name) + '" placeholder="שם המוצר" aria-label="שם המוצר">' +
+          '<input type="text" data-p="note" value="' + esc(p.baseNote != null ? p.baseNote : (p.note || "")) + '" placeholder="למשל 2 ק&quot;ג" aria-label="כמות או הערה" style="max-width:110px"></div>' +
+          '<div class="of-li"><input type="number" data-p="price" min="0" step="0.5" value="' + esc(p.price) + '" aria-label="מחיר"><span>₪</span>' +
+          '<input type="number" data-p="stock" min="0" step="1" value="' + esc(p.stock == null ? "" : p.stock) + '" placeholder="מלאי" aria-label="כמות במלאי (ריק = בלי הגבלה)" title="כמות במלאי – ריק = בלי הגבלה"><span class="of-left">' + esc(left) + '</span>' +
+          '<label class="of-hid"><input type="checkbox" data-p="soldOut"' + ((p.soldOutSet != null ? p.soldOutSet : p.soldOut) ? " checked" : "") + '> אזל</label>' +
+          '<label class="of-hid"><input type="checkbox" data-p="hidden"' + (p.hidden ? " checked" : "") + '> מוסתר</label></div></div>';
+      }
       return '<div class="of-li" data-pid="' + esc(p.id || "") + '"><input type="text" value="' + esc(p.name) + '" placeholder="שם המוצר" aria-label="שם המוצר">' +
         '<input type="number" min="0" step="0.5" value="' + esc(p.price) + '" aria-label="מחיר"><span>₪</span>' +
         '<label class="of-hid"><input type="checkbox"' + (p.hidden ? " checked" : "") + '> מוסתר</label></div>';
@@ -253,6 +267,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         const j = await (await fetch(f.api + "?api=config", { credentials: "omit" })).json();
         if (!j.ok) throw new Error(j.error);
         const c = j.data;
+        ADV = !!c.addAnytime;
         let h = '<p class="lk-p" style="margin:0">השינויים מופיעים בטופס מיד אחרי השמירה.</p>';
         h += '<h4>שורה מתחת לכותרת</h4><input type="text" data-k="subtitle" value="' + esc(c.subtitle || "") + '">';
         h += '<h4>תיאור</h4><textarea data-k="description">' + esc(c.description || "") + '</textarea>';
@@ -260,8 +275,10 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         else if (c.points) h += listEditor("נקודות איסוף", "points", c.points, "שם הנקודה");
         if (c.pointsNote != null && !c.pointsFromSite) h += '<h4>הערה מתחת לנקודות</h4><input type="text" data-k="pointsNote" value="' + esc(c.pointsNote || "") + '">';
         if (c.locations) h += listEditor("מיקומים", "locations", c.locations, "מיקום");
-        h += '<h4>מוצרים ומחירים</h4><p class="lk-p" style="margin:0 0 .3rem">מוצר שלא רוצים יותר – מסמנים "מוסתר" (אי אפשר למחוק, כדי לא לשבש הזמנות קיימות).</p><div data-prods>' + c.products.map(prodRow).join("") + "</div>";
-        if (c.points) h += '<button type="button" class="of-add" data-addprod>+ מוצר חדש</button><p class="lk-p" style="margin:.2rem 0 0">מוצר חדש אפשר להוסיף רק כשאין עדיין הזמנות לשבוע הנוכחי.</p>';
+        h += '<h4>מוצרים ומחירים</h4><p class="lk-p" style="margin:0 0 .3rem">מוצר שלא רוצים יותר – מסמנים "מוסתר" (אי אפשר למחוק, כדי לא לשבש הזמנות קיימות).' +
+          (ADV ? ' <b>מלאי</b>: כמה יחידות יש למכירה – כשנגמר, המוצר מסומן "אזל" לבד. אפשר להגדיל את המלאי בכל רגע. ריק = בלי הגבלה. <b>אזל</b>: סוגר את המוצר מיד.' : '') + '</p><div data-prods>' + c.products.map(prodRow).join("") + "</div>";
+        if (ADV) h += '<button type="button" class="of-add" data-addprod>+ מוצר חדש</button><p class="lk-p" style="margin:.2rem 0 0">אפשר להוסיף מוצר גם באמצע השבוע.</p>';
+        else if (c.points) h += '<button type="button" class="of-add" data-addprod>+ מוצר חדש</button><p class="lk-p" style="margin:.2rem 0 0">מוצר חדש אפשר להוסיף רק כשאין עדיין הזמנות לשבוע הנוכחי.</p>';
         h += '<div class="of-edbtns"><button type="button" class="btn bt" data-savecfg>💾 שמירה</button><button type="button" class="btn of-lb" data-cancel>ביטול</button></div><div class="of-msg" aria-live="polite"></div>';
         box.innerHTML = h;
         box.querySelectorAll("[data-addli]").forEach(b => b.onclick = () => {
@@ -281,10 +298,16 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
       const cfg = {};
       box.querySelectorAll("[data-k]").forEach(el => cfg[el.getAttribute("data-k")] = el.value);
       box.querySelectorAll("[data-list]").forEach(l => cfg[l.getAttribute("data-list")] = [...l.querySelectorAll("input")].map(x => x.value.trim()).filter(Boolean));
-      cfg.products = [...box.querySelectorAll("[data-prods] .of-li")].map(r => {
-        const ins = r.querySelectorAll("input");
-        return { id: r.getAttribute("data-pid") || "", name: ins[0].value.trim(), price: Number(ins[1].value), hidden: ins[2].checked };
-      }).filter(p => p.id || p.name);
+      cfg.products = box.querySelector("[data-prods] .of-prod")
+        ? [...box.querySelectorAll("[data-prods] .of-prod")].map(r => {
+            const g = k => r.querySelector('[data-p="' + k + '"]');
+            return { id: r.getAttribute("data-pid") || "", name: g("name").value.trim(), note: g("note").value.trim(), price: Number(g("price").value),
+              stock: g("stock").value.trim(), soldOut: g("soldOut").checked, hidden: g("hidden").checked };
+          }).filter(p => p.id || p.name)
+        : [...box.querySelectorAll("[data-prods] .of-li")].map(r => {
+            const ins = r.querySelectorAll("input");
+            return { id: r.getAttribute("data-pid") || "", name: ins[0].value.trim(), price: Number(ins[1].value), hidden: ins[2].checked };
+          }).filter(p => p.id || p.name);
       msg.style.color = "#126F74"; msg.textContent = "שומר…";
       try {
         const r = await fetch(f.api, { method: "POST", credentials: "omit", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "saveConfig", key: getKey(), cfg: cfg }) });
