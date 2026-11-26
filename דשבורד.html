@@ -212,6 +212,9 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         f.rows.map(r => "<tr>" + r.map(c => "<td>" + esc(c) + "</td>").join("") + "</tr>").join("") + "</table></div></details>";
     }
 
+    // לינק שיתוף עם שם הטופס (תצוגה מקדימה בוואטסאפ) – לכל טופס שיש לו דף ב-f/
+    const FPAGES = ["eggs", "asia", "erlich", "noorz"];
+    const shareUrl = u => { const m = String(u || "").match(/^(.*\/)form\.html\?f=([\w-]+)$/); return m && FPAGES.includes(m[2]) ? m[1] + "f/" + m[2] + ".html" : u; };
     function render(d) {
       DATA = d;
       $("of-upd").textContent = "עודכן " + d.updated;
@@ -223,9 +226,9 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         '<div class="of-sub">' + esc(f.note) + (f.last ? " · הזמנה אחרונה " + esc(f.last) : "") + "</div>" +
         '<div class="of-links">' +
         '<a class="btn bt" href="' + esc(f.formUrl) + '" target="_blank" rel="noopener">🔗 הטופס ללקוחות</a>' +
-        '<button class="btn of-lb" type="button" data-copy="' + esc(f.formUrl) + '">📋 העתקת הלינק</button>' +
+        '<button class="btn of-lb" type="button" data-copy="' + esc(shareUrl(f.formUrl)) + '">📋 העתקת הלינק</button>' +
         '<a class="btn of-lb" href="' + esc(f.sheetUrl) + '" target="_blank" rel="noopener">📊 הגיליון</a>' +
-        '<button class="btn bg" type="button" data-wa="' + esc(f.formUrl) + '" data-n="' + esc(f.name) + '">💬 שליחה בוואטסאפ</button>' +
+        '<button class="btn bg" type="button" data-wa="' + esc(shareUrl(f.formUrl)) + '" data-n="' + esc(f.name) + '">💬 שליחה בוואטסאפ</button>' +
         "</div>" + (f.api ? '<button class="btn of-lb" type="button" style="width:100%;padding:.55rem" data-ed="' + i + '">✏️ עריכת הטופס – נקודות, מוצרים ומחירים</button><div class="of-ed" id="of-ed' + i + '" hidden></div>' : "") + pointTable(f) + ordersTable(f, i) +
         (f.error ? '<p class="of-err">שגיאה בקריאת הגיליון: ' + esc(f.error) + "</p>" : "") +
         "</div>")).join("");

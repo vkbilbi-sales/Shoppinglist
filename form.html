@@ -401,6 +401,15 @@ async function loadSite() {
     if (Array.isArray(c)) SITE_COURIERS = c.filter(x => x && x.area && !x.off);
   } catch (e) {}
 }
+// לינק פייבוקס מהדשבורד (כרטיס הספק באתר) גובר על הלינק שבטופס
+async function sitePay() {
+  try {
+    const d = await fetch("https://saleslist-vered-default-rtdb.firebaseio.com/site5/suppliers.json", { credentials: "omit" }).then(r => r.json());
+    const re = new RegExp("[?&]f=" + FID + "(&|$)");
+    const s = Object.values(d || {}).find(x => x && re.test(String(x.url || x.l || "")));
+    if (s && /^https:\/\//.test(s.pl || "")) CFG.payboxUrl = s.pl;
+  } catch (e) {}
+}
 const norm = s => String(s || "").replace(/שליחות/g, "").replace(/תקווה/g, "תקוה").replace(/\s+/g, " ").trim();
 const COURIER = "שליחות ";
 function pointOptions() {
@@ -675,7 +684,8 @@ function fillOrder(o, token, fromDevice) {
     if (token) $("loading").textContent = "טוען את ההזמנה שלך…";
     const [cfg, ord] = await Promise.all([api({ api: "config" }), token ? api({ api: "order", token: token }).catch(() => null) : null]);
     CFG = cfg;
-    if (CFG.points || CFG.pointsFromSite) await loadSite();
+    if (CFG.title) document.title = CFG.title + " – טופס " + F.noun + " | רכישות כדאיות";
+    await Promise.all([(CFG.points || CFG.pointsFromSite) ? loadSite() : null, sitePay()]);
     render();
     if (ord) fillOrder(ord, token, !EDIT);
     else { if (!EDIT) forgetToken(); if (EDIT) { $("editNotice").hidden = false; $("editNotice").textContent = "לא מצאנו את ה" + F.noun + " (אולי השבוע כבר נסגר). אפשר למלא חדשה."; } loadMe(); }
