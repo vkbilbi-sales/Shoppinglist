@@ -554,7 +554,7 @@ var _fns = {};
 // Real sign-in (Firebase Authentication). The database rules allow reading customer data only to this signed-in account.
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-const FBCFG={apiKey:"__APIKEY__",authDomain:"saleslist-vered.firebaseapp.com",databaseURL:"https://saleslist-vered-default-rtdb.firebaseio.com",projectId:"saleslist-vered",appId:"__APPID__"};
+const FBCFG={apiKey:"AIzaSyC7M_ZsPmSfZc1Kc0nkevvPQIXl7L3Q2jg",authDomain:"saleslist-vered.firebaseapp.com",databaseURL:"https://saleslist-vered-default-rtdb.firebaseio.com",projectId:"saleslist-vered",appId:"1:584247461802:web:be34066768137c1ac44dd3"};
 const app=getApps().length?getApps()[0]:initializeApp(FBCFG);
 const auth=getAuth(app);auth.languageCode="he";
 let ok;window.__authReady=new Promise(r=>ok=r);
