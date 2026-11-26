@@ -162,6 +162,10 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
   .of-add{background:#DDF0EF;color:#126F74;border:0;border-radius:8px;padding:.45rem .8rem;cursor:pointer;font-weight:700}
   .of-hid{font-size:.8rem;display:flex;gap:.2rem;align-items:center;white-space:nowrap}
   .of-prod{border-bottom:1px solid var(--border);padding:.35rem 0 .15rem;margin-bottom:.3rem}
+  .of-pic{width:56px;height:56px;border-radius:10px;object-fit:cover;flex:none}
+  .of-picbtn{display:inline-flex;align-items:center;gap:.25rem;font-size:.85rem;font-weight:700;border:1.5px dashed var(--border);border-radius:10px;padding:.35rem .6rem;cursor:pointer;background:#fff}
+  .of-picbtn:focus-within{outline:3px solid #126F74}
+  .of-picmsg{font-size:.8rem;color:#4A6E6B}
   .of-prod .of-li input[data-p="stock"]{width:80px}
   .of-left{font-size:.8rem;color:#4A6E6B;white-space:nowrap}
   .of-edbtns{display:flex;gap:.5rem;margin-top:.8rem}.of-edbtns .btn{flex:1}
@@ -262,10 +266,22 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         '</div><button type="button" class="of-add" data-addli="' + key + '" data-ph="' + ph + '">+ הוספה</button>';
     }
     let ADV = false;   // טפסים שתומכים במלאי, "אזל" והוספת מוצרים באמצע השבוע
+    let CURIMGS = {};
+    const FBDB = "https://saleslist-vered-default-rtdb.firebaseio.com/";
+    function prodPic(p) {   // כתובת התמונה הנוכחית של המוצר (או ריק)
+      const v = String(p.img || "");
+      if (CURIMGS[v]) return CURIMGS[v];
+      if (/^(https:\/\/|img\/)/.test(v)) return v;
+      return "";
+    }
     function prodRow(p) {
       if (ADV) {
         const left = p.left != null ? " (נשארו " + p.left + ")" : "";
+        const pic = prodPic(p), fb = /^fb:[A-Za-z0-9_-]+$/.test(String(p.img || "")) ? p.img : "";
         return '<div class="of-prod" data-pid="' + esc(p.id || "") + '">' +
+          '<div class="of-li of-picrow"><img class="of-pic" alt="" src="' + esc(pic) + '"' + (fb ? ' data-fb="' + esc(fb) + '"' : '') + (pic || fb ? '' : ' hidden') + '>' +
+          '<label class="of-picbtn">📷 ' + (pic || fb ? 'החלפת תמונה' : 'הוספת תמונה') + '<input type="file" accept="image/*" data-p="file" hidden></label>' +
+          '<input type="hidden" data-p="img" value=""><span class="of-picmsg"></span></div>' +
           '<div class="of-li"><input type="text" data-p="name" value="' + esc(p.name) + '" placeholder="שם המוצר" aria-label="שם המוצר">' +
           '<input type="text" data-p="note" value="' + esc(p.baseNote != null ? p.baseNote : (p.note || "")) + '" placeholder="למשל 2 ק&quot;ג" aria-label="כמות או הערה" style="max-width:110px"></div>' +
           '<div class="of-li"><input type="number" data-p="price" min="0" step="0.5" value="' + esc(p.price) + '" aria-label="מחיר"><span>₪</span>' +
@@ -293,6 +309,7 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         if (!j.ok) throw new Error(j.error);
         const c = j.data;
         ADV = !!c.addAnytime;
+        CURIMGS = c.images || {};
         let h = '<p class="lk-p" style="margin:0">השינויים מופיעים בטופס מיד אחרי השמירה.</p>';
         h += '<h4>שורה מתחת לכותרת</h4><input type="text" data-k="subtitle" value="' + esc(c.subtitle || "") + '">';
         h += '<h4>תיאור</h4><textarea data-k="description">' + esc(c.description || "") + '</textarea>';
@@ -316,6 +333,23 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
           box.querySelector('[data-list="' + b.getAttribute("data-addli") + '"]').appendChild(d); d.querySelector("input").focus();
         });
         box.onclick = e => { if (e.target.classList.contains("of-x")) e.target.parentNode.remove(); };
+        box.querySelectorAll("img.of-pic[data-fb]").forEach(im => {   // תמונות שהועלו בעבר
+          fetch(FBDB + "img5/" + im.dataset.fb.slice(3) + ".json").then(r => r.json()).then(u => { if (u) { im.src = u; im.hidden = false; } }).catch(() => {});
+        });
+        box.onchange = async e => {   // העלאת תמונה למוצר
+          const inp = e.target;
+          if (!inp.matches || !inp.matches('input[type="file"][data-p="file"]') || !inp.files[0]) return;
+          const row = inp.closest(".of-prod"), m = row.querySelector(".of-picmsg");
+          if (!window.rkUpload) { m.textContent = "צריך להיות מחוברת לדשבורד כדי להעלות תמונה"; return; }
+          m.textContent = "מעלה…";
+          try {
+            const ref = await window.rkUpload(inp.files[0]);
+            row.querySelector('[data-p="img"]').value = ref;
+            const im = row.querySelector("img.of-pic"); im.src = URL.createObjectURL(inp.files[0]); im.hidden = false;
+            m.textContent = "✓ התמונה תישמר כשתלחצי שמירה";
+          } catch (err) { m.textContent = String(err && err.message) === "big" ? "התמונה גדולה מדי – נסי תמונה אחרת" : "ההעלאה לא הצליחה – נסי שוב"; }
+          inp.value = "";
+        };
         const ap = box.querySelector("[data-addprod]");
         const af = box.querySelector("[data-addflav]");
         if (af) af.onclick = () => { box.querySelector("[data-flavs]").insertAdjacentHTML("beforeend", flavRow({ name: "" })); };
@@ -332,8 +366,10 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
       cfg.products = box.querySelector("[data-prods] .of-prod")
         ? [...box.querySelectorAll("[data-prods] .of-prod")].map(r => {
             const g = k => r.querySelector('[data-p="' + k + '"]');
-            return { id: r.getAttribute("data-pid") || "", name: g("name").value.trim(), note: g("note").value.trim(), price: Number(g("price").value),
+            const o = { id: r.getAttribute("data-pid") || "", name: g("name").value.trim(), note: g("note").value.trim(), price: Number(g("price").value),
               stock: g("stock").value.trim(), soldOut: g("soldOut").checked, hidden: g("hidden").checked };
+            if (g("img") && g("img").value) o.img = g("img").value;
+            return o;
           }).filter(p => p.id || p.name)
         : [...box.querySelectorAll("[data-prods] .of-li")].map(r => {
             const ins = r.querySelectorAll("input");
@@ -1105,6 +1141,7 @@ async function dShrink(file){try{const bmp=await createImageBitmap(file);const k
 async function dUpload(file){const b=await dShrink(file);if(b.size>450000)throw new Error("big");
   const url=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(b)});
   const id="i"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);await set(ref(db,"img5/"+id),url);PICS.set(id,url);return "fb:"+id}
+window.rkUpload=dUpload;   // גם לעורך הטפסים – תמונות למוצרים
 function closeKey(s){if(s.cd===null||s.cd===undefined||s.cd==="")return 1e9;const t=String(s.ct||"23:59").split(":");return (((+s.cd)-4+7)%7)*1440+(+t[0]||0)*60+(+t[1]||0)}
 function autoSort(){const A=DATA.suppliers;if(!DATA.manualOrder)A.sort((a,b)=>closeKey(a)-closeKey(b));const g=s=>s.ps?4:s.o?0:s.nx?1:(+s.fq>0?2:3);A.sort((a,b)=>g(a)-g(b))}
 const sNorm=t=>String(t||"").toLowerCase().replace(/[֑-ׇ"'׳״\-]/g,"").replace(/ך/g,"כ").replace(/ם/g,"מ").replace(/ן/g,"נ").replace(/ף/g,"פ").replace(/ץ/g,"צ");

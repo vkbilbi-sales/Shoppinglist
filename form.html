@@ -449,8 +449,11 @@ function renderProds() {
   CFG.products.forEach(p => {
     const row = el("div", { class: "prod" });
     const info = el("div", { class: "pinfo" });
-    if (p.img && imgs[p.img]) {
-      const im = el("img", { class: "pimg", src: imgs[p.img], alt: "הגדלת התמונה: " + p.name, tabindex: "0", role: "button" });
+    const fbId = /^fb:([A-Za-z0-9_-]+)$/.exec(String(p.img || ""));
+    const pSrc = imgs[p.img] || (/^(https:\/\/|img\/)/.test(String(p.img || "")) ? p.img : "");
+    if (pSrc || fbId) {
+      const im = el("img", { class: "pimg", src: pSrc || "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7", alt: "הגדלת התמונה: " + p.name, tabindex: "0", role: "button" });
+      if (fbId) fetch("https://saleslist-vered-default-rtdb.firebaseio.com/img5/" + fbId[1] + ".json").then(r => r.json()).then(u => { if (u) im.src = u; }).catch(() => {});
       im.onclick = () => zoom(im.src, p.name);
       im.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zoom(im.src, p.name); } };
       info.appendChild(im);
