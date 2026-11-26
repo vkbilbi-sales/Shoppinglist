@@ -860,7 +860,7 @@ html,body{color-scheme:only light!important}
 #paysum{display:none!important}
 .cd{background:#F5C542!important;color:#3A2400!important;font-weight:700}
 .cd.soon{background:#FF9F2E!important;color:#3A1E00!important}
-.cd.over{background:var(--line)!important;color:var(--muted)!important;font-weight:600}
+.cd.over{background:var(--line)!important;color:#3E5556!important;font-weight:600}
 .self-send{display:grid;gap:10px}
 .self-send[hidden]{display:none}
 .toast a{color:inherit;font-weight:700}
@@ -982,6 +982,11 @@ header .road-cap b,.road-cap b{font-size:25px!important;line-height:1.3!importan
 .desc-panel{background:var(--bg);border-radius:10px;padding:8px 10px;font-size:14.5px;color:var(--ink);line-height:1.5}
 .desc-panel p{margin:0}.desc-panel p+p{margin-top:6px}
 .desc-panel[hidden]{display:none!important}
+.desc-panel.clamp:not(.open){max-height:calc(3em + 10px);overflow:hidden;position:relative;line-height:1.5}
+.desc-panel.clamp:not(.open)::after{content:"";position:absolute;inset-inline:0;bottom:0;height:1.3em;background:linear-gradient(to bottom,transparent,var(--bg))}
+.desc-panel.clamp{padding-bottom:0}
+.desc-more{align-self:flex-start;background:none;border:0;padding:2px 0;margin-top:-4px;font:inherit;font-size:15px;font-weight:800;color:var(--leaf-deep);text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:32px}
+.desc-more:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 .desc-i{margin-top:0!important}
 #grid .card .addbtn,#grid-fri .card .addbtn,#grid-ws .card .addbtn,.card .addbtn{background:#C2353A!important;color:#fff!important;border:0!important;border-radius:999px!important;height:auto!important;min-height:0!important;padding:6px 12px!important;font-size:14px!important;font-weight:700!important;line-height:1.25;justify-self:center;width:auto!important;margin:0 auto}
 .card .addbtn:hover{background:#A82B30!important}
@@ -1813,7 +1818,7 @@ function ksBadge(s){const k=s.ks||"",t=k==="לא כשר"?"":k;
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ksd]");if(!b)return;e.preventDefault();e.stopPropagation();
   const pn=document.getElementById("ksd-"+b.dataset.ksd);if(!pn)return;const o=pn.hidden;pn.hidden=!o;b.setAttribute("aria-expanded",String(o))});
 function markDescs(){return;document.querySelectorAll(".card .desc").forEach(d=>{const b=d.nextElementSibling;if(!b||!b.classList.contains("desc-i"))return;if(d.classList.contains("open")){b.hidden=false;return}b.hidden=!(d.scrollHeight>d.clientHeight+2)})}
-document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-desc]");if(!b)return;const d=document.getElementById("d-"+b.dataset.desc);if(!d)return;const o=d.hidden;d.hidden=!o;b.setAttribute("aria-expanded",String(o));b.innerHTML=o?'<span aria-hidden="true">ⓘ</span> סגירה':'<span aria-hidden="true">ⓘ</span> מידע נוסף'});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-desc]");if(!b)return;const d=document.getElementById("d-"+b.dataset.desc);if(!d)return;const o=d.classList.toggle("open");b.setAttribute("aria-expanded",String(o));b.firstChild.textContent=o?"פחות":"קראו עוד";b.lastChild.textContent=o?" ▴":" ▾"});
 window.addEventListener("resize",()=>{clearTimeout(window._mdT);window._mdT=setTimeout(markDescs,200)});
 function isForm(s){return /forms\.gle|docs\.google\.com\/forms|form\.html/.test(s.url||"")}
 
@@ -1876,7 +1881,7 @@ function renderGrid(){
       ${closeAt(s)?`<div class="cdrow"><dt class="sr-only">זמן שנשאר להזמנה</dt><dd><span class="cd" data-cd="${s.h}"></span></dd></div>`:""}
       ${s.ks?`<div><dt>כשרות</dt><dd class="ks">${esc(s.ks)}</dd></div>`:""}
     </dl>
-    ${s.d||s.more?`<button type="button" class="desc-i" data-desc="${esc(s.h)}" aria-expanded="false" aria-controls="d-${esc(s.h)}"><span aria-hidden="true">ⓘ</span> מידע נוסף</button><div class="desc-panel" id="d-${esc(s.h)}" hidden>${s.d?`<p>${esc(s.d)}</p>`:""}${s.more?`<p>${esc(s.more).replace(/\n/g,"<br>")}</p>`:""}</div>`:""}${WEEKLY[s.h]?`<p class="wk-line"><b>🛒 השבוע בחנות:</b> ${esc(WEEKLY[s.h])}</p>`:""}
+    ${s.d||s.more?`<div class="desc-panel${((s.d||"")+(s.more||"")).length>70?" clamp":""}" id="d-${esc(s.h)}">${s.d?`<p>${esc(s.d)}</p>`:""}${s.more?`<p>${esc(s.more).replace(/\n/g,"<br>")}</p>`:""}</div>${((s.d||"")+(s.more||"")).length>70?`<button type="button" class="desc-more" data-desc="${esc(s.h)}" aria-expanded="false" aria-controls="d-${esc(s.h)}">קראו עוד<span class="sr-only"> על ${esc(s.n)}</span> ▾</button>`:""}`:""}${WEEKLY[s.h]?`<p class="wk-line"><b>🛒 השבוע בחנות:</b> ${esc(WEEKLY[s.h])}</p>`:""}
     <div class="actions">
       <a class="btn go" href="${esc(s.url)}" target="_blank" rel="noopener">${s.w?"להרשמה לסדנה":isForm(s)?"להזמנה בטופס":"להזמנה בחנות"}</a>
       <button type="button" class="icon fav" data-fav="${s.h}" aria-pressed="${favs.has(s.h)}" aria-label="הוספה למועדפים: ${s.n}">${heart}</button>
