@@ -1782,7 +1782,7 @@ function freqNext(s,D){if(s.ps)return null;D=D||DIST;const fq=+s.fq,m=String(s.n
   return{now:n===cur,w:n-cur,date:new Date((sun+off)*864e5),after:new Date((sun+off+fq*7)*864e5)}}
 function fqTxt(fq){fq=+fq;return fq===-1?"לא קבוע":fq===1?"כל שבוע":fq===2?"כל שבועיים":"כל "+fq+" שבועות"}
 function dTxt(dt,wd){return (wd?"יום "+DAYN[dt.getUTCDay()]+" ":"")+dt.getUTCDate()+"."+(dt.getUTCMonth()+1)}
-function applyFreq(){(DATA.suppliers||[]).forEach(s=>{if(s.ps){s.o=0;s.nx=0;return}const r=freqNext(s);if(r){s.o=r.now?1:0;s.nx=!r.now&&r.w===1?1:0}})}
+function applyFreq(){const cur=DIST?wkIdx(DIST.y,DIST.mo,DIST.d):null;(DATA.suppliers||[]).forEach(s=>{if(s.ps){s.o=0;s.nx=0;return}const r=freqNext(s);if(r){if(s.ov&&s.ov.w===cur){s.o=s.ov.o?1:0;s.nx=0;return}s.o=r.now?1:0;s.nx=!r.now&&r.w===1?1:0}})}
 function freqLine(s){const r=freqNext(s);if(!r||+s.fq===1||r.irr)return "";
   return r.now?`<p class="c-freq"><span aria-hidden="true">🔁</span> מגיע ${fqTxt(s.fq)} · ההגעה שאחרי: ${dTxt(r.after)}</p>`:""}
 function nextLine(s){const r=freqNext(s);if(!r)return '<p class="c-status st-next"><i aria-hidden="true"></i>מגיע בשבוע הבא</p>';

@@ -831,7 +831,7 @@ window._exportExcel=function(){
 };
 
 // Share
-const customerLink = location.origin+location.pathname.replace('דשבורד.html','').replace('dashboard.html','');
+const customerLink = location.origin+decodeURIComponent(location.pathname).replace('דשבורד.html','').replace('dashboard.html','');
 window._copyLink=function(){ navigator.clipboard.writeText(customerLink).then(()=>showToast('✅ הועתק!')); };
 window._waLink=function(){
   const msg=`שלום! 🛒\nרשימת הקניות של *רכישות כדאיות*:\n${customerLink}\nכל לקוח מקבל רשימה אישית!`;
@@ -882,6 +882,7 @@ function esc(s){ if(!s)return''; return s.replace(/&/g,'&amp;').replace(/</g,'&l
 .fq-box label{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:.25rem;text-align:right}.fq-box select,.fq-box input{width:100%!important;max-width:none!important;box-sizing:border-box;min-height:42px;font:inherit}
 .atag.pstag{background:#ECECEC;color:#3F3F3F}.sup-row.ps{opacity:.65}
 .fq-box .ps-chk{flex-direction:row!important;align-items:center!important;gap:.5rem;font-weight:700;margin-bottom:.4rem}.fq-box .ps-chk input{width:22px!important;height:22px;min-height:0!important;flex:none}
+.ovreset{background:none;border:0;padding:0 .2rem;font:inherit;font-weight:800;text-decoration:underline;color:inherit;cursor:pointer;min-height:24px}
 .atag.fqtag{background:#E8F1FF;color:#1E3A8A;border-color:#BBD0F5}.atag.fqtag.on{background:#E3F6E8;color:#14532D}
 #login-form{display:flex;flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto;text-align:right}#login-form input{width:100%;box-sizing:border-box;margin:0}#login-form .btn{margin-top:.9rem;width:100%}
 .lg-l{display:block;text-align:right;font-weight:700;margin:.7rem 0 .3rem}.lg-reset{background:none;border:0;color:#0F5257;text-decoration:underline;font:inherit;margin-top:.6rem;cursor:pointer;min-height:40px}
@@ -1074,7 +1075,7 @@ function ksField(val,attrs){val=val||"";const pre=KS_PRE.some(([v])=>v===val),e=
 document.addEventListener("change",ev=>{const sel=ev.target.closest&&ev.target.closest(".ks-sel");if(!sel)return;const t=sel.parentNode.querySelector(".ks-txt");
   if(sel.value==="__c"){t.hidden=false;if(KS_PRE.some(([v])=>v===t.value))t.value="";t.dispatchEvent(new Event("input",{bubbles:true}));t.focus()}
   else{t.hidden=true;t.value=sel.value;t.dispatchEvent(new Event("input",{bubbles:true}))}});
-const SUPFIELDS=["ps","fq","na","o","nx","n","url","c","cd","ct","d","p","pl","img","cov","ks","ksd","tags","spl"];
+const SUPFIELDS=["ov","ps","fq","na","o","nx","n","url","c","cd","ct","d","p","pl","img","cov","ks","ksd","tags","spl"];
 const DAYS=["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
 const PICS=new Map();
 function picSrc(v){v=String(v||"");if(/^(https:\/\/|img\/)/.test(v))return v;const m=v.match(/^fb:([A-Za-z0-9_-]+)$/);if(!m)return "";
@@ -1104,14 +1105,16 @@ function freqNext(s,D){if(s.ps)return null;D=D||dDist();const fq=+s.fq,m=String(
   return{now:n===cur,w:n-cur,date:new Date((sun+off)*864e5),after:new Date((sun+off+fq*7)*864e5)}}
 function fqTxt(fq){fq=+fq;return fq===-1?"לא קבוע":fq===1?"כל שבוע":fq===2?"כל שבועיים":"כל "+fq+" שבועות"}
 function dTxt(dt){return "יום "+DAYS[dt.getUTCDay()]+" "+dt.getUTCDate()+"."+(dt.getUTCMonth()+1)}
-function applyFreqD(){(DATA.suppliers||[]).forEach(s=>{if(s.ps){s.o=0;s.nx=0;return}const r=freqNext(s);if(r){s.o=r.now?1:0;s.nx=!r.now&&r.w===1?1:0}})}
+function curWk(){const D=dDist();return wkIdx(D.y,D.mo,D.d)}
+function ovOn(s){return !!(s.ov&&s.ov.w===curWk())}
+function applyFreqD(){const cur=curWk();(DATA.suppliers||[]).forEach(s=>{if(s.ps){s.o=0;s.nx=0;return}const r=freqNext(s);if(r){if(s.ov&&s.ov.w===cur){s.o=s.ov.o?1:0;s.nx=0;return}s.o=r.now?1:0;s.nx=!r.now&&r.w===1?1:0}})}
 function supsRender(){applyFreqD();if(!SUPEDIT)autoSort();const q=$("sup-q").value,A=DATA.suppliers||[];
   const L=A.map((s,i)=>({s,i})).filter(x=>supMatch(x.s,q));
   $("sup-list").innerHTML=L.length?L.map(({s,i})=>`<div class="aitem sup-row${SUPCH.has(s.h)||SUPADD.has(s.h)?" ch":""}${!s.o?" off":""}${s.ps?" ps":""}" data-i="${i}" data-h="${s.h}">
       <span class="drag-handle grip" aria-hidden="true" title="גרירה לשינוי סדר">⠿</span>
-      <label class="sw5"><input type="checkbox" data-on="${i}"${s.o?" checked":""}${freqNext(s)||s.ps?' disabled aria-describedby="fqn-'+i+'"':""}><span class="sw5-t" aria-hidden="true"></span><span class="sr">מגיע השבוע: ${esc(s.n)}</span></label>
+      <label class="sw5"><input type="checkbox" data-on="${i}"${s.o?" checked":""}${s.ps?' disabled aria-describedby="fqn-'+i+'"':freqNext(s)?' aria-describedby="fqn-'+i+'"':""}><span class="sw5-t" aria-hidden="true"></span><span class="sr">מגיע השבוע: ${esc(s.n)}</span></label>
       <span class="aitem-name">${esc(s.n||"ספק חדש")}<small class="sup-close">${s.cd!==null&&s.cd!==undefined&&s.cd!==""?" · נסגר "+DAYS[+s.cd]+(s.ct?" "+esc(s.ct):""):""}</small></span>
-      ${s.ps?`<span class="atag pstag" id="fqn-${i}">⏸ מושהה</span>`:freqNext(s)?(()=>{const r=freqNext(s);return `<span class="atag fqtag${r.now?" on":""}" id="fqn-${i}">🔁 ${fqTxt(s.fq)} · ${r.now?"מגיע השבוע":r.date?"הבא: "+dTxt(r.date):"⚠ צריך לקבוע תאריך הבא"}</span>`})():s.o?'<span class="atag on">מגיע</span>':`<button type="button" class="nxbtn${s.nx?" on":""}" data-nx="${i}" aria-pressed="${s.nx?"true":"false"}">⏳ שבוע הבא</button>`}
+      ${s.ps?`<span class="atag pstag" id="fqn-${i}">⏸ מושהה</span>`:freqNext(s)?(()=>{const r=freqNext(s);return ovOn(s)?`<span class="atag fqtag${s.o?" on":""}" id="fqn-${i}">✋ השבוע: ${s.o?"מגיע":"לא מגיע"} (שינוי חד־פעמי) · <button type="button" class="ovreset" data-ovreset="${i}">ביטול</button></span>`:`<span class="atag fqtag${r.now?" on":""}" id="fqn-${i}">🔁 ${fqTxt(s.fq)} · ${r.now?"מגיע השבוע":r.date?"הבא: "+dTxt(r.date):"⚠ צריך לקבוע תאריך הבא"}</span>`})():s.o?'<span class="atag on">מגיע</span>':`<button type="button" class="nxbtn${s.nx?" on":""}" data-nx="${i}" aria-pressed="${s.nx?"true":"false"}">⏳ שבוע הבא</button>`}
       <button type="button" class="delbtn" data-edit="${i}" aria-expanded="${SUPEDIT===s.h}" aria-label="עריכת ${esc(s.n)}">✏️</button>
       <button type="button" class="delbtn${SUPDELASK===s.h?" ask":""}" data-del="${i}" aria-label="מחיקת ${esc(s.n)}">${SUPDELASK===s.h?"למחוק? לחצי שוב":"🗑"}</button>
       ${SUPEDIT===s.h?`<div class="sup-edit lk-pick">
@@ -1160,8 +1163,9 @@ document.addEventListener("input",e=>{const t=e.target.closest&&e.target.closest
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-del]");if(!b)return;const s=DATA.suppliers[+b.dataset.del];if(!s)return;
   if(SUPDELASK!==s.h){SUPDELASK=s.h;supsRender();const a=document.querySelector(`[data-del="${b.dataset.del}"]`);if(a)a.focus();return}
   SUPDELASK=null;DATA.suppliers.splice(+b.dataset.del,1);if(SUPADD.has(s.h))SUPADD.delete(s.h);else SUPDEL.add(s.h);$("sup-msg").textContent=`${s.n} נמחק מהרשימה. לא לשכוח ללחוץ "שמירה".`;supsRender();render()});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ovreset]");if(!b)return;const s=DATA.suppliers[+b.dataset.ovreset];if(!s)return;s.ov=null;SUPCH.add(s.h);supsRender();const x=document.querySelector(`.sup-row[data-h="${s.h}"] [data-on]`);if(x)x.focus()});
 document.addEventListener("change",e=>{const t=e.target.closest&&e.target.closest("[data-on]");if(!t)return;const s=DATA.suppliers[+t.dataset.on];if(!s)return;
-  s.o=t.checked?1:0;if(s.o)s.nx=0;SUPCH.add(s.h);supsRender();const row=document.querySelector(`.sup-row[data-h="${s.h}"]`);if(row){row.scrollIntoView({block:"nearest"});const a=row.querySelector("[data-on]");if(a)a.focus()}});
+  if(freqNext(s)){s.ov={w:curWk(),o:t.checked?1:0}}else{s.o=t.checked?1:0;if(s.o)s.nx=0}SUPCH.add(s.h);supsRender();const row=document.querySelector(`.sup-row[data-h="${s.h}"]`);if(row){row.scrollIntoView({block:"nearest"});const a=row.querySelector("[data-on]");if(a)a.focus()}});
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-nx]");if(!b)return;const s=DATA.suppliers[+b.dataset.nx];if(!s)return;
   s.nx=s.nx?0:1;SUPCH.add(s.h);supsRender();const row=document.querySelector(`.sup-row[data-h="${s.h}"]`);if(row){const a=row.querySelector("[data-nx]");if(a)a.focus()}});
 if(window.Sortable)Sortable.create($("sup-list"),{handle:".grip",forceFallback:true,fallbackTolerance:3,animation:150,ghostClass:"sort-ghost",dragClass:"sort-drag",
