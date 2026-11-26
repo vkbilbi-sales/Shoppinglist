@@ -401,6 +401,8 @@ footer b{font-family:var(--hand);font-weight:700;color:var(--sun);font-size:30px
 
 .fri-sec{border-top:3px dashed var(--sun);margin-top:6px}
 .fri-sec .section-head h2{color:var(--sun)}
+.ws-sec{border-top-color:#B5541C}.ws-sec .section-head h2{color:#B5541C}
+#grid-ws{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}@media (max-width:620px){#grid-ws{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}}
 #sup-h{color:var(--heart)}
 #sup-when{display:block;font-size:.58em;line-height:1.3;margin-top:4px}#sup-when:empty{display:none}
 .fri-sec .section-head p{margin:0;color:var(--muted);max-width:60ch}
@@ -512,24 +514,24 @@ footer b{font-family:var(--hand);font-weight:700;color:var(--sun);font-size:30px
 .post.pc-teal{background:#DDF0EF;border-color:#B5DEDB;border-top:6px solid #16868C}
 
 @media (max-width:620px){
-  #grid,#grid-fri{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-  #grid .card,#grid-fri .card{padding:10px!important;padding-top:22px!important;gap:7px;border-radius:14px}
-  #grid .card .cover,#grid-fri .card .cover{height:84px;margin:-8px -10px 0}
-  #grid .top,#grid-fri .top{gap:6px}
-  #grid .mark,#grid-fri .mark{width:34px;height:34px;font-size:16px}
-  #grid .card h3,#grid-fri .card h3{font-size:16.5px;line-height:1.2}
-  #grid .cat,#grid-fri .cat{font-size:12px}
-  #grid .badges,#grid-fri .badges{gap:3px}
-  #grid .badge,#grid-fri .badge{font-size:11px;padding:1px 6px}
-  #grid .desc,#grid-fri .desc{font-size:14px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-  #grid .more,#grid-fri .more{font-size:13.5px}
-  #grid .rows,#grid-fri .rows{padding:7px 8px;font-size:13px;gap:4px}
-  #grid .rows div,#grid-fri .rows div{grid-template-columns:1fr;gap:0}
-  #grid .rows dt,#grid-fri .rows dt{min-width:0;font-size:12px}
-  #grid .cd,#grid-fri .cd{font-size:12px;padding:1px 6px;margin:2px 0 0}
-  #grid .paylink,#grid-fri .paylink{font-size:13px;padding:3px 8px}
-  #grid .actions,#grid-fri .actions{display:grid;grid-template-columns:1fr;gap:6px}
-  #grid .actions .btn,#grid .addbtn,#grid-fri .actions .btn,#grid-fri .addbtn{font-size:14px;padding:7px 8px;height:auto;justify-content:center;width:100%}
+  #grid,#grid-fri,#grid-ws{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #grid .card,#grid-fri .card,#grid-ws .card{padding:10px!important;padding-top:22px!important;gap:7px;border-radius:14px}
+  #grid .card .cover,#grid-fri .card .cover,#grid-ws .card .cover{height:84px;margin:-8px -10px 0}
+  #grid .top,#grid-fri .top,#grid-ws .top{gap:6px}
+  #grid .mark,#grid-fri .mark,#grid-ws .mark{width:34px;height:34px;font-size:16px}
+  #grid .card h3,#grid-fri .card h3,#grid-ws .card h3{font-size:16.5px;line-height:1.2}
+  #grid .cat,#grid-fri .cat,#grid-ws .cat{font-size:12px}
+  #grid .badges,#grid-fri .badges,#grid-ws .badges{gap:3px}
+  #grid .badge,#grid-fri .badge,#grid-ws .badge{font-size:11px;padding:1px 6px}
+  #grid .desc,#grid-fri .desc,#grid-ws .desc{font-size:14px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  #grid .more,#grid-fri .more,#grid-ws .more{font-size:13.5px}
+  #grid .rows,#grid-fri .rows,#grid-ws .rows{padding:7px 8px;font-size:13px;gap:4px}
+  #grid .rows div,#grid-fri .rows div,#grid-ws .rows div{grid-template-columns:1fr;gap:0}
+  #grid .rows dt,#grid-fri .rows dt,#grid-ws .rows dt{min-width:0;font-size:12px}
+  #grid .cd,#grid-fri .cd,#grid-ws .cd{font-size:12px;padding:1px 6px;margin:2px 0 0}
+  #grid .paylink,#grid-fri .paylink,#grid-ws .paylink{font-size:13px;padding:3px 8px}
+  #grid .actions,#grid-fri .actions,#grid-ws .actions{display:grid;grid-template-columns:1fr;gap:6px}
+  #grid .actions .btn,#grid .addbtn,#grid-fri .actions .btn,#grid-ws .actions .btn,#grid-fri .addbtn,#grid-ws .addbtn{font-size:14px;padding:7px 8px;height:auto;justify-content:center;width:100%}
 }
 
 .card .cat{color:var(--cc)!important}
@@ -612,11 +614,11 @@ body{font-size:18.5px!important}
 .chain li span{font-size:16.5px!important}
 .cour-card p,.cour-top span{font-size:17px!important}
 @media (max-width:620px){
-  #grid .card h3,#grid-fri .card h3{font-size:18px!important}
-  #grid .desc,#grid-fri .desc{font-size:15.5px!important}
-  #grid .rows,#grid-fri .rows{font-size:14.5px!important}
-  #grid .badge,#grid-fri .badge{font-size:13px!important}
-  #grid .actions .btn,#grid .addbtn,#grid-fri .actions .btn,#grid-fri .addbtn{font-size:15.5px!important}
+  #grid .card h3,#grid-fri .card h3,#grid-ws .card h3{font-size:18px!important}
+  #grid .desc,#grid-fri .desc,#grid-ws .desc{font-size:15.5px!important}
+  #grid .rows,#grid-fri .rows,#grid-ws .rows{font-size:14.5px!important}
+  #grid .badge,#grid-fri .badge,#grid-ws .badge{font-size:13px!important}
+  #grid .actions .btn,#grid .addbtn,#grid-fri .actions .btn,#grid-ws .actions .btn,#grid-fri .addbtn,#grid-ws .addbtn{font-size:15.5px!important}
 }
 
 .ml-box>*,#pick-fields>*,#cour-fields>*,.ml-grid>*{min-width:0}
@@ -825,7 +827,7 @@ body[data-tab="about"] #h1-alt,body:not([data-tab]) #h1-alt{display:none}
 /* bigger supplier pictures */
 .card .cover{height:210px!important}
 .mark{width:66px!important;height:66px!important;font-size:26px!important}
-@media (max-width:620px){#grid .card .cover,#grid-fri .card .cover{height:124px!important}#grid .mark,#grid-fri .mark{width:46px!important;height:46px!important;font-size:19.5px!important}}
+@media (max-width:620px){#grid .card .cover,#grid-fri .card .cover,#grid-ws .card .cover{height:124px!important}#grid .mark,#grid-fri .mark,#grid-ws .mark{width:46px!important;height:46px!important;font-size:19.5px!important}}
 /* tabs on a computer: show all of them (wrap) instead of a hidden side-scroll */
 @media (min-width:761px){.tabs-in{flex-wrap:wrap;overflow:visible;justify-content:flex-start}}
 /* "נעים להכיר" card uses the full width on a computer */
@@ -874,7 +876,7 @@ html,body{color-scheme:only light!important}
 .rows .payrow{grid-template-columns:minmax(0,1fr)!important}
 .rows .payrow dd{display:grid;gap:6px;justify-items:start}
 .rows .paylink{white-space:normal;text-align:center;line-height:1.3;padding:6px 12px}
-@media (max-width:360px){#grid,#grid-fri{grid-template-columns:minmax(0,1fr)!important}.btn{white-space:normal;text-align:center}.search{flex-basis:100%}}
+@media (max-width:360px){#grid,#grid-fri,#grid-ws{grid-template-columns:minmax(0,1fr)!important}.btn{white-space:normal;text-align:center}.search{flex-basis:100%}}
 .tools{grid-template-columns:minmax(0,1fr)}.tools>*{min-width:0}
 .card h3,.card .top>div{overflow-wrap:anywhere;min-width:0}
 .contact-rules b{color:var(--cd-ink)}
@@ -980,26 +982,26 @@ header .road-cap b,.road-cap b{font-size:25px!important;line-height:1.3!importan
 .desc-panel p{margin:0}.desc-panel p+p{margin-top:6px}
 .desc-panel[hidden]{display:none!important}
 .desc-i{margin-top:0!important}
-#grid .card .addbtn,#grid-fri .card .addbtn,.card .addbtn{background:#C2353A!important;color:#fff!important;border:0!important;border-radius:999px!important;height:auto!important;min-height:0!important;padding:6px 12px!important;font-size:14px!important;font-weight:700!important;line-height:1.25;justify-self:center;width:auto!important;margin:0 auto}
+#grid .card .addbtn,#grid-fri .card .addbtn,#grid-ws .card .addbtn,.card .addbtn{background:#C2353A!important;color:#fff!important;border:0!important;border-radius:999px!important;height:auto!important;min-height:0!important;padding:6px 12px!important;font-size:14px!important;font-weight:700!important;line-height:1.25;justify-self:center;width:auto!important;margin:0 auto}
 .card .addbtn:hover{background:#A82B30!important}
 .card .addbtn[aria-pressed="true"]{background:#FBE0E1!important;color:#8E1F24!important}
-@media (max-width:620px){#grid .card .addbtn,#grid-fri .card .addbtn{font-size:13px!important;padding:6px 10px!important;width:auto!important;white-space:nowrap}}
+@media (max-width:620px){#grid .card .addbtn,#grid-fri .card .addbtn,#grid-ws .card .addbtn{font-size:13px!important;padding:6px 10px!important;width:auto!important;white-space:nowrap}}
 
 /* ---- round 4: dot + small "open until", smaller order button ---- */
 .c-status.st-open{color:var(--muted)!important;font-size:13.5px!important;font-weight:600!important}
 .c-status.st-closed{font-size:13.5px!important}
 .c-status.st-next{font-size:13.5px!important}
 .card .desc-i{margin-top:2px!important}
-#grid .card .actions .btn.go,#grid-fri .card .actions .btn.go,.card .actions .btn.go{font-size:15px!important;padding:8px 10px!important;min-height:0!important;height:auto!important}
-#grid .card .addbtn,#grid-fri .card .addbtn,.card .addbtn{white-space:normal!important;text-align:center}
+#grid .card .actions .btn.go,#grid-fri .card .actions .btn.go,#grid-ws .card .actions .btn.go,.card .actions .btn.go{font-size:15px!important;padding:8px 10px!important;min-height:0!important;height:auto!important}
+#grid .card .addbtn,#grid-fri .card .addbtn,#grid-ws .card .addbtn,.card .addbtn{white-space:normal!important;text-align:center}
 
 .badges .badge.kosher,.badges .badge.kosher-home,.badges .badge.kosher-none{color:#1E3A8A!important}
-#grid .card,#grid-fri .card{display:flex!important;flex-direction:column}
-#grid .card .rows,#grid-fri .card .rows{flex:none}
-#grid .card .desc-i,#grid-fri .card .desc-i{align-self:flex-start}
-#grid .card .actions,#grid-fri .card .actions{margin-top:auto}
-#grid .card .addbtn,#grid-fri .card .addbtn{align-self:center;justify-self:center;flex:none!important;margin-inline:auto!important}
-#grid .card .actions,#grid-fri .card .actions{justify-content:center}
+#grid .card,#grid-fri .card,#grid-ws .card{display:flex!important;flex-direction:column}
+#grid .card .rows,#grid-fri .card .rows,#grid-ws .card .rows{flex:none}
+#grid .card .desc-i,#grid-fri .card .desc-i,#grid-ws .card .desc-i{align-self:flex-start}
+#grid .card .actions,#grid-fri .card .actions,#grid-ws .card .actions{margin-top:auto}
+#grid .card .addbtn,#grid-fri .card .addbtn,#grid-ws .card .addbtn{align-self:center;justify-self:center;flex:none!important;margin-inline:auto!important}
+#grid .card .actions,#grid-fri .card .actions,#grid-ws .card .actions{justify-content:center}
 
 
 /* ---- couriers: city tiles ---- */
@@ -1073,19 +1075,19 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
 #wa-share2[hidden]{display:none!important}
 .wa-ic{width:1.35em;height:1.35em;flex:none}
 /* הגדלת המלל שמתחת לכותרת הספק (לא הלחצנים) */
-#grid .card .c-status,#grid-fri .card .c-status{font-size:16px!important}
-#grid .card .badge,#grid-fri .card .badge{font-size:15px!important}
-#grid .card .rows,#grid-fri .card .rows{font-size:17px!important}
-#grid .card .cd,#grid-fri .card .cd{font-size:16px!important}
-#grid .card .desc-panel,#grid-fri .card .desc-panel,#grid .card .ksd-panel,#grid-fri .card .ksd-panel{font-size:16.5px!important}
-#grid .card .wk-line,#grid-fri .card .wk-line{font-size:17px!important}
+#grid .card .c-status,#grid-fri .card .c-status,#grid-ws .card .c-status{font-size:16px!important}
+#grid .card .badge,#grid-fri .card .badge,#grid-ws .card .badge{font-size:15px!important}
+#grid .card .rows,#grid-fri .card .rows,#grid-ws .card .rows{font-size:17px!important}
+#grid .card .cd,#grid-fri .card .cd,#grid-ws .card .cd{font-size:16px!important}
+#grid .card .desc-panel,#grid-fri .card .desc-panel,#grid-ws .card .desc-panel,#grid .card .ksd-panel,#grid-fri .card .ksd-panel,#grid-ws .card .ksd-panel{font-size:16.5px!important}
+#grid .card .wk-line,#grid-fri .card .wk-line,#grid-ws .card .wk-line{font-size:17px!important}
 @media (max-width:620px){
-  #grid .card .c-status,#grid-fri .card .c-status{font-size:15px!important}
-  #grid .card .badge,#grid-fri .card .badge{font-size:14px!important}
-  #grid .card .rows,#grid-fri .card .rows{font-size:16px!important}
-  #grid .card .cd,#grid-fri .card .cd{font-size:14.5px!important}
-  #grid .card .desc-panel,#grid-fri .card .desc-panel,#grid .card .ksd-panel,#grid-fri .card .ksd-panel{font-size:15.5px!important}
-  #grid .card .wk-line,#grid-fri .card .wk-line{font-size:16px!important}
+  #grid .card .c-status,#grid-fri .card .c-status,#grid-ws .card .c-status{font-size:15px!important}
+  #grid .card .badge,#grid-fri .card .badge,#grid-ws .card .badge{font-size:14px!important}
+  #grid .card .rows,#grid-fri .card .rows,#grid-ws .card .rows{font-size:16px!important}
+  #grid .card .cd,#grid-fri .card .cd,#grid-ws .card .cd{font-size:14.5px!important}
+  #grid .card .desc-panel,#grid-fri .card .desc-panel,#grid-ws .card .desc-panel,#grid .card .ksd-panel,#grid-fri .card .ksd-panel,#grid-ws .card .ksd-panel{font-size:15.5px!important}
+  #grid .card .wk-line,#grid-fri .card .wk-line,#grid-ws .card .wk-line{font-size:16px!important}
 }
 /* ערכת צבע "שמש צהובה": לשוניות עליונות ומלל בכרטיסי הספקים */
 :root{--wm-ink:#7A5200;--wm-tab-ink:#6B4A00;--wm-bg:#FFF6CC;--wm-line:#F2D46B;--wm-sel:#F5C542;--wm-on-sel:#3A2400}
@@ -1093,12 +1095,12 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
 :root[data-theme="dark"]{--wm-ink:#F5D27A;--wm-tab-ink:#F5D27A;--wm-bg:#2A2410;--wm-line:#5A4A18;--wm-sel:#F5C542;--wm-on-sel:#3A2400}
 .tabs-in button:not(.tab-a2hs){background:var(--wm-bg)!important;border-color:var(--wm-line)!important;color:var(--wm-tab-ink)!important}
 .tabs-in button[aria-selected="true"],.tabs-in button[aria-current="true"]{background:var(--wm-sel)!important;border-color:var(--wm-sel)!important;color:var(--wm-on-sel)!important}
-#grid .card .c-status.st-open,#grid-fri .card .c-status.st-open,#grid .card .c-status.st-next,#grid-fri .card .c-status.st-next{color:var(--wm-ink)!important}
-#grid .card .badge,#grid-fri .card .badge{color:var(--wm-ink)!important;border-color:var(--wm-line)!important}
-#grid .card .badge.tag,#grid-fri .card .badge.tag{background:var(--wm-bg)!important}
-#grid .card .rows dt,#grid-fri .card .rows dt{color:var(--wm-ink)!important}
-#grid .card .wk-line,#grid-fri .card .wk-line{background:var(--wm-bg)!important;color:var(--wm-ink)!important}
-#grid .card .wk-line b,#grid-fri .card .wk-line b{color:var(--wm-ink)!important}
+#grid .card .c-status.st-open,#grid-fri .card .c-status.st-open,#grid-ws .card .c-status.st-open,#grid .card .c-status.st-next,#grid-fri .card .c-status.st-next,#grid-ws .card .c-status.st-next{color:var(--wm-ink)!important}
+#grid .card .badge,#grid-fri .card .badge,#grid-ws .card .badge{color:var(--wm-ink)!important;border-color:var(--wm-line)!important}
+#grid .card .badge.tag,#grid-fri .card .badge.tag,#grid-ws .card .badge.tag{background:var(--wm-bg)!important}
+#grid .card .rows dt,#grid-fri .card .rows dt,#grid-ws .card .rows dt{color:var(--wm-ink)!important}
+#grid .card .wk-line,#grid-fri .card .wk-line,#grid-ws .card .wk-line{background:var(--wm-bg)!important;color:var(--wm-ink)!important}
+#grid .card .wk-line b,#grid-fri .card .wk-line b,#grid-ws .card .wk-line b{color:var(--wm-ink)!important}
 /* כפתורי שמירת האפליקציה ו"ספקים מגיעים השבוע" בצהוב שמש */
 .tabs .tab-a2hs,.wk-btn,.wk-btn #wk-n,.wk-btn #wk-n b{background:#F5C542!important;border-color:#F5C542!important;color:#3A2400!important}
 .wk-btn #wk-n,.wk-btn #wk-n b{background:transparent!important}
@@ -1424,6 +1426,11 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
     <div class="section-head"><h2 id="fri-h">יום שישי: משלוח עד הבית 🚚</h2>
       <p>הספקים האלה לא מגיעים לחלוקה של יום רביעי. ההזמנה נשלחת ישירות אליכם הביתה ביום שישי.</p></div>
     <div class="grid" id="grid-fri"></div>
+  </section>
+  <section class="fri-sec ws-sec" id="ws-sec" hidden aria-labelledby="ws-h">
+    <div class="section-head"><h2 id="ws-h">סדנאות 🥟</h2>
+      <p>סדנאות בישול חווייתיות. ההרשמה בטופס, ומועד הסדנה נקבע מול המנחה.</p></div>
+    <div class="grid" id="grid-ws"></div>
   </section>
   <section class="info" aria-label="חשוב לדעת">
     <div class="note"><h3>כשרות</h3><p>"כשר" כתוב רק אצל ספקים שיש להם תעודת כשרות. שאר המידע על כשרות נמסר על ידי הספקים עצמם, בלי פיקוח של גוף כשרות. לשאלות על כשרות יש לפנות לספק ישירות.</p></div>
@@ -1856,7 +1863,7 @@ function renderGrid(){
   const srt=(state.sort==="mine"&&closeSoon())?"close":state.sort;
   L.sort((a,b)=>(isOpen(b)-isOpen(a))||(srt==="mine"?S.indexOf(a)-S.indexOf(b):0)||(srt==="close"&&isOpen(a)?closeAt(a)-closeAt(b):0)||a.n.localeCompare(b.n,"he"));
   $("grid").innerHTML=L.length?L.map(s=>{const C=CATS[s.c],inL=!!list[s.h];return `
-  <article class="card${isOpen(s)?"":" closed"}"${s.f?" data-fri":""} style="--cc:${STALL[S.indexOf(s)%STALL.length]};--aw:${AWN[STALL[S.indexOf(s)%STALL.length]]||STALL[S.indexOf(s)%STALL.length]}">
+  <article class="card${isOpen(s)?"":" closed"}"${s.f?" data-fri":""}${s.w?" data-ws":""} style="--cc:${STALL[S.indexOf(s)%STALL.length]};--aw:${AWN[STALL[S.indexOf(s)%STALL.length]]||STALL[S.indexOf(s)%STALL.length]}">
     <div class="mini-awning" aria-hidden="true"></div>
     ${blob(s.cov)?`<img class="cover" src="${esc(blob(s.cov))}" alt="" loading="lazy">`:""}
     <div class="top">${blob(s.img)?`<img class="mark logo-mark" src="${esc(blob(s.img))}" alt="" loading="lazy">`:`<div class="mark" aria-hidden="true">${initial(s.n)}</div>`}
@@ -1879,8 +1886,9 @@ function renderGrid(){
   { const g=$("grid"), fr=$("grid-fri"); fr.innerHTML="";
     if(!q)g.querySelectorAll("article[data-fri]").forEach(a=>fr.appendChild(a));
     if(!g.querySelector("article")&&!g.querySelector(".empty"))g.innerHTML='<div class="empty">אין ספקים שמתאימים לחיפוש בחלוקה של יום רביעי.</div>';
-    $("fri-sec").hidden=!fr.children.length; }
-  $("count").textContent=`${S.filter(s=>!s.f&&isOpen(s)).length} ספקים פתוחים להזמנות לחלוקה של יום ${DAYN[DIST.wd??3]}`;
+    $("fri-sec").hidden=!fr.children.length;
+    const ws=$("grid-ws"); ws.innerHTML=""; if(!q)g.querySelectorAll("article[data-ws]").forEach(a=>ws.appendChild(a)); $("ws-sec").hidden=!ws.children.length; }
+  $("count").textContent=`${S.filter(s=>!s.f&&!s.w&&isOpen(s)).length} ספקים פתוחים להזמנות לחלוקה של יום ${DAYN[DIST.wd??3]}`;
   tick();
   $("n-favs").textContent=favs.size;
   $("btn-favs").setAttribute("aria-pressed",state.view==="favs");
