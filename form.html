@@ -61,6 +61,9 @@ ul.learn{margin:0;padding:0 20px 0 0;line-height:1.9}
 .qty{display:flex;align-items:center;gap:8px;flex:none}
 .qty button{width:44px;height:44px;border-radius:50%;border:2px solid var(--c);background:#fff;color:var(--c);font-size:24px;font-weight:700;line-height:1;cursor:pointer}
 .qty button.plus{background:var(--c);color:#fff}
+.qty button:disabled{opacity:.3;cursor:default}
+.prod.locked .pinfo{opacity:.6}
+.plock{color:var(--heart);font-weight:700;font-size:14px}
 .qty output{min-width:24px;text-align:center;font-size:19px;font-weight:800}
 label.f{display:block;font-weight:700;margin:14px 0 4px}
 .req{color:var(--heart)}
@@ -235,9 +238,9 @@ const FORMS = {
           pitch: "🥚 ביצי חופש טריות עם חלמון כתום – ישר מהמשק אלינו!", cta: "להזמנה" },
   asia: { api: "https://script.google.com/macros/s/AKfycbxJ5wrKFs5A9clvm_YmV5x3ubqVaxBAvj6In1ULuzlXk-n6Htws0Eb5qxAaLcMeZraB/exec", emoji: "🥟", color: "#B5541C", noun: "הרשמה",
           pitch: "🥟 סדנת גיוזה ודים סאם של אסיה הקטנה – חוויה אסייתית, טעימה ומלאת יצירה!", cta: "להרשמה" },
-  erlich: { api: "", emoji: "🥑", color: "#4E8B2F", noun: "הזמנה",
+  erlich: { api: "https://script.google.com/macros/s/AKfycbxAfgemkJ3vGe9utcFs4eNPFBRiSol18HJoppl5IZKHtOujGGoxLxEa052-RpwGuuZv-A/exec", emoji: "🥑", illu: "img/erlich-illu.svg", color: "#4E8B2F", noun: "הזמנה",
           weekly: true,
-          pitch: "🥑 אבוקדו והדרים ישר מהעץ, ממשק ארליך בעמק חפר – בלי הבחלה!", cta: "להזמנה" },
+          pitch: "🥑 אבוקדו והדרים ישר מהעץ, ממשק ארליך בעמק חפר – בלי הבחלה!\n⏰ הדרים: ההזמנה נסגרת ביום שלישי ב-9:00 בבוקר. אבוקדו: עד שלישי ב-20:00.", cta: "להזמנה" },
 };
 
 const $ = id => document.getElementById(id);
@@ -395,6 +398,7 @@ function renderProds() {
     const t = el("div");
     t.append(el("div", { class: "pname" }, p.name));
     if (p.note) t.append(el("div", { class: "pnote" }, p.note));
+    if (p.locked) t.append(el("div", { class: "plock" }, p.lockNote || "ההזמנה למוצר הזה נסגרה"));
     t.append(el("div", { class: "pprice" }, p.price + " ₪"));
     info.appendChild(t);
     const q = el("div", { class: "qty" });
@@ -403,6 +407,7 @@ function renderProds() {
     const plus = el("button", { type: "button", class: "plus", "aria-label": "עוד " + p.name }, "+");
     minus.onclick = () => { if (qty[p.id] > 0) { qty[p.id]--; out.textContent = qty[p.id]; total(); } };
     plus.onclick = () => { if (qty[p.id] < (CFG.maxQty || 10)) { qty[p.id]++; out.textContent = qty[p.id]; total(); } };
+    if (p.locked) { plus.disabled = true; minus.disabled = true; row.classList.add("locked"); }
     q.append(plus, out, minus);
     row.append(info, q);
     box.appendChild(row);
