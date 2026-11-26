@@ -54,7 +54,11 @@ ul.learn{margin:0;padding:0 20px 0 0;line-height:1.9}
 .prod{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
 .prod:last-child{border-bottom:0}
 .pinfo{display:flex;align-items:center;gap:12px;min-width:0}
-.pimg{width:72px;height:72px;border-radius:12px;object-fit:cover;flex:none}
+.pimg{width:96px;height:96px;border-radius:12px;object-fit:cover;flex:none;cursor:zoom-in}
+.zoom{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;cursor:zoom-out}
+.zoom img{max-width:100%;max-height:90vh;border-radius:14px}
+.zoom button{position:absolute;top:12px;left:12px;width:48px;height:48px;border-radius:50%;border:0;background:#fff;font-size:26px;font-weight:800;cursor:pointer}
+.hero{cursor:zoom-in}
 .pname{font-weight:700}
 .pnote{color:var(--muted);font-size:14px}
 .pprice{color:var(--c);font-weight:800}
@@ -105,7 +109,7 @@ details.policy p{margin:0}
 .center{text-align:center}
 .loading{text-align:center;padding:60px 10px;color:var(--muted)}
 footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
-@media (max-width:420px){.choices{grid-template-columns:1fr}.pimg{width:58px;height:58px}}
+@media (max-width:420px){.choices{grid-template-columns:1fr}.pimg{width:80px;height:80px}}
 </style>
 </head>
 <body>
@@ -395,7 +399,12 @@ function renderProds() {
   CFG.products.forEach(p => {
     const row = el("div", { class: "prod" });
     const info = el("div", { class: "pinfo" });
-    if (p.img && imgs[p.img]) info.appendChild(el("img", { class: "pimg", src: imgs[p.img], alt: "" }));
+    if (p.img && imgs[p.img]) {
+      const im = el("img", { class: "pimg", src: imgs[p.img], alt: "הגדלת התמונה: " + p.name, tabindex: "0", role: "button" });
+      im.onclick = () => zoom(im.src, p.name);
+      im.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zoom(im.src, p.name); } };
+      info.appendChild(im);
+    }
     const t = el("div");
     t.append(el("div", { class: "pname" }, p.name));
     if (p.note) t.append(el("div", { class: "pnote" }, p.note));
@@ -419,6 +428,19 @@ function renderProds() {
   });
   total();
 }
+
+/* לחיצה על תמונה – פתיחה בגדול */
+function zoom(src, label) {
+  const back = document.activeElement;
+  const z = el("div", { class: "zoom", role: "dialog", "aria-modal": "true", "aria-label": label || "תמונה" });
+  const x = el("button", { type: "button", "aria-label": "סגירה" }, "×");
+  z.append(x, el("img", { src: src, alt: label || "" }));
+  const close = () => { z.remove(); document.removeEventListener("keydown", esc); if (back) back.focus(); };
+  const esc = e => { if (e.key === "Escape") close(); };
+  z.onclick = close; document.addEventListener("keydown", esc);
+  document.body.appendChild(z); x.focus();
+}
+$("hero").onclick = () => zoom($("hero").src, CFG && CFG.title);
 
 function calc() { return CFG.products.reduce((s, p) => s + (qty[p.id] || 0) * p.price, 0); }
 function total() { $("total").textContent = calc() + " ₪"; $("total2").textContent = calc() + " ₪"; }
