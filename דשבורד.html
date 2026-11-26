@@ -259,6 +259,13 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         '<input type="number" min="0" step="0.5" value="' + esc(p.price) + '" aria-label="מחיר"><span>₪</span>' +
         '<label class="of-hid"><input type="checkbox"' + (p.hidden ? " checked" : "") + '> מוסתר</label></div>';
     }
+    function flavRow(f) {
+      return '<div class="of-li" data-fid="' + esc(f.id || "") + '"><input type="text" data-f="name" value="' + esc(f.name) + '" placeholder="שם הטעם" aria-label="שם הטעם">' +
+        '<input type="number" data-f="stock" min="0" step="1" value="' + esc(f.stock == null ? "" : f.stock) + '" placeholder="מלאי" aria-label="מלאי לטעם (ריק = בלי הגבלה)" style="max-width:80px">' +
+        (f.left != null ? '<span class="of-left">נשארו ' + f.left + '</span>' : '') +
+        '<label class="of-hid"><input type="checkbox" data-f="soldOut"' + ((f.soldOutSet != null ? f.soldOutSet : f.soldOut) ? " checked" : "") + '> אזל</label>' +
+        '<label class="of-hid"><input type="checkbox" data-f="hidden"' + (f.hidden ? " checked" : "") + '> מוסתר</label></div>';
+    }
     async function openEditor(i) {
       const f = DATA.forms[i], box = $("of-ed" + i);
       if (!box.hidden) { box.hidden = true; return; }
@@ -279,6 +286,10 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
           (ADV ? ' <b>מלאי</b>: כמה יחידות יש למכירה – כשנגמר, המוצר מסומן "אזל" לבד. אפשר להגדיל את המלאי בכל רגע. ריק = בלי הגבלה. <b>אזל</b>: סוגר את המוצר מיד.' : '') + '</p><div data-prods>' + c.products.map(prodRow).join("") + "</div>";
         if (ADV) h += '<button type="button" class="of-add" data-addprod>+ מוצר חדש</button><p class="lk-p" style="margin:.2rem 0 0">אפשר להוסיף מוצר גם באמצע השבוע.</p>';
         else if (c.points) h += '<button type="button" class="of-add" data-addprod>+ מוצר חדש</button><p class="lk-p" style="margin:.2rem 0 0">מוצר חדש אפשר להוסיף רק כשאין עדיין הזמנות לשבוע הנוכחי.</p>';
+        if (c.flavors) {
+          h += '<h4>טעמים</h4><p class="lk-p" style="margin:0 0 .3rem">הלקוחות בוחרים כמה מכל טעם. <b>אזל</b> סוגר את הטעם מיד, <b>מלאי</b> מגביל כמות (ריק = בלי הגבלה), <b>מוסתר</b> מוריד אותו מהטופס.</p><div data-flavs>' + c.flavors.map(flavRow).join("") + '</div>';
+          h += '<button type="button" class="of-add" data-addflav>+ טעם חדש</button>';
+        }
         h += '<div class="of-edbtns"><button type="button" class="btn bt" data-savecfg>💾 שמירה</button><button type="button" class="btn of-lb" data-cancel>ביטול</button></div><div class="of-msg" aria-live="polite"></div>';
         box.innerHTML = h;
         box.querySelectorAll("[data-addli]").forEach(b => b.onclick = () => {
@@ -288,6 +299,8 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
         });
         box.onclick = e => { if (e.target.classList.contains("of-x")) e.target.parentNode.remove(); };
         const ap = box.querySelector("[data-addprod]");
+        const af = box.querySelector("[data-addflav]");
+        if (af) af.onclick = () => { box.querySelector("[data-flavs]").insertAdjacentHTML("beforeend", flavRow({ name: "" })); };
         if (ap) ap.onclick = () => { box.querySelector("[data-prods]").insertAdjacentHTML("beforeend", prodRow({ name: "", price: "" })); };
         box.querySelector("[data-cancel]").onclick = () => { box.hidden = true; };
         box.querySelector("[data-savecfg]").onclick = () => saveCfg(f, box);
@@ -308,6 +321,10 @@ body{font-family:'Heebo',sans-serif;font-size:16px;background:linear-gradient(15
             const ins = r.querySelectorAll("input");
             return { id: r.getAttribute("data-pid") || "", name: ins[0].value.trim(), price: Number(ins[1].value), hidden: ins[2].checked };
           }).filter(p => p.id || p.name);
+      if (box.querySelector("[data-flavs]")) cfg.flavors = [...box.querySelectorAll("[data-flavs] .of-li")].map(r => {
+        const g = k => r.querySelector('[data-f="' + k + '"]');
+        return { id: r.getAttribute("data-fid") || "", name: g("name").value.trim(), stock: g("stock").value.trim(), soldOut: g("soldOut").checked, hidden: g("hidden").checked };
+      }).filter(f => f.id || f.name);
       msg.style.color = "#126F74"; msg.textContent = "שומר…";
       try {
         const r = await fetch(f.api, { method: "POST", credentials: "omit", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "saveConfig", key: getKey(), cfg: cfg }) });

@@ -109,6 +109,22 @@ details.policy p{margin:0}
 .center{text-align:center}
 .loading{text-align:center;padding:60px 10px;color:var(--muted)}
 footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
+.alert{background:#FDECEA;border:2px solid #C62828;color:#B3261E;border-radius:14px;padding:12px 14px;margin:0 0 14px;font-weight:800;font-size:17px;line-height:1.6}
+.alert b{display:block;font-size:19px;margin-bottom:2px}
+.facts{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:10px 0 2px}
+.facts span{background:var(--leaf-soft);color:var(--ink);border-radius:20px;padding:4px 12px;font-weight:700;font-size:15px}
+.packimg{border-radius:14px;margin-top:12px;width:100%;cursor:zoom-in}
+.flav{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fl{border:1.5px solid var(--line);border-radius:14px;padding:8px;text-align:center;background:#fff}
+.fl.on{border-color:var(--c);box-shadow:0 0 0 2px var(--c) inset}
+.fl.locked{opacity:.55}
+.fl img{width:100%;aspect-ratio:2/1;object-fit:cover;border-radius:10px;cursor:zoom-in}
+.fl .pname{margin:6px 0 4px;font-size:16px}
+.fl .qty{justify-content:center}
+.fl .qty button{width:40px;height:40px;font-size:22px}
+.counter{position:sticky;top:0;z-index:5;background:#fff;border-radius:12px;padding:10px 12px;margin:0 0 12px;font-weight:800;font-size:18px;text-align:center;box-shadow:0 2px 8px rgba(23,52,54,.12)}
+.counter.ok{background:#E3F4E6;color:#1F7A45}
+.counter.over{background:var(--heart-soft);color:var(--heart)}
 @media (max-width:420px){.choices{grid-template-columns:1fr}.pimg{width:80px;height:80px}}
 </style>
 </head>
@@ -127,18 +143,21 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
       <h1 id="title"></h1>
       <p class="sub" id="subtitle"></p>
       <span class="chip" id="closeChip" hidden></span>
+      <span class="chip" id="distChip" hidden></span>
     </header>
 
     <div id="formView">
       <div class="notice" id="editNotice" hidden>את/ה עורך/ת הזמנה קיימת</div>
       <div class="notice" id="closedNotice" hidden role="alert"></div>
 
+      <div class="alert" data-alert hidden role="note"></div>
       <img class="hero" id="hero" alt="" hidden>
 
       <section class="card" id="introCard">
         <p class="rec" id="rec" hidden></p>
         <p class="gift" id="gift" hidden></p>
         <p class="desc" id="desc"></p>
+        <div class="facts" id="facts" hidden></div>
         <p class="muted" id="schedule" hidden></p>
         <a id="calLink" target="_blank" rel="noopener" hidden>📅 לצפייה בתאריכים הפנויים</a>
         <div class="row"><button type="button" class="btn share" data-share>📤 שליחת הטופס לחבר</button></div>
@@ -154,6 +173,14 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
       <section class="card" aria-labelledby="prodTitle">
         <h2 id="prodTitle">מה מזמינים?</h2>
         <div id="prods"></div>
+        <img class="packimg" id="packImg" alt="" hidden>
+      </section>
+
+      <section class="card" id="flavCard" hidden aria-labelledby="flavTitle">
+        <h2 id="flavTitle">בוחרים טעמים</h2>
+        <p class="muted" style="margin-top:-4px">אפשר לבחור כמה מאותו טעם. מספר העוגיות צריך להיות שווה לגודל המארזים.</p>
+        <div class="counter" id="counter" aria-live="polite"></div>
+        <div class="flav" id="flav"></div>
       </section>
 
       <section class="card" aria-labelledby="detTitle">
@@ -198,6 +225,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
         <div class="privacy" id="privacyNotice"></div>
         <details class="policy"><summary>מדיניות הפרטיות המלאה</summary><div id="policy"></div></details>
         <label class="agree"><input type="checkbox" id="agree"><span id="agreeText"></span></label>
+        <div class="alert" data-alert hidden role="note" style="margin:14px 0 0"></div>
         <div class="err" id="err" role="alert" aria-live="assertive"></div>
         <div class="endbar" id="endbar">
           <div><div class="muted">סה"כ לתשלום</div><div class="total" id="total2">0 ₪</div></div>
@@ -216,6 +244,7 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
         <div id="payWrap"><p>לחצו כאן לתשלום בפייבוקס 👇</p><a class="btn pay" id="payBtn" target="_blank" rel="noopener">לתשלום בפייבוקס</a></div>
         <p id="noPay" hidden></p>
       </div>
+      <div class="alert" data-alert hidden role="note"></div>
       <div class="row">
         <a class="btn light" id="editBtn">עריכת ההזמנה</a>
         <p class="muted">שלחנו אישור עם לינק לעריכה למייל שלך</p>
@@ -245,6 +274,9 @@ const FORMS = {
   erlich: { api: "https://script.google.com/macros/s/AKfycbxAfgemkJ3vGe9utcFs4eNPFBRiSol18HJoppl5IZKHtOujGGoxLxEa052-RpwGuuZv-A/exec", emoji: "🥑", illu: "img/erlich-illu.svg", color: "#4E8B2F", noun: "הזמנה",
           weekly: true,
           pitch: "🥑 אבוקדו והדרים ישר מהעץ, ממשק ארליך בעמק חפר – בלי הבחלה!\n⏰ הדרים: ההזמנה נסגרת ביום שלישי ב-9:00 בבוקר. אבוקדו: עד שלישי ב-20:00.", cta: "להזמנה" },
+  noorz: { api: "", emoji: "🍪", illu: "img/noorz-illu.svg", color: "#8A4B2A", noun: "הזמנה",
+          weekly: true,
+          pitch: "🍪 נור׳ז קוקיז לחנוכה – קינוח עבה עם מילויים, בין סופלה לעוגייה! מארזים של 4, 6 או 8 בטעמים לבחירה.\n⏰ ההזמנות נסגרות ביום שלישי 1.12 ב-14:00, חלוקה ביום רביעי 2.12.", cta: "להזמנה" },
 };
 
 const $ = id => document.getElementById(id);
@@ -253,6 +285,8 @@ const FID = P.get("f") || "";
 const EDIT = P.get("edit") || "";
 const F = FORMS[FID];
 const qty = {};
+const fqty = {};   // טעמים: כמה מכל טעם
+const FORIG = {};
 const ORIG = {};   // הכמויות שכבר היו בהזמנה הקיימת (לחישוב מה שנשאר במלאי)
 let CFG = null;
 
@@ -299,6 +333,10 @@ function render() {
   if (c.closeAt && !c.isClosed) { $("closeChip").hidden = false; $("closeChip").textContent = "ההזמנות נסגרות ב-" + niceClose(c.closeAt); }
 
   if (c.heroImg && imgs[c.heroImg]) { $("hero").src = imgs[c.heroImg]; $("hero").hidden = false; }
+  if (c.distText) { $("distChip").hidden = false; $("distChip").textContent = c.distText; }
+  if (c.alert) document.querySelectorAll("[data-alert]").forEach(a => { a.hidden = false; a.innerHTML = ""; if (c.alertTitle) a.append(el("b", {}, c.alertTitle)); a.append(document.createTextNode(c.alert)); });
+  if (c.facts && c.facts.length) { $("facts").hidden = false; c.facts.forEach(t => $("facts").appendChild(el("span", {}, t))); }
+  if (c.packImg && imgs[c.packImg]) { $("packImg").src = imgs[c.packImg]; $("packImg").hidden = false; $("packImg").onclick = () => zoom($("packImg").src, ""); }
   if (c.recommend) { $("rec").hidden = false; $("rec").textContent = "👈 " + c.recommend; }
   if (c.gift) { $("gift").hidden = false; $("gift").textContent = "🎁 " + c.gift; }
   $("desc").textContent = c.description || "";
@@ -312,7 +350,10 @@ function render() {
 
   c.products = (c.products || []).filter(p => !p.hidden);
   c.products.forEach(p => qty[p.id] = 0);
+  c.flavors = (c.flavors || []).filter(f => !f.hidden);
+  c.flavors.forEach(f => fqty[f.id] = 0);
   renderProds();
+  if (c.flavors.length) { $("flavCard").hidden = false; $("prodTitle").textContent = "כמה מארזים?"; renderFlavors(); }
 
   const pts = pointOptions();
   if (pts.length) {
@@ -363,7 +404,7 @@ async function loadSite() {
 const norm = s => String(s || "").replace(/שליחות/g, "").replace(/תקווה/g, "תקוה").replace(/\s+/g, " ").trim();
 const COURIER = "שליחות ";
 function pointOptions() {
-  if (CFG.pointsFromSite && SITE_OK) {
+  if (CFG.pointsFromSite && (SITE_OK || !(CFG.points && CFG.points.length))) {
     return SITE_POINTS.map(p => String(p.n).trim()).concat(SITE_COURIERS.map(c => COURIER + String(c.area).trim()));
   }
   return CFG.points || [];
@@ -429,6 +470,53 @@ function renderProds() {
   total();
 }
 
+/* טעמים: אחרי בחירת המארזים מסמנים כמה מכל טעם, עד שהמספר שווה לגודל המארזים */
+function needUnits() { return CFG.products.reduce((s, p) => s + (qty[p.id] || 0) * (Number(p.units) || 0), 0); }
+function gotUnits() { return Object.values(fqty).reduce((a, b) => a + b, 0); }
+function counter() {
+  if (!CFG.flavors || !CFG.flavors.length) return;
+  const need = needUnits(), got = gotUnits(), c = $("counter");
+  c.className = "counter";
+  if (!need) c.textContent = got ? "בחרת " + got + " עוגיות – עכשיו צריך לבחור מארז 👆" : "קודם בוחרים מארז 👆";
+  else if (got < need) c.textContent = "בחרת " + got + " מתוך " + need + " עוגיות – נשארו עוד " + (need - got);
+  else if (got === need) { c.textContent = "✓ בחרת " + got + " מתוך " + need + " – המארזים מלאים!"; c.classList.add("ok"); }
+  else { c.textContent = "בחרת " + got + ", אבל במארזים יש מקום ל־" + need + " – צריך להוריד " + (got - need); c.classList.add("over"); }
+}
+function renderFlavors() {
+  const box = $("flav"); box.innerHTML = "";
+  const imgs = CFG.images || {};
+  CFG.flavors.forEach(f => {
+    const card = el("div", { class: "fl" + (fqty[f.id] ? " on" : "") });
+    if (f.img && imgs[f.img]) {
+      const im = el("img", { src: imgs[f.img], alt: "הגדלת התמונה: " + f.name, tabindex: "0", role: "button", loading: "lazy" });
+      im.onclick = () => zoom(im.src, f.name);
+      im.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); zoom(im.src, f.name); } };
+      card.appendChild(im);
+    }
+    card.append(el("div", { class: "pname" }, f.name));
+    const prev = FORIG[f.id] || 0;
+    const closed = f.soldOut && !prev;
+    if (closed) { card.classList.add("locked"); card.append(el("div", { class: "plock" }, "אזל")); }
+    else if (f.left != null && f.left <= 5) card.append(el("div", { class: "pnote" }, "נשארו " + (f.left + prev)));
+    const q = el("div", { class: "qty" });
+    const minus = el("button", { type: "button", "aria-label": "פחות " + f.name }, "−");
+    const out = el("output", { "aria-live": "polite", "aria-label": "כמות " + f.name }, String(fqty[f.id]));
+    const plus = el("button", { type: "button", class: "plus", "aria-label": "עוד " + f.name }, "+");
+    minus.onclick = () => { if (fqty[f.id] > 0) { fqty[f.id]--; out.textContent = fqty[f.id]; card.classList.toggle("on", fqty[f.id] > 0); counter(); } };
+    plus.onclick = () => {
+      const cap = f.left != null ? f.left + prev : 99;
+      if (f.soldOut && fqty[f.id] >= prev) { $("err").textContent = "הטעם " + f.name + " אזל"; return; }
+      if (fqty[f.id] < cap) { fqty[f.id]++; out.textContent = fqty[f.id]; card.classList.add("on"); counter(); }
+      else $("err").textContent = "מ" + f.name + " נשארו רק " + cap;
+    };
+    if (closed) { plus.disabled = true; minus.disabled = true; }
+    q.append(plus, out, minus);
+    card.append(q);
+    box.appendChild(card);
+  });
+  counter();
+}
+
 /* לחיצה על תמונה – פתיחה בגדול */
 function zoom(src, label) {
   const back = document.activeElement;
@@ -443,12 +531,16 @@ function zoom(src, label) {
 $("hero").onclick = () => zoom($("hero").src, CFG && CFG.title);
 
 function calc() { return CFG.products.reduce((s, p) => s + (qty[p.id] || 0) * p.price, 0); }
-function total() { $("total").textContent = calc() + " ₪"; $("total2").textContent = calc() + " ₪"; }
+function total() { $("total").textContent = calc() + " ₪"; $("total2").textContent = calc() + " ₪"; counter(); }
 const radio = n => { const r = document.querySelector(`input[name=${n}]:checked`); return r ? r.value : ""; };
 
 const HEB_NAME = /^[א-ת'"׳״\-]{2,}(\s+[א-ת'"׳״\-]{2,})+$/;
 function validate() {
-  if (!CFG.products.some(p => qty[p.id] > 0)) return "יש לבחור לפחות פריט אחד";
+  if (!CFG.products.some(p => qty[p.id] > 0)) return CFG.flavors && CFG.flavors.length ? "יש לבחור לפחות מארז אחד" : "יש לבחור לפחות פריט אחד";
+  if (CFG.flavors && CFG.flavors.length) {
+    const need = needUnits(), got = gotUnits();
+    if (got !== need) return "במארזים שבחרת יש " + need + " עוגיות, ובחרת " + got + " טעמים. צריך שהמספרים יהיו שווים.";
+  }
   if (!HEB_NAME.test($("name").value.trim().replace(/\s+/g, " "))) return "יש לכתוב שם מלא (פרטי ומשפחה) בעברית";
   if (!/^0\d{8,9}$/.test($("phone").value.replace(/[^\d]/g, ""))) return "מספר טלפון לא תקין";
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($("email").value.trim())) return "כתובת מייל לא תקינה";
@@ -467,7 +559,7 @@ $("send").onclick = async () => {
   const data = {
     token: CUR_TOKEN, name: $("name").value.trim().replace(/\s+/g, " "), phone: $("phone").value.trim(), email: $("email").value.trim(),
     point: radio("point"), city: $("city").value.trim(), location: radio("loc"), date: $("date").value,
-    notes: $("notes").value, qty: qty, agree: true,
+    notes: $("notes").value, qty: qty, flav: fqty, agree: true,
     siteUrl: location.origin + location.pathname + "?f=" + FID,
   };
   try {
@@ -516,7 +608,7 @@ function showDone(res) {
   $("doneTitle").textContent = res.isEdit ? (F.noun + " עודכנה") : ("תודה! ה" + F.noun + " התקבלה");
   $("doneSum").textContent = res.total + " ₪";
   if (CFG.payboxUrl) { $("payBtn").href = CFG.payboxUrl; }
-  else { $("payWrap").hidden = true; $("noPay").hidden = false; $("noPay").textContent = CFG.noPayText || ""; }
+  else { $("payWrap").hidden = true; $("noPay").hidden = !CFG.noPayText; $("noPay").textContent = CFG.noPayText || ""; }
   $("editBtn").href = res.editUrl;
   window.scrollTo(0, 0); $("doneView").focus();
 }
@@ -568,7 +660,9 @@ function fillOrder(o, token, fromDevice) {
   showPointInfo();
   document.querySelectorAll("input[name=loc]").forEach(r => r.checked = r.value === o.location);
   Object.keys(o.qty || {}).forEach(k => { if (k in qty) { qty[k] = o.qty[k]; ORIG[k] = o.qty[k]; } });
+  Object.keys(o.flav || {}).forEach(k => { if (k in fqty) { fqty[k] = o.flav[k]; FORIG[k] = o.flav[k]; } });
   renderProds();
+  if (CFG.flavors && CFG.flavors.length) renderFlavors();
   $("agree").checked = true;
   if (o.closed) { $("send").disabled = true; $("editNotice").textContent = "ההזמנות נסגרו – אי אפשר לערוך עכשיו"; }
 }
