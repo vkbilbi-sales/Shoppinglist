@@ -1201,14 +1201,6 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
     <div id="arr-list"></div>
   </section>
 
-  <section class="story story-intro"><div class="story-txt">
-        <div class="kicker">איך זה עובד</div>
-        <h2 id="story-h">היצרנים מגיעים עד אליכם</h2>
-        <p class="spread">שוק נייד שמפיץ את הטוב</p>
-        <p>אין לנו חנות ואין מדפים, יש לנו קהילה. כל שבוע יוצאים חקלאים, מחלבות, אופים ומטבחים ביתיים מכל רחבי הארץ, ונפגשים עם הקהילה בנקודת חלוקה אחת, באוויר הפתוח. מזמינים מראש, משלמים מראש, ואוספים בזריזות.</p>
-  </div></section>
-
-
   <div class="story story-head" id="meet">
     <div class="story-top">
       <div class="story-txt">
@@ -1219,6 +1211,13 @@ button.ct-tile{font:inherit;cursor:pointer;color:inherit}
       </div>
     </div>
   </div>
+
+  <section class="story story-intro"><div class="story-txt">
+        <div class="kicker">איך זה עובד</div>
+        <h2 id="story-h">היצרנים מגיעים עד אליכם</h2>
+        <p class="spread">שוק נייד שמפיץ את הטוב</p>
+        <p>אין לנו חנות ואין מדפים, יש לנו קהילה. כל שבוע יוצאים חקלאים, מחלבות, אופים ומטבחים ביתיים מכל רחבי הארץ, ונפגשים עם הקהילה בנקודת חלוקה אחת, באוויר הפתוח. מזמינים מראש, משלמים מראש, ואוספים בזריזות.</p>
+  </div></section>
   <section class="story story-facts" aria-label="מה הטוב שעושים יחד">
     <ol class="chain" aria-label="מה הטוב שעושים יחד">
       <li><b>תומכים ביצרנים מקומיים</b><span>מחזקים חקלאים, יצרנים ועסקים קטנים מהסביבה</span></li>
@@ -2169,7 +2168,7 @@ $("lb").addEventListener("click",e=>{if(e.target.id==="lb")$("lb").hidden=true})
 $("lb-prev").addEventListener("click",()=>lbMove(-1));$("lb-next").addEventListener("click",()=>lbMove(1));
 document.addEventListener("keydown",e=>{if($("lb").hidden)return;if(e.key==="Escape")$("lb").hidden=true;if(e.key==="ArrowLeft")lbMove(1);if(e.key==="ArrowRight")lbMove(-1)});
 // ---- tabs ----
-const TABMAP=[["#arr-board","news"],["#sec-news","news"],["#meet","about"],["#about-us","about"],[".story:not(.story-head)","about"],["#sec-reviews","reviews"],["#share-rev","reviews"],["#gal-people","gallery"],["#gal-intro","gallery"],["#share","recipes"],["#gal-products","gallery"],["#sec-recipes","recipes"],["#sec-gifts","news"],["#sec-perks","news"],["#share-perk","news"],["main .collab","about"],["main .howto","list"],["#dist-box","sup"],["main .info","sup"],["#contact","contact"],["#suppliers","sup"],["main .tools","sup"],["#grid","sup"],["#fri-sec","sup"],["#mylist","list"],["#couriers","couriers"]];
+const TABMAP=[["#arr-board","news"],["#sec-news","news"],["#meet","about"],["#about-us","about"],[".story:not(.story-head)","about"],["#sec-reviews","reviews"],["#share-rev","reviews"],["#gal-people","gallery"],["#gal-intro","gallery"],["#share","recipes"],["#gal-products","gallery"],["#sec-recipes","recipes"],["#sec-gifts","news"],["#sec-perks","news"],["#share-perk","news"],["main .collab","about"],["main .howto","list"],["#dist-box","sup"],["main .info","sup"],["#contact","contact"],["#suppliers","sup"],["main .tools","sup"],["#grid","sup"],["#fri-sec","sup"],["#ws-sec","sup"],["#mylist","list"],["#couriers","couriers"]];
 TABMAP.forEach(([sel,t])=>document.querySelectorAll(sel).forEach(el=>el.dataset.tab=t));
 let TAB="sup";
 function showTab(t,scroll){
