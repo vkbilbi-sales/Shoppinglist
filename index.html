@@ -1818,7 +1818,7 @@ function ksBadge(s){const k=s.ks||"",t=k==="לא כשר"?"":k;
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-ksd]");if(!b)return;e.preventDefault();e.stopPropagation();
   const pn=document.getElementById("ksd-"+b.dataset.ksd);if(!pn)return;const o=pn.hidden;pn.hidden=!o;b.setAttribute("aria-expanded",String(o))});
 function markDescs(){return;document.querySelectorAll(".card .desc").forEach(d=>{const b=d.nextElementSibling;if(!b||!b.classList.contains("desc-i"))return;if(d.classList.contains("open")){b.hidden=false;return}b.hidden=!(d.scrollHeight>d.clientHeight+2)})}
-document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-desc]");if(!b)return;const d=document.getElementById("d-"+b.dataset.desc);if(!d)return;const o=d.classList.toggle("open");b.setAttribute("aria-expanded",String(o));b.firstChild.textContent=o?"פחות":"קראו עוד";b.lastChild.textContent=o?" ▴":" ▾"});
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("[data-desc]");if(!b)return;const d=document.getElementById("d-"+b.dataset.desc);if(!d)return;const o=d.classList.toggle("open");b.setAttribute("aria-expanded",String(o));b.firstChild.textContent=o?"פחות":"קרא עוד";b.lastChild.textContent=o?" ▴":" ▾"});
 window.addEventListener("resize",()=>{clearTimeout(window._mdT);window._mdT=setTimeout(markDescs,200)});
 function isForm(s){return /forms\.gle|docs\.google\.com\/forms|form\.html/.test(s.url||"")}
 
@@ -1881,7 +1881,7 @@ function renderGrid(){
       ${closeAt(s)?`<div class="cdrow"><dt class="sr-only">זמן שנשאר להזמנה</dt><dd><span class="cd" data-cd="${s.h}"></span></dd></div>`:""}
       ${s.ks?`<div><dt>כשרות</dt><dd class="ks">${esc(s.ks)}</dd></div>`:""}
     </dl>
-    ${s.d||s.more?`<div class="desc-panel${((s.d||"")+(s.more||"")).length>70?" clamp":""}" id="d-${esc(s.h)}">${s.d?`<p>${esc(s.d)}</p>`:""}${s.more?`<p>${esc(s.more).replace(/\n/g,"<br>")}</p>`:""}</div>${((s.d||"")+(s.more||"")).length>70?`<button type="button" class="desc-more" data-desc="${esc(s.h)}" aria-expanded="false" aria-controls="d-${esc(s.h)}">קראו עוד<span class="sr-only"> על ${esc(s.n)}</span> ▾</button>`:""}`:""}${WEEKLY[s.h]?`<p class="wk-line"><b>🛒 השבוע בחנות:</b> ${esc(WEEKLY[s.h])}</p>`:""}
+    ${s.d||s.more?`<div class="desc-panel${((s.d||"")+(s.more||"")).length>70?" clamp":""}" id="d-${esc(s.h)}">${s.d?`<p>${esc(s.d)}</p>`:""}${s.more?`<p>${esc(s.more).replace(/\n/g,"<br>")}</p>`:""}</div>${((s.d||"")+(s.more||"")).length>70?`<button type="button" class="desc-more" data-desc="${esc(s.h)}" aria-expanded="false" aria-controls="d-${esc(s.h)}">קרא עוד<span class="sr-only"> על ${esc(s.n)}</span> ▾</button>`:""}`:""}${WEEKLY[s.h]?`<p class="wk-line"><b>🛒 השבוע בחנות:</b> ${esc(WEEKLY[s.h])}</p>`:""}
     <div class="actions">
       <a class="btn go" href="${esc(s.url)}" target="_blank" rel="noopener">${s.w?"להרשמה לסדנה":isForm(s)?"להזמנה בטופס":"להזמנה בחנות"}</a>
       <button type="button" class="icon fav" data-fav="${s.h}" aria-pressed="${favs.has(s.h)}" aria-label="הוספה למועדפים: ${s.n}">${heart}</button>
