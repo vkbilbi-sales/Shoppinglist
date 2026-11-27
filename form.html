@@ -260,8 +260,8 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
         <p id="noPay" hidden></p>
       </div>
       <div class="refund" id="refundBox" hidden>
-        <p><b>שילמת כבר בפייבוקס?</b> שלחו לורד הודעה ונחזיר לכם את הכסף.</p>
-        <a class="btn wa" id="refundBtn" target="_blank" rel="noopener">💬 הודעה לורד בוואטסאפ</a>
+        <p><b>שילמת כבר בפייבוקס, או שיש שאלה לגבי הביטול?</b><br>לחצו כאן ותישלח לורד הודעה מוכנה בוואטסאפ – כדי שתחזיר לכם את הכסף או תחזור אליכם.</p>
+        <a class="btn wa" id="refundBtn" target="_blank" rel="noopener">💬 הודעה לורד – החזר כספי בפייבוקס / שאלה על הביטול</a>
       </div>
       <div class="alert" data-alert hidden role="note"></div>
       <div class="row">
@@ -714,9 +714,9 @@ $("cancelYes").onclick = async () => {
     $("doneSum").parentNode.hidden = true;
     $("editBtn").hidden = true; $("editBtn").nextElementSibling.hidden = true;
     const ph = String(CFG.phone || "054-4462223").replace(/\D/g, "").replace(/^0/, "972");
-    const msg = "שלום ורד, ביטלתי את ה" + F.noun + " שלי מ" + CFG.title + " (" + res.total + " ₪) על שם " + res.name + ". כבר שילמתי בפייבוקס – אשמח להחזר 🙏";
+    const msg = "שלום ורד, ביטלתי את ה" + F.noun + " שלי מ" + CFG.title + " (" + res.total + " ₪) על שם " + res.name + ". אני פונה לגבי החזר התשלום בפייבוקס (או שאלה לגבי הביטול) 🙏";
     $("refundBtn").href = "https://wa.me/" + ph + "?text=" + encodeURIComponent(msg);
-    $("refundBox").hidden = !CFG.payboxUrl;
+    $("refundBox").hidden = false;
     window.scrollTo(0, 0); $("doneView").focus();
   } catch (e) {
     $("err").textContent = e.message;
