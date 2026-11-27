@@ -55,6 +55,13 @@ ul.learn{margin:0;padding:0 20px 0 0;line-height:1.9}
 .prod:last-child{border-bottom:0}
 .pinfo{display:flex;align-items:center;gap:12px;min-width:0}
 .pimg{width:96px;height:96px;border-radius:12px;object-fit:cover;flex:none;cursor:zoom-in}
+.cancelbox{margin:14px 0 4px;text-align:center}
+.linkbtn{background:none;border:0;color:var(--heart);font-weight:700;font-size:16px;text-decoration:underline;cursor:pointer;padding:8px}
+#cancelAsk{background:#fff3f2;border:1.5px solid var(--heart);border-radius:14px;padding:12px;margin-top:8px}
+#cancelAsk .btn{margin:4px}
+.btn.danger{background:var(--heart);color:#fff}
+.refund{background:#eafaf0;border-radius:14px;padding:14px;margin:12px 0;text-align:center}
+.btn.wa{background:#25D366;color:#fff;text-decoration:none;display:inline-block}
 .zoom{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;cursor:zoom-out}
 .zoom img{max-width:100%;max-height:90vh;border-radius:14px}
 .zoom button{position:absolute;top:12px;left:12px;width:48px;height:48px;border-radius:50%;border:0;background:#fff;font-size:26px;font-weight:800;cursor:pointer}
@@ -227,6 +234,14 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
         <label class="agree"><input type="checkbox" id="agree"><span id="agreeText"></span></label>
         <div class="alert" data-alert hidden role="note" style="margin:14px 0 0"></div>
         <div class="err" id="err" role="alert" aria-live="assertive"></div>
+        <div class="cancelbox" id="cancelWrap" hidden>
+          <button type="button" class="linkbtn" id="cancelBtn">ביטול ההזמנה</button>
+          <div id="cancelAsk" hidden>
+            <p><b>לבטל את ההזמנה?</b> אי אפשר לשחזר אחרי הביטול.</p>
+            <button type="button" class="btn danger" id="cancelYes">כן, לבטל</button>
+            <button type="button" class="btn light" id="cancelNo">לא, להשאיר</button>
+          </div>
+        </div>
         <div class="endbar" id="endbar">
           <div><div class="muted">סה"כ לתשלום</div><div class="total" id="total2">0 ₪</div></div>
           <button class="btn" id="send2" type="button">שליחת הזמנה</button>
@@ -243,6 +258,10 @@ footer{text-align:center;color:var(--muted);font-size:14px;margin-top:8px}
         <div class="sum" id="doneSum"></div>
         <div id="payWrap"><p>לחצו כאן לתשלום בפייבוקס 👇</p><a class="btn pay" id="payBtn" target="_blank" rel="noopener">לתשלום בפייבוקס</a></div>
         <p id="noPay" hidden></p>
+      </div>
+      <div class="refund" id="refundBox" hidden>
+        <p><b>שילמת כבר בפייבוקס?</b> שלחו לורד הודעה ונחזיר לכם את הכסף.</p>
+        <a class="btn wa" id="refundBtn" target="_blank" rel="noopener">💬 הודעה לורד בוואטסאפ</a>
       </div>
       <div class="alert" data-alert hidden role="note"></div>
       <div class="row">
@@ -677,7 +696,33 @@ function fillOrder(o, token, fromDevice) {
   if (CFG.flavors && CFG.flavors.length) renderFlavors();
   $("agree").checked = true;
   if (o.closed) { $("send").disabled = true; $("editNotice").textContent = "ההזמנות נסגרו – אי אפשר לערוך עכשיו"; }
+  $("cancelWrap").hidden = !(CFG.canCancel && !o.closed && token);
+  $("cancelBtn").textContent = "ביטול ה" + F.noun;
 }
+
+/* ביטול הזמנה קיימת */
+$("cancelBtn").onclick = () => { $("cancelAsk").hidden = false; $("cancelYes").focus(); };
+$("cancelNo").onclick = () => { $("cancelAsk").hidden = true; $("cancelBtn").focus(); };
+$("cancelYes").onclick = async () => {
+  $("cancelYes").disabled = true; $("cancelYes").textContent = "מבטל…"; $("err").textContent = "";
+  try {
+    const res = await post({ action: "cancel", token: CUR_TOKEN });
+    forgetToken();
+    $("formView").hidden = true; $("bar").hidden = true; $("doneView").hidden = false;
+    $("doneTitle").textContent = "ה" + F.noun + " בוטלה";
+    $("thanks").textContent = "שלחנו לך אישור ביטול למייל.";
+    $("doneSum").parentNode.hidden = true;
+    $("editBtn").hidden = true; $("editBtn").nextElementSibling.hidden = true;
+    const ph = String(CFG.phone || "054-4462223").replace(/\D/g, "").replace(/^0/, "972");
+    const msg = "שלום ורד, ביטלתי את ה" + F.noun + " שלי מ" + CFG.title + " (" + res.total + " ₪) על שם " + res.name + ". כבר שילמתי בפייבוקס – אשמח להחזר 🙏";
+    $("refundBtn").href = "https://wa.me/" + ph + "?text=" + encodeURIComponent(msg);
+    $("refundBox").hidden = !CFG.payboxUrl;
+    window.scrollTo(0, 0); $("doneView").focus();
+  } catch (e) {
+    $("err").textContent = e.message;
+    $("cancelYes").disabled = false; $("cancelYes").textContent = "כן, לבטל";
+  }
+};
 
 (async () => {
   if (!F) return fail("הטופס לא נמצא.");
